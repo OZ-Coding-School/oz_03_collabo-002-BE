@@ -3,9 +3,9 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.db import models
 
 
-class UserManager(BaseUserManager):
+class UserManager(BaseUserManager["User"]):
 	# 일반 유저 생성 함수
-	def create_user(self, email, password):
+	def create_user(self, email: str, password: str) -> "User":
 		if not email:
 			raise ValueError("이메일이 필요합니다")
 
@@ -15,7 +15,7 @@ class UserManager(BaseUserManager):
 
 		return user
 
-	def create_superuser(self, email, password):
+	def create_superuser(self, email: str, password: str) -> "User":
 		user = self.create_user(email, password)
 
 		user.is_superuser = True
@@ -27,7 +27,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin, CommonModel):
 	email = models.CharField(max_length=255, unique=True)
-	nickname = models.CharField(max_length=20)
+	name = models.CharField(max_length=20)
 
 	is_active = models.BooleanField(default=True)
 	is_staff = models.BooleanField(default=False)
@@ -37,4 +37,4 @@ class User(AbstractBaseUser, PermissionsMixin, CommonModel):
 	objects = UserManager()
 
 	def __str__(self) -> str:
-		return f"email {self.email}, nickname: {self.nickname}"
+		return f"name: {self.name}"
