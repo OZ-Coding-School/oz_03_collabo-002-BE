@@ -39,7 +39,7 @@ indent-style = "tab"
 
 [tool.mypy]
 mypy_path = "./customk"
-plugins = ["mypy_django_plugin.main"]
+plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
 python_version = 3.12
 ignore_missing_imports = true
 strict = true
@@ -54,15 +54,7 @@ module = "manage"
 ignore_errors = true
 
 [[tool.mypy.overrides]]
-module = "*.settings.*"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
 module = "*.tests.*"
-ignore_errors = true
-
-[[tool.mypy.overrides]]
-module = "*.serializers.*"
 ignore_errors = true
 
 [tool.django-stubs]

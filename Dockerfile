@@ -11,19 +11,15 @@ EXPOSE 8000
 
 ARG DEV=true
 
-RUN apk add --update --no-cache libffi-dev
-RUN python -m venv /py && \
-    /py/bin/pip install --upgrade pip && \
-    if [ $DEV = "true" ]; \
-        then /py/bin/pip install -r /tmp/requirements.dev.txt ; \
+RUN pip install --upgrade pip && \
+    if [ $DEV = "true" ]; then \
+        pip install -r /tmp/requirements.dev.txt ; \
     else \
-        /py/bin/pip install -r /tmp/requirements.txt ; \
+        pip install -r /tmp/requirements.txt ; \
     fi && \
     rm -rf /tmp && \
-    adduser \
-        --disabled-password \
-        --no-create-home \
-        django-user
+    adduser --disabled-password --no-create-home django-user
+
 ENV PATH="/py/bin:$PATH"
 
 USER django-user
