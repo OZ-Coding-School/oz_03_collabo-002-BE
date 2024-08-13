@@ -1,0 +1,14 @@
+line-length = 100
+
+[lint]
+select = ['E', 'F', 'W', 'A', 'PLC', 'PLE', 'PLW', 'I']
+ignore = [
+    "E402",   # false positives for local imports
+    "E501",   # line too long
+    "F401",   # 사용되지 않는 임포트에 대한 경고.
+    "W191",   # 탭을 사용한 들여쓰기에 대한 경고
+]
+
+[format]
+quote-style = "double"
+indent-style = "tab"

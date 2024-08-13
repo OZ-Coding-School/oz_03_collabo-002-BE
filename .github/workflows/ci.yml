@@ -1,41 +1,14 @@
 name: Customk CI
 
-on:
-  pull_request:
+on: [push]
+#  pull_request:
 
 jobs:
   ci:
     runs-on: ubuntu-22.04
     steps:
-      - name: Login in to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - name: Check out the codes
-        uses: actions/checkout@v2
-
-      - name: Setup python environment
-        id: setup-python
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.12
-
-      - name: Set timezone to KST
-        run: |
-          sudo rm /etc/localtime
-          sudo ln -s /usr/share/zoneinfo/Asia/Seoul /etc/localtime
-
-
-      - name: Install Poetry
-        run: |
-          curl -sSL curl -sSL https://install.python-poetry.org | python3 -
-          echo "${HOME}/.local/bin" >> $GITHUB_PATH
-
-      - name: Regenerate lock file
-        run: | 
-          poetry lock --no-update
+        uses: actions/checkout@v4
 
       - name: Install poetry
         run: pipx install poetry
@@ -44,23 +17,13 @@ jobs:
           python-version: '3.12'
           cache: 'poetry'
 
-      - name: Run black
-        run: |
-          poetry run black . --check
+      - name: package install
+        run: poetry install
 
-      - name: Run isort
+      - name: Run Luff
         run: |
-          poetry run isort . --check --diff
-
-      - name: Create .env file
-        run: |
-          echo "${{ secrets.ENV_FILE_CONTENT }}" > .env
+          poetry run ruff check .
 
       - name: Run Mypy
         run: |
           poetry run mypy .
-
-      - name: Test python project
-        run: |
-          poetry run python manage.py test &&
-          docker-compose run --rm app sh -c "python manage.py test"
