@@ -20,12 +20,8 @@ jobs:
       - name: package install
         run: poetry install
 
-      - name: Run Luff
+      - name: Run Lint && Type Check
         run: |
           cd customk
           poetry run ruff check .
-
-      - name: Run Mypy
-        run: |
-          cd customk
           poetry run mypy .
