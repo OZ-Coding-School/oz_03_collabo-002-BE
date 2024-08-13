@@ -18,7 +18,7 @@ RUN pip install --upgrade pip && \
         pip install -r /tmp/requirements.txt ; \
     fi && \
     rm -rf /tmp && \
-    adduser --disabled-password --no-create-home django-user && \
+    adduser --disabled-password --no-create-home django-user
 
 ENV PATH="/py/bin:$PATH"
 
