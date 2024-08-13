@@ -10,7 +10,7 @@ WORKDIR /app
 EXPOSE 8000
 
 ARG DEV=true
-RUN apk add --update --no-cache libffi-dev
+
 RUN pip install --upgrade pip && \
     if [ $DEV = "true" ]; then \
         pip install -r /tmp/requirements.dev.txt ; \
@@ -19,9 +19,6 @@ RUN pip install --upgrade pip && \
     fi && \
     rm -rf /tmp && \
     adduser --disabled-password --no-create-home django-user && \
-    mkdir -p /app/.ruff_cache && \
-    chown -R django-user:django-user /app/.ruff_cache && \
-    chmod 755 /app/.ruff_cache
 
 ENV PATH="/py/bin:$PATH"
 

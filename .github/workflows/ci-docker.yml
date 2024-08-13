@@ -12,11 +12,11 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
       - name: Run lint and type checks
         run: |
-          docker compose run --rm app sh -c "mypy . && ruff check --fix . && ruff format"
+          docker compose run --rm app sh -c "mypy . && ruff check . && ruff format"
 
       - name: Run tests
         run: |
