@@ -18,7 +18,10 @@ RUN pip install --upgrade pip && \
         pip install -r /tmp/requirements.txt ; \
     fi && \
     rm -rf /tmp && \
-    adduser --disabled-password --no-create-home django-user
+    adduser --disabled-password --no-create-home django-user && \
+    mkdir -p /app/.ruff_cache && \
+    chown -R django-user:django-user /app/.ruff_cache && \
+    chmod 755 /app/.ruff_cache
 
 ENV PATH="/py/bin:$PATH"
 
