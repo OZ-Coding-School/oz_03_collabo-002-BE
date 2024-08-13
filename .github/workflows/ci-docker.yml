@@ -21,7 +21,7 @@ jobs:
 
       - name: Run lint and type checks
         run: |
-          docker-compose run --rm app sh -c "mypy"
+          docker-compose run --rm app sh -c "mypy ."
 
 	  # Docker 이미지를 사용하여 테스트
       - name: Run tests
