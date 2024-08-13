@@ -1,30 +1,27 @@
-name: Docker CI
+name: Customk CI
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
+on: [push]
+#  pull_request:
 
 jobs:
-  build:
+  ci:
     runs-on: ubuntu-22.04
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Check out the codes
+        uses: actions/checkout@v4
 
-	  # Docker 이미지를 빌드하고, myapp:latest 태그를 붙이고 빌드 캐시를 사용하여 효율성을 높입니다.
-      - name: Build Docker image
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'poetry'
+
+      - name: package install
+        run: poetry install
+
+      - name: Run Lint && Type Check
         run: |
-          docker build .
-
-      - name: Run lint and type checks
-        run: |
-          docker-compose run --rm app sh -c "mypy ."
-
-	  # Docker 이미지를 사용하여 테스트
-      - name: Run tests
-        run: |
-          docker-compose run --rm app pytest
-
+          cd customk
+          poetry run ruff check .
+          poetry run mypy .

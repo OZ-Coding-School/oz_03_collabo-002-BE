@@ -1,0 +1,24 @@
+name: Docker CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run lint and type checks
+        run: |
+          docker-compose run --rm app sh -c "mypy . && ruff check --fix . && ruff format"
+
+      - name: Run tests
+        run: |
+          docker-compose run --rm app pytest
+
