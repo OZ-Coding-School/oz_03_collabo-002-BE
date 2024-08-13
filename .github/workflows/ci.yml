@@ -22,6 +22,7 @@ jobs:
 
       - name: Run Luff
         run: |
+          cd customk
           poetry run ruff check .
 
       - name: Run Mypy
