@@ -16,9 +16,9 @@ jobs:
 
       - name: Run lint and type checks
         run: |
-          docker-compose run --rm app sh -c "mypy . && ruff check --fix . && ruff format"
+          docker compose run --rm app sh -c "mypy . && ruff check --fix . && ruff format"
 
       - name: Run tests
         run: |
-          docker-compose run --rm app pytest
+          docker compose run --rm app pytest
 
