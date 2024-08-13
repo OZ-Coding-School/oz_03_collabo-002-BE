@@ -18,13 +18,13 @@ jobs:
         run: |
           docker compose run --rm app sh -c "mypy ."
 
-      - name: Run Ruff format
-        run: |
-          docker compose run --rm app sh -c "ruff format"
-
       - name: debug test
         run : |
           docker compose run --rm app sh -c "ls -al"
+
+      - name: Run Ruff format
+        run: |
+          docker compose run --rm app sh -c "ruff format"
 
       - name: Run Ruff Check
         run: |
