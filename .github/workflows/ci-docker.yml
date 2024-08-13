@@ -1,0 +1,30 @@
+name: Docker CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+	  # Docker 이미지를 빌드하고, myapp:latest 태그를 붙이고 빌드 캐시를 사용하여 효율성을 높입니다.
+      - name: Build Docker image
+        run: |
+          docker build .
+
+      - name: Run lint and type checks
+        run: |
+          docker-compose run --rm app sh -c "mypy . && ruff check ."
+
+	  # Docker 이미지를 사용하여 테스트
+      - name: Run tests
+        run: |
+          docker-compose run --rm app pytest
+
