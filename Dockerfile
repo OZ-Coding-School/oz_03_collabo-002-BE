@@ -9,6 +9,8 @@ COPY ./customk /app
 WORKDIR /app
 EXPOSE 8000
 
+ARG DEV
+
 RUN pip install --upgrade pip && \
     if [ $DEV = "true" ]; then \
         pip install -r /tmp/requirements.dev.txt ; \
