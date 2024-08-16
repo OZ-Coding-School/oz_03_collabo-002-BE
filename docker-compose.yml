@@ -1,15 +1,13 @@
 services:
   app:
+    platform: linux/amd64
     build:
       context: .
       args:
-        - DEV=true
+        - DEV=false
     ports:
       - "8000:8000"
     volumes:
       - ./customk:/app
     command: >
-      sh -c "
-      mypy . &&
-      python manage.py runserver 0.0.0.0:8000
-      "
+      sh -c "python manage.py runserver 0.0.0.0:8000"
