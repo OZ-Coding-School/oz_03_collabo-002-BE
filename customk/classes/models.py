@@ -1,4 +1,8 @@
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 
 class Class(models.Model):
@@ -28,3 +32,20 @@ class ClassImages(models.Model):
 
     def __str__(self):
         return f"{self.course.title}"
+
+
+# 시그널 핸들러 추가
+@receiver(post_save, sender=Class)
+def send_notification(sender, instance, created, **kwargs):
+    if created:
+        # Channel Layer를 가져옵니다.
+        channel_layer = get_channel_layer()
+
+        # 알림 메시지 생성
+        message = {
+            "type": "send_notification",
+            "notification": f"새로운 클래스가 등록되었습니다: {instance.title}",
+        }
+
+        # 'notifications' 그룹에 메시지 전송
+        async_to_sync(channel_layer.group_send)("notifications", message)

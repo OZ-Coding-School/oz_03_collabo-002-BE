@@ -9,6 +9,10 @@ readme = "README.md"
 python = "^3.12"
 django = "^5.1"
 djangorestframework = "^3.15.2"
+channels = "^4.1.0"
+uvicorn = {extras = ["standard"], version = "^0.30.6"}
+websockets = "^12.0"
+wsproto = "^1.2.0"
 
 
 [tool.poetry.group.dev.dependencies]
