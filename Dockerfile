@@ -7,19 +7,22 @@ COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 COPY ./customk /app
 
 WORKDIR /app
-EXPOSE 8000
 
 ARG DEV
 
 RUN pip install --upgrade pip && \
+    apk add --update --no-cache postgresql-client jpeg-dev && \
+    apk add --update --no-cache --virtual .tmp-build-deps \
+        build-base postgresql-dev musl-dev zlib-dev linux-headers && \
     if [ $DEV = "true" ]; then \
         pip install -r /tmp/requirements.dev.txt ; \
     else \
         pip install -r /tmp/requirements.txt ; \
     fi && \
     rm -rf /tmp && \
-    adduser --disabled-password --no-create-home django-user
-
-ENV PATH="/py/bin:$PATH"
+    adduser --disabled-password --no-create-home django-user && \
+    mkdir -p /vol/web/static && \
+    chown -R django-user:django-user /vol && \
+    chmod -R 755 /vol
 
 USER django-user

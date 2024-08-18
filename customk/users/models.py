@@ -5,37 +5,37 @@ from common.models import CommonModel
 
 
 class UserManager(BaseUserManager["User"]):
-	# 일반 유저 생성 함수
-	def create_user(self, email: str, password: str) -> "User":
-		if not email:
-			raise ValueError("이메일이 필요합니다")
+    # 일반 유저 생성 함수
+    def create_user(self, email: str, password: str) -> "User":
+        if not email:
+            raise ValueError("이메일이 필요합니다")
 
-		user = self.model(email=email)
-		user.set_password(password)
-		user.save()
+        user = self.model(email=email)
+        user.set_password(password)
+        user.save()
 
-		return user
+        return user
 
-	def create_superuser(self, email: str, password: str) -> "User":
-		user = self.create_user(email, password)
+    def create_superuser(self, email: str, password: str) -> "User":
+        user = self.create_user(email, password)
 
-		user.is_superuser = True
-		user.is_staff = True
-		user.save()
+        user.is_superuser = True
+        user.is_staff = True
+        user.save()
 
-		return user
+        return user
 
 
 class User(AbstractBaseUser, PermissionsMixin, CommonModel):
-	email = models.CharField(max_length=255, unique=True)
-	name = models.CharField(max_length=20)
+    email = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=20)
 
-	is_active = models.BooleanField(default=True)
-	is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
 
-	USERNAME_FIELD = "email"
+    USERNAME_FIELD = "email"
 
-	objects = UserManager()
+    objects = UserManager()
 
-	def __str__(self) -> str:
-		return f"name: {self.name}"
+    def __str__(self) -> str:
+        return f"name: {self.name}"
