@@ -33,16 +33,16 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ${{ secrets.NCP_CONTAINER_REGISTRY }}/customk:${{ github.run_number }}
-            ${{ secrets.NCP_CONTAINER_REGISTRY }}/customk:latest
-          cache-from: type=registry,ref=${{ secrets.NCP_CONTAINER_REGISTRY }}/customk:latest
+            ${{ secrets.NCP_CONTAINER_REGISTRY }}/customk-app:${{ github.run_number }}
+            ${{ secrets.NCP_CONTAINER_REGISTRY }}/customk-app:latest
+          cache-from: type=registry,ref=${{ secrets.NCP_CONTAINER_REGISTRY }}/customk-app:latest
           cache-to: type=inline
 
       - name: Build and push nginx image
         uses: docker/build-push-action@v3
         with:
-          context: .
-          file: ./nginx/Dockerfile
+          context: ./nginx
+          file: ./Dockerfile
           push: true
           tags: |
             ${{ secrets.NCP_CONTAINER_REGISTRY }}/customk-nginx:${{ github.run_number }}

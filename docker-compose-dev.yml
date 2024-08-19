@@ -24,7 +24,6 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - static-data:/vol/web
     depends_on:
       - app
