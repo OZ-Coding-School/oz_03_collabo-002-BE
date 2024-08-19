@@ -42,7 +42,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: ./nginx
-          file: ./Dockerfile
+          file: ./nginx/Dockerfile
           push: true
           tags: |
             ${{ secrets.NCP_CONTAINER_REGISTRY }}/customk-nginx:${{ github.run_number }}

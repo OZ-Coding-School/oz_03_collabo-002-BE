@@ -16,5 +16,5 @@ jobs:
 
       - name: Run lint and type checks
         run: |
-          docker compose build --build-arg DEV=true
+          docker compose -f docker-compose-dev.yml build --build-arg DEV=true
           docker compose run --rm app sh -c "mypy . && ruff check --no-cache && ruff format --no-cache"
