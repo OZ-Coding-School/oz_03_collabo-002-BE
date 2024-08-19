@@ -8,7 +8,7 @@ http {
 
     server {
         listen 80;
-        server_name localhost;
+        server_name ${SERVER_NAME};
 
         location / {
             proxy_pass http://app:8000;
@@ -25,7 +25,7 @@ http {
 
     server {
         listen 80;
-        server_name www.localhost;
-        return 301 $scheme://localhost$request_uri;
+        server_name www.${SERVER_NAME};
+        return 301 $scheme://$server_name$request_uri;
     }
 }

@@ -1,3 +1,7 @@
 FROM nginx:alpine
 
-COPY ./nginx.conf /etc/nginx/nginx.conf
+ARG SERVER_NAME
+ENV SERVER_NAME=${SERVER_NAME}
+
+COPY nginx.conf.template /etc/nginx/nginx.conf.template
+RUN envsubst '$SERVER_NAME' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
