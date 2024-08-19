@@ -45,7 +45,7 @@ CUSTOM_USER_APPS = [
     "classes",
 ]
 
-THIRD_PARTY_APPS = ["rest_framework", "channels"]
+THIRD_PARTY_APPS = ["rest_framework", "channels", 'corsheaders']
 
 INSTALLED_APPS = DJANGO_SYSTEM_APPS + CUSTOM_USER_APPS + THIRD_PARTY_APPS
 
@@ -58,7 +58,15 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",  # 웹소켓 서버가 실행되고 있는 도메인
+    "http://127.0.0.1:8000",
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = "config.urls"
 
@@ -79,7 +87,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "config.wsgi.application"
-ASGI_APPLICATION = "config.asgi.application"
+ASGI_APPLICATION = 'config.asgi.application'
 
 DATABASES = {
     "default": {

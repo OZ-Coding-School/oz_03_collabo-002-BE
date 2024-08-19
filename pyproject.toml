@@ -13,6 +13,7 @@ channels = "^4.1.0"
 uvicorn = {extras = ["standard"], version = "^0.30.6"}
 websockets = "^12.0"
 wsproto = "^1.2.0"
+django-cors-headers = "^4.4.0"
 
 
 [tool.poetry.group.dev.dependencies]
