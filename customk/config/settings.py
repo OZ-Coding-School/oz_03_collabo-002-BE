@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -85,8 +86,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LANGUAGE_CODE = 'ko-KR'
-TIME_ZONE = 'Asia/Seoul'
+LANGUAGE_CODE = "ko-KR"
+TIME_ZONE = "Asia/Seoul"
 
 USE_I18N = True
 
@@ -95,6 +96,6 @@ USE_TZ = True
 AUTH_USER_MODEL = "users.User"
 
 STATIC_URL = "/static/"
-STATIC_ROOT = '/vol/web/static'
+STATIC_ROOT = "/vol/web/static"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
