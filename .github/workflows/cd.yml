@@ -15,7 +15,7 @@ jobs:
       - name: Inject .env file
         run: echo "${{ secrets.ENV_PROD }}" > ./.env
       - name: test env file
-        run: la -la
+        run: ls -la
       - name: chck env file
         run: cat ./.env
       - name: Set up Docker Buildx
