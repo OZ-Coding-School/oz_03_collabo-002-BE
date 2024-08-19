@@ -82,13 +82,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
-LANGUAGE_CODE = "en-us"
-
-TIME_ZONE = "UTC"
+LANGUAGE_CODE = 'ko-KR'
+TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
 
@@ -96,7 +91,7 @@ USE_TZ = True
 
 AUTH_USER_MODEL = "users.User"
 
-STATIC_URL = "static/"
-STATIC_ROOT = "/vol/web/static/"
+STATIC_URL = "/static/"
+STATIC_ROOT = '/vol/web/static'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
