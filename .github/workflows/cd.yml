@@ -45,5 +45,3 @@ jobs:
             ${{ secrets.NCP_CONTAINER_REGISTRY }}/customk-nginx:latest
           cache-from: type=registry,ref=${{ secrets.NCP_CONTAINER_REGISTRY }}/customk-nginx:latest
           cache-to: type=inline
-          build-args: |
-            SERVER_NAME=${{ secrets.SERVER_NAME }}

@@ -13,7 +13,7 @@ ENVIRONMENT = os.getenv("DJANGO_ENVIRONMENT", "development")
 
 DEBUG = ENVIRONMENT == "development"
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(" ")
 
 INSTALLED_APPS = [
     "django.contrib.admin",

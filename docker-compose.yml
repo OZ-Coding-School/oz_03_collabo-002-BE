@@ -19,6 +19,8 @@ services:
       - static-data:/vol/web
     depends_on:
       - app
+    environment:
+      - SERVER_NAME=${SERVER_NAME}
 
 volumes:
   static-data:
