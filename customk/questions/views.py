@@ -40,14 +40,21 @@ class QuestionListView(APIView):
         return Response(serializer.errors, status=400)
 
     def delete(self, request, question_id, *args, **kwargs):
-        question = Question.objects.filter(id=question_id)
+        try:
+            question = Question.objects.get(id=question_id)
+        except Question.DoesNotExist:
+            return Response({"error": "Question not found."}, status=404)
+
+        if question.user != request.user:
+            return Response({"error": "You do not have permission to delete this question."}, status=403)
+
         question.delete()
         response_data = {
             "status": "success",
             "message": "Question deleted successfully",
             "data": None
         }
-        return Response(response_data, status=201)
+        return Response(response_data, status=200)
 
 
 class AnswerListView(APIView):
@@ -87,3 +94,22 @@ class AnswerListView(APIView):
             }
             return Response(response_data, status=201)
         return Response(serializer.errors, status=400)
+
+    def delete(self, request, class_id, *args, **kwargs):
+        answer_id = request.data.get("answer_id")
+
+        if not answer_id:
+            return Response({"error": "Answer ID is required."}, status=400)
+
+        try:
+            answer = Answer.objects.get(id=answer_id, question__course_id=class_id)
+        except Answer.DoesNotExist:
+            return Response({"error": "Answer not found or does not belong to this class."}, status=404)
+
+        if answer.user != request.user:
+            return Response({"error": "You do not have permission to delete this answer."}, status=403)
+
+        answer.delete()
+        return Response({"status": "success", "message": "Answer deleted successfully"}, status=200)
+
+
