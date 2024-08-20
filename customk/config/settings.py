@@ -39,7 +39,7 @@ DJANGO_SYSTEM_APPS = [
     "django.contrib.staticfiles",
 ]
 
-CUSTOM_USER_APPS = ["users", "common", "classes", "questions", "reviews"]
+CUSTOM_USER_APPS = ["users", "common", "classes", "questions", "reviews", "reactions"]
 
 THIRD_PARTY_APPS = ["rest_framework", "channels", "corsheaders"]
 

@@ -8,31 +8,67 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('classes', '0003_classdate_person'),
+        ("classes", "0003_classdate_person"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Review',
+            name="Review",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('review', models.TextField()),
-                ('rating', models.DecimalField(decimal_places=1, max_digits=2, validators=[django.core.validators.MinValueValidator(Decimal('0.5')), django.core.validators.MaxValueValidator(Decimal('5.0'))])),
-                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='classes.class')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("review", models.TextField()),
+                (
+                    "rating",
+                    models.DecimalField(
+                        decimal_places=1,
+                        max_digits=2,
+                        validators=[
+                            django.core.validators.MinValueValidator(Decimal("0.5")),
+                            django.core.validators.MaxValueValidator(Decimal("5.0")),
+                        ],
+                    ),
+                ),
+                (
+                    "course",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="classes.class"
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ReviewImage',
+            name="ReviewImage",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('image_url', models.URLField(blank=True, null=True)),
-                ('review', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='images', to='reviews.review')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("image_url", models.URLField(blank=True, null=True)),
+                (
+                    "review",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="images",
+                        to="reviews.review",
+                    ),
+                ),
             ],
         ),
     ]
