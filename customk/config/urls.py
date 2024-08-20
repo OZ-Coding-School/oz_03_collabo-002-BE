@@ -12,4 +12,5 @@ urlpatterns = [
     path("", hello_test, name="hello_test"),
     path("admin/", admin.site.urls),
     path("api/v1/classes", include("classes.urls")),
+    path("api/v1/question", include("questions.urls")),
 ]

@@ -39,13 +39,9 @@ DJANGO_SYSTEM_APPS = [
     "django.contrib.staticfiles",
 ]
 
-CUSTOM_USER_APPS = [
-    "users",
-    "common",
-    "classes",
-]
+CUSTOM_USER_APPS = ["users", "common", "classes", "questions"]
 
-THIRD_PARTY_APPS = ["rest_framework", "channels", 'corsheaders']
+THIRD_PARTY_APPS = ["rest_framework", "channels", "corsheaders"]
 
 INSTALLED_APPS = DJANGO_SYSTEM_APPS + CUSTOM_USER_APPS + THIRD_PARTY_APPS
 
@@ -58,7 +54,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    'corsheaders.middleware.CorsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -87,7 +83,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "config.wsgi.application"
-ASGI_APPLICATION = 'config.asgi.application'
+ASGI_APPLICATION = "config.asgi.application"
 
 DATABASES = {
     "default": {
