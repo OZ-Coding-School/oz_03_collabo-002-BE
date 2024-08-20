@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import Class, ClassDate, ClassImages
+from django.utils import timezone
+from datetime import timedelta
 
 
 class ClassDateSerializer(serializers.ModelSerializer):
@@ -23,10 +25,15 @@ class ClassImagesSerializer(serializers.ModelSerializer):
 class ClassSerializer(serializers.ModelSerializer):
     dates = ClassDateSerializer(many=True, required=False)
     images = ClassImagesSerializer(many=True, required=False)
+    is_new = serializers.SerializerMethodField()
 
     class Meta:
         model = Class
         fields = "__all__"
+
+    def get_is_new(self, obj):
+        # 클래스가 생성된 지 30일 이내라면 True 반환
+        return timezone.now() - obj.created_at <= timedelta(days=30)
 
     def create(self, validated_data):
         dates_data = validated_data.pop("dates", [])

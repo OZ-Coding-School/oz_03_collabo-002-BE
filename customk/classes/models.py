@@ -1,17 +1,25 @@
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from common.models import CommonModel
+
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
 
-class Class(models.Model):
+class Class(CommonModel):
     title = models.CharField(max_length=400)
     description = models.TextField(blank=True)
     max_person = models.IntegerField(blank=False, default=0)
     require_person = models.IntegerField(blank=False, default=0)
     price = models.IntegerField(blank=False, default=0)
-    address = models.TextField(blank=False, default="")
+    # address = models.TextField(blank=False, default="")
+    address = models.JSONField(
+        encoder=DjangoJSONEncoder,
+        default=dict,
+        blank=True
+    )
 
     is_viewed = models.BooleanField(default=False)
 
@@ -20,6 +28,7 @@ class Class(models.Model):
 
 
 class ClassDate(models.Model):
+    # TODO person field 수정에 대해 논의
     course = models.ForeignKey(Class, related_name="dates", on_delete=models.CASCADE)
     start_date = models.DateField(blank=False, null=False)
     start_time = models.TimeField(blank=False, null=False)
