@@ -18,5 +18,5 @@ server {
 server {
     listen 80;
     server_name www.${SERVER_NAME};
-    return 301 $scheme://$server_name$request_uri;
+    return 301 $scheme://${SERVER_NAME}$request_uri;
 }
