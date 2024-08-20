@@ -2,6 +2,11 @@ server {
     listen 80;
     server_name ${SERVER_NAME};
 
+    location /health {
+        access_log off;
+        return 200 'OK';
+    }
+
     location / {
         proxy_pass http://app:8000;
         proxy_set_header Host $host;
