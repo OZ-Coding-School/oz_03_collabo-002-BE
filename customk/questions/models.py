@@ -20,4 +20,3 @@ class Answer(models.Model):
     question = models.ForeignKey(Question, related_name="answers", on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     answer = models.TextField()
-
