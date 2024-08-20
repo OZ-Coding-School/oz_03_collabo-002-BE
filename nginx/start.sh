@@ -2,8 +2,14 @@
 
 set -e
 
-envsubst '${SERVER_NAME}' < /etc/nginx/nginx.conf.template > /etc/nginx/conf.d/default.conf
+touch /tmp/script-reuslt
 
-nginx -t
+envsubst '${SERVER_NAME}' < /etc/nginx/nginx.conf.template > /etc/nginx/conf.d/default.conf \
+>> /tmp/script-reuslt 2>&1
 
-exec nginx -g 'daemon off;'
+nginx -t >> /tmp/script-reuslt 2>&1
+
+cat /etc/nginx/nginx.conf.template >> /tmp/script-reuslt 2>&1
+cat /etc/nginx/conf.d/default.conf >> /tmp/script-reuslt 2>&1
+
+exec nginx -g 'daemon off;' >> /tmp/script-reuslt 2>&1
