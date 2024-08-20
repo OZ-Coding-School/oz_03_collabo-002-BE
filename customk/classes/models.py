@@ -24,6 +24,7 @@ class ClassDate(models.Model):
     start_date = models.DateField(blank=False, null=False)
     start_time = models.TimeField(blank=False, null=False)
     end_time = models.TimeField(blank=False, null=False)
+    person = models.IntegerField(blank=False, default=0)
 
 
 class ClassImages(models.Model):
