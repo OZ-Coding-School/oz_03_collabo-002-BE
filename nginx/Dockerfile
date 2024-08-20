@@ -11,6 +11,4 @@ RUN touch /etc/nginx/conf.d/default.conf && \
     chown nginx:nginx /etc/nginx/conf.d/default.conf && \
     chmod +x /start.sh
 
-USER nginx
-
 CMD ["/start.sh"]
