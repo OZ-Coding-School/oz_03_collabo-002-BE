@@ -34,6 +34,11 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.NCP_CONTAINER_REGISTRY }}/customk-app:latest
           cache-to: type=inline
 
+      - name: Prepare nginx.conf with server_name
+        run: |
+            export SERVER_NAME=${{ secrets.SERVER_NAME }}
+            envsubst '${SERVER_NAME}' < ./nginx/nginx.conf.template > ./nginx/nginx.conf
+
       - name: Build and push nginx image
         uses: docker/build-push-action@v3
         with:
