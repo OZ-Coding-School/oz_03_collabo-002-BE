@@ -3,11 +3,12 @@ from decimal import Decimal
 from django.core.validators import MinValueValidator, MaxValueValidator
 from users.models import User
 from classes.models import Class
+from common.models import CommonModel
 
 
-class Review(models.Model):
+class Review(CommonModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    course = models.ForeignKey(Class, on_delete=models.CASCADE)
+    class_id = models.ForeignKey(Class, on_delete=models.CASCADE)
     review = models.TextField()
     rating = models.DecimalField(
         max_digits=2,  # 최대 자리수 (5.0, 4.5 등 최대 2자리)

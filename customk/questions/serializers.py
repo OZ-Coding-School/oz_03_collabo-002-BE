@@ -16,5 +16,4 @@ class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
         fields = "__all__"
-        extra_kwargs = {'user_id': {'read_only': True}}
-
+        extra_kwargs = {"user_id": {"read_only": True}}

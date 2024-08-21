@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Review, ReviewImage
+from users.models import User
 
 
 class ReviewImageSerializer(serializers.ModelSerializer):
@@ -10,10 +11,11 @@ class ReviewImageSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     images = ReviewImageSerializer(many=True, required=False)
+    user = serializers.ReadOnlyField(source='user.id')
 
     class Meta:
         model = Review
-        fields = ["id", "review", "rating", "images"]
+        fields = "__all__"
 
     def create(self, validated_data):
         images_data = validated_data.pop("images", [])

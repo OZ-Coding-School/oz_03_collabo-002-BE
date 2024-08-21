@@ -10,11 +10,11 @@ from classes.models import Class
 class ReviewListView(APIView):
     def get(self, request, class_id, *args, **kwargs):
         try:
-            course = Class.objects.get(id=class_id)
+            class_id = Class.objects.get(id=class_id)
         except Class.DoesNotExist:
             return Response({"class_id": "Invalid class ID."}, status=400)
 
-        reviews = Review.objects.filter(course=course)
+        reviews = Review.objects.filter(class_id=class_id)
         if not reviews.exists():
             return Response({"message": "No reviews found for this class."}, status=404)
 
@@ -24,16 +24,17 @@ class ReviewListView(APIView):
 
     def post(self, request, class_id, *args, **kwargs):
         try:
-            course = Class.objects.get(id=class_id)
+            class_id = Class.objects.get(id=class_id)
         except Class.DoesNotExist:
             return Response({"class_id": "Invalid class ID."}, status=400)
 
         data = request.data.copy()
-        data["course"] = course.id
+        data["user"] = request.user.id
+        data["class_id"] = class_id.id
 
-        serializer = ReviewSerializer(data=request.data)
+        serializer = ReviewSerializer(data=data)
         if serializer.is_valid():
-            serializer.save(user=request.user, course=course)
+            serializer.save(user=request.user, class_id=class_id)
             return Response(
                 {"message": "Review successfully created.", "review": serializer.data}, status=201
             )
@@ -46,7 +47,7 @@ class ReviewListView(APIView):
         if not review_id:
             return Response({"error": "Review ID is required for update."}, status=400)
 
-        review = get_object_or_404(Review, id=review_id, course_id=class_id)
+        review = get_object_or_404(Review, id=review_id, class_id=class_id)
 
         serializer = ReviewSerializer(review, data=request.data, partial=True)
         if serializer.is_valid():
@@ -58,7 +59,7 @@ class ReviewListView(APIView):
         return Response(serializer.errors, status=400)
 
     def delete(self, request, class_id, review_id, *args, **kwargs):
-        review = get_object_or_404(Review, id=review_id, course_id=class_id)
+        review = get_object_or_404(Review, id=review_id, class_id=class_id)
         review.delete()
 
         return Response({"message": "Review successfully deleted."}, status=204)
