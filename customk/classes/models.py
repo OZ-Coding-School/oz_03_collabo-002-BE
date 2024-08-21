@@ -1,9 +1,14 @@
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from common.models import CommonModel
-from .utils import get_exchange_rate, convert_to_usd
+
+
+class ExchangeRate(models.Model):
+    currency = models.CharField(max_length=10, default="USD")
+    rate = models.DecimalField(max_digits=10, decimal_places=4)
+
+    def __str__(self):
+        return f"{self.currency}: {self.rate}"
 
 
 class Class(CommonModel):
@@ -19,13 +24,11 @@ class Class(CommonModel):
     def __str__(self):
         return self.title
 
-    @property
-    def price_in_usd(self):
-        api_key = "530f86837ccd5ef16f5e7de0"  # 여러분의 API 키를 여기에 입력하세요
-        exchange_rates = get_exchange_rate(api_key)
-        usd_rate = exchange_rates.get("KRW", 1)
-        price_in_usd = convert_to_usd(self.price, usd_rate)
-        return round(price_in_usd, 2)
+    def get_price_in_usd(self):
+        exchange_rate = ExchangeRate.objects.filter(currency="USD").first()
+        if exchange_rate:
+            return round(self.price / exchange_rate.rate, 2)
+        return None
 
 
 class ClassDate(models.Model):

@@ -2,7 +2,6 @@ from rest_framework import serializers
 from .models import Class, ClassDate, ClassImages
 from django.utils import timezone
 from datetime import timedelta
-from .utils import get_exchange_rate, convert_to_usd
 
 
 class ClassDateSerializer(serializers.ModelSerializer):
@@ -14,8 +13,6 @@ class ClassDateSerializer(serializers.ModelSerializer):
 
 
 class ClassImagesSerializer(serializers.ModelSerializer):
-    # 읽기 전용으로 인식되지 않고 입력으로만 사용
-    # course 필드는 읽기 전용으로 처리되고, create 메서드에서 직접 할당
     course = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
@@ -37,7 +34,8 @@ class ClassSerializer(serializers.ModelSerializer):
         return timezone.now() - obj.created_at <= timedelta(days=30)
 
     def get_price_in_usd(self, obj):
-        return obj.price_in_usd
+        usd_price = obj.get_price_in_usd()
+        return usd_price
 
     def create(self, validated_data):
         dates_data = validated_data.pop("dates", [])
