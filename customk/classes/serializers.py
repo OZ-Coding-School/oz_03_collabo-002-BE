@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Class, ClassDate, ClassImages
 from django.utils import timezone
 from datetime import timedelta
+from .utils import get_exchange_rate, convert_to_usd
 
 
 class ClassDateSerializer(serializers.ModelSerializer):
@@ -26,6 +27,7 @@ class ClassSerializer(serializers.ModelSerializer):
     dates = ClassDateSerializer(many=True, required=False)
     images = ClassImagesSerializer(many=True, required=False)
     is_new = serializers.SerializerMethodField()
+    price_in_usd = serializers.SerializerMethodField()
 
     class Meta:
         model = Class
@@ -34,6 +36,9 @@ class ClassSerializer(serializers.ModelSerializer):
     def get_is_new(self, obj):
         # 클래스가 생성된 지 30일 이내라면 True 반환
         return timezone.now() - obj.created_at <= timedelta(days=30)
+
+    def get_price_in_usd(self, obj):
+        return obj.price_in_usd
 
     def create(self, validated_data):
         dates_data = validated_data.pop("dates", [])

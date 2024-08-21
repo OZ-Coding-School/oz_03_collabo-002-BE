@@ -11,7 +11,7 @@ def hello_test(request: HttpRequest) -> HttpResponse:
 urlpatterns = [
     path("", hello_test, name="hello_test"),
     path("admin/", admin.site.urls),
-    path("api/v1/classes", include("classes.urls")),
-    path("api/v1/question", include("questions.urls")),
-    path("api/v1/reviews", include("reviews.urls")),
+    path("api/v1/classes/", include("classes.urls")),
+    path("api/v1/question/", include("questions.urls")),
+    path("api/v1/reviews/", include("reviews.urls")),
 ]
