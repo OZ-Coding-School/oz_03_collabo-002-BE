@@ -33,7 +33,7 @@ class Class(CommonModel):
 
 class ClassDate(models.Model):
     # TODO person field 수정에 대해 논의
-    course = models.ForeignKey(Class, related_name="dates", on_delete=models.CASCADE)
+    class_id = models.ForeignKey(Class, related_name="dates", on_delete=models.CASCADE)
     start_date = models.DateField(blank=False, null=False)
     start_time = models.TimeField(blank=False, null=False)
     end_time = models.TimeField(blank=False, null=False)
@@ -41,8 +41,8 @@ class ClassDate(models.Model):
 
 
 class ClassImages(models.Model):
-    course = models.ForeignKey(Class, related_name="images", on_delete=models.CASCADE)
+    class_id = models.ForeignKey(Class, related_name="images", on_delete=models.CASCADE)
     image_url = models.URLField(max_length=2000)
 
     def __str__(self):
-        return f"{self.course.title}"
+        return f"{self.class_id.title}"

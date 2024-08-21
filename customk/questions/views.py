@@ -13,20 +13,20 @@ class QuestionListView(APIView):
 
     def get(self, request, class_id, *args, **kwargs):
         # 특정 수업에 대한 질문들만 가져오기
-        questions = Question.objects.filter(course_id=class_id)
+        questions = Question.objects.filter(class_id=class_id)
         serializer = QuestionSerializer(questions, many=True)
         return Response(serializer.data)
 
     def post(self, request, class_id, *args, **kwargs):
         try:
-            course = Class.objects.get(id=class_id)
+            class_id = Class.objects.get(id=class_id)
         except Class.DoesNotExist:
             return Response({"error": "Class not found."}, status=404)
 
         # 요청 데이터 복사 및 사용자와 수업 정보 추가
         data = request.data.copy()
-        data["user"] = request.user.id
-        data["course"] = course.id
+        data["user_id"] = request.user.id
+        data["class_id"] = class_id.id
 
         serializer = QuestionSerializer(data=data)
         if serializer.is_valid():
@@ -64,7 +64,7 @@ class AnswerListView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, class_id, *args, **kwargs):
-        answers = Answer.objects.filter(question__course_id=class_id)
+        answers = Answer.objects.filter(question_id__class_id=class_id)
         serializer = AnswerSerializer(answers, many=True)
         return Response(serializer.data)
 
@@ -74,17 +74,17 @@ class AnswerListView(APIView):
         except Class.DoesNotExist:
             return Response({"error": "Class not found."}, status=404)
 
-        question_id = request.data.get("question")
+        question_id = request.data.get("question_id")
         try:
-            question = Question.objects.get(id=question_id, course_id=class_id)
+            question = Question.objects.get(id=question_id, class_id=class_id)
         except Question.DoesNotExist:
             return Response(
                 {"error": "Question not found or does not belong to this class."}, status=404
             )
 
         data = request.data.copy()
-        data["user"] = request.user.id
-        data["question"] = question.id
+        data["question_id"] = question.id
+        data["user_id"] = request.user.id
 
         serializer = AnswerSerializer(data=data)
         if serializer.is_valid():
@@ -104,7 +104,7 @@ class AnswerListView(APIView):
             return Response({"error": "Answer ID is required."}, status=400)
 
         try:
-            answer = Answer.objects.get(id=answer_id, question__course_id=class_id)
+            answer = Answer.objects.get(id=answer_id, question__class_id=class_id)
         except Answer.DoesNotExist:
             return Response(
                 {"error": "Answer not found or does not belong to this class."}, status=404

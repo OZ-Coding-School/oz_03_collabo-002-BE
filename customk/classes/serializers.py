@@ -5,7 +5,7 @@ from datetime import timedelta
 
 
 class ClassDateSerializer(serializers.ModelSerializer):
-    course = serializers.PrimaryKeyRelatedField(read_only=True)
+    class_id = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = ClassDate
@@ -13,7 +13,7 @@ class ClassDateSerializer(serializers.ModelSerializer):
 
 
 class ClassImagesSerializer(serializers.ModelSerializer):
-    course = serializers.PrimaryKeyRelatedField(read_only=True)
+    class_id = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = ClassImages
