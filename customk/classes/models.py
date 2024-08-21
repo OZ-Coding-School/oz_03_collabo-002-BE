@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from common.models import CommonModel
+from .utils import get_exchange_rate, convert_to_usd
 
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
@@ -27,6 +28,14 @@ class Class(CommonModel):
         return self.title
 
 
+    @property
+    def price_in_usd(self):
+        api_key = "530f86837ccd5ef16f5e7de0"  # 여러분의 API 키를 여기에 입력하세요
+        exchange_rates = get_exchange_rate(api_key)
+        usd_rate = exchange_rates.get('USD', 1)
+        return convert_to_usd(self.price, usd_rate)
+
+
 class ClassDate(models.Model):
     # TODO person field 수정에 대해 논의
     course = models.ForeignKey(Class, related_name="dates", on_delete=models.CASCADE)
@@ -44,18 +53,3 @@ class ClassImages(models.Model):
         return f"{self.course.title}"
 
 
-# 시그널 핸들러 추가
-@receiver(post_save, sender=Class)
-def send_notification(sender, instance, created, **kwargs):
-    if created:
-        # Channel Layer를 가져옵니다.
-        channel_layer = get_channel_layer()
-
-        # 알림 메시지 생성
-        message = {
-            "type": "send_notification",
-            "notification": f"새로운 클래스가 등록되었습니다: {instance.title}",
-        }
-
-        # 'notifications' 그룹에 메시지 전송
-        async_to_sync(channel_layer.group_send)("notifications", message)
