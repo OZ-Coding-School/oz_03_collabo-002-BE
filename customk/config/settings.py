@@ -26,7 +26,7 @@ DJANGO_SYSTEM_APPS = [
 THIRD_PARTY_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
-    'drf_spectacular',
+    "drf_spectacular",
 ]
 
 CUSTOM_USER_APPS = [
@@ -52,7 +52,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = "config.urls"
 
 REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -108,24 +108,68 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'customk API Document',
-    'DESCRIPTION': 'customk API 문서입니다.',
-    'CONTACT': {'name': 'cusotmk', 'url': 'http://www.naver.com/', 'email': ''},
-    'SWAGGER_UI_SETTINGS': {
-        'dom_id': '#swagger-ui',
-        'layout': 'BaseLayout',
-        'deepLinking': True,
-        'theme': 'dark',
-        'persistAuthorization': True,
-        'filter': True,
+    "TITLE": "customk API Document",
+    "DESCRIPTION": "customk API 문서입니다.",
+    "CONTACT": {"name": "cusotmk", "url": "http://www.naver.com/", "email": ""},
+    "SWAGGER_UI_SETTINGS": {
+        "dom_id": "#swagger-ui",
+        "layout": "BaseLayout",
+        "deepLinking": True,
+        "theme": "dark",
+        "persistAuthorization": True,
+        "filter": True,
     },
-    'LICENSE': {
-        'name': 'MIT License',
-        'url': 'https://github.com/KimSoungRyoul/DjangoBackendProgramming/blob/main/LICENSE',
+    "LICENSE": {
+        "name": "MIT License",
+        "url": "https://github.com/KimSoungRyoul/DjangoBackendProgramming/blob/main/LICENSE",
     },
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
-    'SWAGGER_UI_DIST': '//unpkg.com/swagger-ui-dist@5.17.14',
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SWAGGER_UI_DIST": "//unpkg.com/swagger-ui-dist@5.17.14",
+}
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "filters": {
+        "require_debug_true": {
+            "()": "django.utils.log.RequireDebugTrue",
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "filters": ["require_debug_true"],
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+        "file": {
+            "level": "ERROR",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(BASE_DIR, "logs/django.log"),
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console", "file"],
+            "propagate": True,
+        },
+        "app": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+        },
+    },
 }
 
 LANGUAGE_CODE = "ko-KR"
