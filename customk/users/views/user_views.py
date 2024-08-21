@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from config.logger import logger
-from users.serialirizers.user_serializer import UserSerializer, UserUpdateSerializer
+from users.serializers.user_serializer import UserSerializer, UserUpdateSerializer
 from users.services.token_service import generate_tokens, set_cookies
 
 

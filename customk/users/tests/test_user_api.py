@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from users.models import User
-from users.serialirizers.user_serializer import UserSerializer
+from users.serializers.user_serializer import UserSerializer
 
 
 @pytest.fixture
