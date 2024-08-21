@@ -5,9 +5,6 @@ from django.dispatch import receiver
 from common.models import CommonModel
 from .utils import get_exchange_rate, convert_to_usd
 
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
-
 
 class Class(CommonModel):
     title = models.CharField(max_length=400)
@@ -15,25 +12,20 @@ class Class(CommonModel):
     max_person = models.IntegerField(blank=False, default=0)
     require_person = models.IntegerField(blank=False, default=0)
     price = models.IntegerField(blank=False, default=0)
-    # address = models.TextField(blank=False, default="")
-    address = models.JSONField(
-        encoder=DjangoJSONEncoder,
-        default=dict,
-        blank=True
-    )
+    address = models.JSONField(encoder=DjangoJSONEncoder, default=dict, blank=True)
 
     is_viewed = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title
 
-
     @property
     def price_in_usd(self):
         api_key = "530f86837ccd5ef16f5e7de0"  # 여러분의 API 키를 여기에 입력하세요
         exchange_rates = get_exchange_rate(api_key)
-        usd_rate = exchange_rates.get('USD', 1)
-        return convert_to_usd(self.price, usd_rate)
+        usd_rate = exchange_rates.get("KRW", 1)
+        price_in_usd = convert_to_usd(self.price, usd_rate)
+        return round(price_in_usd, 2)
 
 
 class ClassDate(models.Model):
@@ -51,5 +43,3 @@ class ClassImages(models.Model):
 
     def __str__(self):
         return f"{self.course.title}"
-
-

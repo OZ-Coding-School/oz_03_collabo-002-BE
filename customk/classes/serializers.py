@@ -34,7 +34,6 @@ class ClassSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def get_is_new(self, obj):
-        # 클래스가 생성된 지 30일 이내라면 True 반환
         return timezone.now() - obj.created_at <= timedelta(days=30)
 
     def get_price_in_usd(self, obj):
