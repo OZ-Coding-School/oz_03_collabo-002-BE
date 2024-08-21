@@ -14,21 +14,34 @@ ENVIRONMENT = os.getenv("DJANGO_ENVIRONMENT", "development")
 DEBUG = ENVIRONMENT == "development"
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(" ")
-
-INSTALLED_APPS = [
+DJANGO_SYSTEM_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "users",
-    "common",
 ]
+
+THIRD_PARTY_APPS = [
+    "rest_framework",
+    "rest_framework_simplejwt",
+    'drf_spectacular',
+]
+
+CUSTOM_USER_APPS = [
+    "common",
+    "users",
+    "corsheaders",
+]
+
+
+INSTALLED_APPS = DJANGO_SYSTEM_APPS + THIRD_PARTY_APPS + CUSTOM_USER_APPS
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -37,6 +50,18 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "config.urls"
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+}
+
+CORS_ORIGIN_WHITELIST = os.getenv("CORS_ORIGIN_WHITELIST").split(" ")
+
+CORS_ALLOW_CREDENTIALS = True
 
 TEMPLATES = [
     {
@@ -82,9 +107,30 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'customk API Document',
+    'DESCRIPTION': 'customk API 문서입니다.',
+    'CONTACT': {'name': 'cusotmk', 'url': 'http://www.naver.com/', 'email': ''},
+    'SWAGGER_UI_SETTINGS': {
+        'dom_id': '#swagger-ui',
+        'layout': 'BaseLayout',
+        'deepLinking': True,
+        'theme': 'dark',
+        'persistAuthorization': True,
+        'filter': True,
+    },
+    'LICENSE': {
+        'name': 'MIT License',
+        'url': 'https://github.com/KimSoungRyoul/DjangoBackendProgramming/blob/main/LICENSE',
+    },
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SWAGGER_UI_DIST': '//unpkg.com/swagger-ui-dist@5.17.14',
+}
+
 LANGUAGE_CODE = "ko-KR"
 TIME_ZONE = "Asia/Seoul"
-
+SITE_ID = 1
 USE_I18N = True
 
 USE_TZ = True
