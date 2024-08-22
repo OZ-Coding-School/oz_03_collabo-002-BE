@@ -13,10 +13,6 @@ class Token:
 def generate_tokens(user: User) -> Token:
     refresh = RefreshToken.for_user(user)
     return Token(str(refresh), str(refresh.access_token))  # type: ignore
-    # return {
-    #     "access_token": str(refresh.access_token),  # type: ignore
-    #     "refresh_token": str(refresh),
-    # }
 
 
 def set_cookies(response: Response, token: Token) -> Response:

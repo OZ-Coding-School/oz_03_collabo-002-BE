@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, logout
 from django.db import IntegrityError
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import status
@@ -20,7 +20,10 @@ class SignupView(APIView):
         summary="일반 회원가입",
         description="일반 회원가입 API",
         request=UserSerializer,
-        responses={200: UserSerializer, 400: OpenApiResponse(description="회원가입 실패")},
+        responses={
+            200: UserSerializer,
+            400: OpenApiResponse(description="회원가입 실패"),
+        },
     )
     def post(self, request: Request) -> Response:
         logger.info("회원가입 request")
@@ -38,7 +41,9 @@ class SignupView(APIView):
         error_message = "데이터베이스 무결성 오류가 발생했습니다."
         if "unique constraint" in str(error).lower():
             error_message = "이미 사용 중인 이메일입니다. 다른 이메일을 사용해주세요."
-        return Response({"error_message": error_message}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error_message": error_message}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class UserDetailView(APIView):
@@ -47,7 +52,10 @@ class UserDetailView(APIView):
         summary="유저 정보 조회",
         description="특정 유저 조회 API",
         request=UserSerializer,
-        responses={200: UserSerializer, 404: OpenApiResponse(description="존재하지 않는 유저")},
+        responses={
+            200: UserSerializer,
+            404: OpenApiResponse(description="존재하지 않는 유저"),
+        },
     )
     def get(self, request: Request) -> Response:
         logger.info("유저 조회 request")
@@ -62,7 +70,10 @@ class UserDetailView(APIView):
         summary="유저 정보 업데이트",
         description="유저 정보 업데이트 API",
         request=UserSerializer,
-        responses={200: UserSerializer, 400: OpenApiResponse(description="잘못된 요청")},
+        responses={
+            200: UserSerializer,
+            400: OpenApiResponse(description="잘못된 요청"),
+        },
     )
     def patch(self, request: Request) -> Response:
         logger.info("유저 업데이트 request")
@@ -122,7 +133,8 @@ class LoginView(APIView):
         tokens = generate_tokens(user)  # type: ignore
 
         response = Response(
-            data={"status": "success", "message": "로그인 성공"}, status=status.HTTP_200_OK
+            data={"status": "success", "message": "로그인 성공"},
+            status=status.HTTP_200_OK,
         )
         set_cookies(response, tokens)
         return response

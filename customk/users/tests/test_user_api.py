@@ -1,29 +1,18 @@
 import pytest
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APIClient
 
 from users.models import User
-from users.serializers.user_serializer import UserSerializer
-
-
-@pytest.fixture
-def api_client():
-    return APIClient()
-
-
-@pytest.fixture
-def sample_user(db):
-    data = {"name": "testname", "email": "test@example.com", "password": "strongpassword"}
-    serializer = UserSerializer(data=data)
-    serializer.is_valid(raise_exception=True)
-    return serializer.save()
 
 
 @pytest.mark.django_db
 def test_signup(api_client):
     url = reverse("signup")
-    data = {"name": "testname", "email": "test@example.com", "password": "strongpassword"}
+    data = {
+        "name": "testname",
+        "email": "test@example.com",
+        "password": "strongpassword",
+    }
     response = api_client.post(url, data)
     assert response.status_code == status.HTTP_201_CREATED
     assert User.objects.filter(email="test@example.com").exists()
