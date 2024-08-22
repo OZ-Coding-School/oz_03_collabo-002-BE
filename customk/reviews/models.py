@@ -8,7 +8,7 @@ from common.models import CommonModel
 
 class Review(CommonModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    class_id = models.ForeignKey(Class, related_name='reviews', on_delete=models.CASCADE)
+    class_id = models.ForeignKey(Class, related_name="reviews", on_delete=models.CASCADE)
     review = models.TextField()
     rating = models.DecimalField(
         max_digits=2,

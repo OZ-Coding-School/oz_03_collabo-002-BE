@@ -33,7 +33,7 @@ class Class(CommonModel):
 
     @property
     def average_rating(self):
-        avg = self.reviews.aggregate(average=Avg('rating'))['average'] or 0
+        avg = self.reviews.aggregate(average=Avg("rating"))["average"] or 0
         return round(avg, 1)
 
 

@@ -43,7 +43,7 @@ class ClassSerializer(serializers.ModelSerializer):
         one_month_ago = timezone.now() - timedelta(days=30)
         recent_reviews = obj.reviews.filter(created_at__gte=one_month_ago)
 
-        average_rating = recent_reviews.aggregate(average=Avg('rating'))['average'] or 0
+        average_rating = recent_reviews.aggregate(average=Avg("rating"))["average"] or 0
 
         return round(average_rating, 1)
 
@@ -51,15 +51,15 @@ class ClassSerializer(serializers.ModelSerializer):
         one_month_ago = timezone.now() - timedelta(days=30)
         recent_reviews = obj.reviews.filter(created_at__gte=one_month_ago)
 
-        average_rating = recent_reviews.aggregate(average=Avg('rating'))['average'] or 0
+        average_rating = recent_reviews.aggregate(average=Avg("rating"))["average"] or 0
 
         return average_rating >= 3.5
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
 
-        representation['average_rating'] = self.get_average_rating(instance)
-        representation['is_best'] = self.get_is_best(instance)
+        representation["average_rating"] = self.get_average_rating(instance)
+        representation["is_best"] = self.get_is_best(instance)
 
         return representation
 

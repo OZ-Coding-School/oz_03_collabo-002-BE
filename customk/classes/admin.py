@@ -23,11 +23,12 @@ class ClassAdmin(admin.ModelAdmin):  # type: ignore
         "price_in_usd",
         "address",
         "is_viewed_badge",
-        "average_rating"
+        "average_rating",
     )
 
     def price_in_usd(self, obj):
         usd_price = obj.get_price_in_usd()
+        return usd_price
 
     price_in_usd.short_description = "가격 (USD)"
 

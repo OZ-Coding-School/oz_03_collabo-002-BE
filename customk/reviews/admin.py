@@ -17,13 +17,8 @@ class ReviewAdmin(admin.ModelAdmin):
     inlines = [ReviewImageInline]
     readonly_fields = ("rating",)
     fieldsets = (
-        ('기본 정보', {
-            'fields': ('user', 'class_id', 'rating')
-        }),
-        ('리뷰 내용', {
-            'fields': ('review',),
-            'description': '리뷰 내용을 여기에 입력하세요.'
-        }),
+        ("기본 정보", {"fields": ("user", "class_id", "rating")}),
+        ("리뷰 내용", {"fields": ("review",), "description": "리뷰 내용을 여기에 입력하세요."}),
     )
 
 
