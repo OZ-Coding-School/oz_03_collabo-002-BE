@@ -19,7 +19,7 @@ jobs:
 
       - name: Run lint and type checks
         run: |
-          docker compose -f docker-compose.dev.yml run --rm app sh -c "mypy . && ruff check --no-cache && ruff format --no-cache"
+          docker compose -f docker-compose-dev.yml run --rm app sh -c "mypy . && ruff check --no-cache && ruff format --no-cache"
 
       - name: Run Pytest
-        run: docker compose -f docker-compose.dev.yml run --rm app sh -c "pytest"
+        run: docker compose -f docker-compose-dev.yml run --rm app sh -c "pytest"

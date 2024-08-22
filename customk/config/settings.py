@@ -14,7 +14,8 @@ ENVIRONMENT = os.getenv("DJANGO_ENVIRONMENT", "development")
 
 DEBUG = ENVIRONMENT == "development"
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(" ")
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
+
 DJANGO_SYSTEM_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -61,7 +62,7 @@ REST_FRAMEWORK = {
     ),
 }
 
-CORS_ORIGIN_WHITELIST = os.getenv("CORS_ORIGIN_WHITELIST").split(" ")
+CORS_ORIGIN_WHITELIST = os.getenv("CORS_ORIGIN_WHITELIST", "").split(" ")
 
 CORS_ALLOW_CREDENTIALS = True
 
