@@ -1,6 +1,7 @@
 import os
 
 import requests
+from django.shortcuts import redirect
 from drf_spectacular.utils import (
     OpenApiExample,
     OpenApiParameter,
@@ -58,7 +59,6 @@ def callback(request: Request) -> Response:
         kakao_token_url = os.environ.get("KAKAO_TOKEN_URL", "token_url")
         kakao_profile_url = os.environ.get("KAKAO_PROFILE_URL", "profile_url")
         client_id = os.environ.get("KAKAO_CLIENT_ID", "client_id")
-        redirect_uri = os.environ.get("KAKAO_REDIRECT_URI", "redirect_uri")
 
         token_response = requests.post(
             kakao_token_url,
@@ -66,7 +66,6 @@ def callback(request: Request) -> Response:
             data={
                 "grant_type": "authorization_code",
                 "client_id": client_id,
-                "redirect_uri": redirect_uri,
                 "code": code,
             },
             timeout=30,
@@ -129,6 +128,7 @@ def callback(request: Request) -> Response:
     methods=["POST"],
     summary="카카오 로그아웃",
     description="카카오 로그아웃 API",
+    request=None,
     parameters=[
         OpenApiParameter(
             name="kakao_client_id",

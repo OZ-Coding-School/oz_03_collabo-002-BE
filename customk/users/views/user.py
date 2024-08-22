@@ -1,8 +1,7 @@
 from django.contrib.auth import authenticate, logout
 from django.db import IntegrityError
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
-from rest_framework import status
+from drf_spectacular.utils import OpenApiResponse, extend_schema, inline_serializer
+from rest_framework import serializers, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -112,13 +111,14 @@ class LoginView(APIView):
 
     @extend_schema(
         methods=["POST"],
-        summary="로그인",
-        description="로그인 API",
-        request=UserSerializer,
-        responses={
-            200: OpenApiResponse(description="로그인 성공"),
-            401: OpenApiResponse(description="로그인 실패"),
-        },
+        summary="일반 로그인",
+        request=inline_serializer(
+            name="InlineFormSerializer",
+            fields={
+                "email": serializers.EmailField(),
+                "password": serializers.CharField(),
+            },
+        ),
     )
     def post(self, request: Request) -> Response:
         logger.info("로그인 request")
@@ -147,6 +147,7 @@ class LoginView(APIView):
     methods=["POST"],
     summary="로그아웃",
     description="로그아웃 API",
+    request=None,
     responses={
         200: OpenApiResponse(description="로그아웃 성공"),
         401: OpenApiResponse(description="로그아웃 실패"),
