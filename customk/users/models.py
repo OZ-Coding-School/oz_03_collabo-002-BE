@@ -1,4 +1,8 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager,
+    PermissionsMixin,
+)
 from django.db import models
 
 from common.models import CommonModel
@@ -27,8 +31,8 @@ class UserManager(BaseUserManager["User"]):
 
 
 class User(AbstractBaseUser, PermissionsMixin, CommonModel):
-    email = models.CharField(max_length=255, unique=True)
-    name = models.CharField(max_length=20)
+    email = models.EmailField(max_length=255, unique=True, editable=False)
+    name = models.CharField(max_length=50)
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

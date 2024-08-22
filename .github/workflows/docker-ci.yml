@@ -1,0 +1,25 @@
+name: Customk Docker CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: copy dev.env to .env
+        run: cp dev.env .env
+
+      - name: Run lint and type checks
+        run: |
+          docker compose -f docker-compose-dev.yml run --rm app sh -c "mypy . && ruff check --no-cache && ruff format --no-cache"
+
+      - name: Run Pytest
+        run: docker compose -f docker-compose-dev.yml run --rm app sh -c "pytest"
