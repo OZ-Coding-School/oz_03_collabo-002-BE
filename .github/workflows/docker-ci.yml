@@ -14,6 +14,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Rename dev.env to .env
+        run: mv dev.env .env
+
       - name: Run lint and type checks
         run: |
           docker compose -f docker-compose-dev.yml up
