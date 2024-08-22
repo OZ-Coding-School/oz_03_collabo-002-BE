@@ -90,7 +90,7 @@ def callback(request: Request) -> Response:
         kakao_username = profile_info.get("properties", {}).get("nickname")
 
         if not kakao_email:
-            logger.warning(f"kakao email empty")
+            logger.warning("kakao email empty")
             return Response(
                 "Email not provided by Kakao", status=status.HTTP_400_BAD_REQUEST
             )
