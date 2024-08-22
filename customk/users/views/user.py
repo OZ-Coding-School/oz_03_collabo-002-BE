@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate, logout
 from django.db import IntegrityError
-from drf_spectacular.utils import OpenApiResponse, extend_schema
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
@@ -8,7 +9,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from config.logger import logger
-from users.serializers.user_serializer import UserSerializer, UserUpdateSerializer
+from users.serializers.user_serializer import (
+    UserInfoSerializer,
+    UserSerializer,
+    UserUpdateSerializer,
+)
 from users.services.token_service import generate_tokens, set_cookies
 
 
@@ -51,9 +56,8 @@ class UserDetailView(APIView):
         methods=["GET"],
         summary="유저 정보 조회",
         description="특정 유저 조회 API",
-        request=UserSerializer,
         responses={
-            200: UserSerializer,
+            200: UserInfoSerializer,
             404: OpenApiResponse(description="존재하지 않는 유저"),
         },
     )
@@ -62,16 +66,16 @@ class UserDetailView(APIView):
         user = request.user
         if user is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        serializer = UserSerializer(user)
+        serializer = UserInfoSerializer(user)
         return Response(serializer.data)
 
     @extend_schema(
         methods=["PATCH"],
         summary="유저 정보 업데이트",
         description="유저 정보 업데이트 API",
-        request=UserSerializer,
+        request=UserUpdateSerializer,
         responses={
-            200: UserSerializer,
+            200: UserUpdateSerializer,
             400: OpenApiResponse(description="잘못된 요청"),
         },
     )
@@ -92,7 +96,6 @@ class UserDetailView(APIView):
         methods=["DELETE"],
         summary="유저 탈퇴",
         description="유저 탈퇴 API",
-        request=UserSerializer,
         responses={204: OpenApiResponse(description="탈퇴에 성공하였습니다")},
     )
     def delete(self, request: Request) -> Response:
@@ -144,8 +147,10 @@ class LoginView(APIView):
     methods=["POST"],
     summary="로그아웃",
     description="로그아웃 API",
-    request=UserSerializer,
-    responses={200: "로그아웃 성공", 401: OpenApiResponse(description="로그아웃 실패")},
+    responses={
+        200: OpenApiResponse(description="로그아웃 성공"),
+        401: OpenApiResponse(description="로그아웃 실패"),
+    },
 )
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]

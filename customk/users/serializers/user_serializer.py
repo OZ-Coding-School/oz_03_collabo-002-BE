@@ -7,7 +7,7 @@ from users.models import User
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()
-    name = serializers.CharField(read_only=True)
+    name = serializers.CharField(required=False)
     password = serializers.CharField(write_only=True)
 
     class Meta:
@@ -33,6 +33,12 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data["password"])
         user.save()
         return user
+
+
+class UserInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("name", "email")
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):

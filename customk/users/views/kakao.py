@@ -16,11 +16,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from config.logger import logger
 from users.models import User
-from users.serializers.user_serializer import UserSerializer
 from users.services.token_service import generate_tokens, set_cookies
 
 
-@api_view(["GET"])
 @extend_schema(
     methods=["GET"],
     summary="카카오 로그인 callback",
@@ -40,7 +38,7 @@ from users.services.token_service import generate_tokens, set_cookies
                 OpenApiExample(
                     "Success response",
                     value={"redirect_url": "https://example.com"},
-                ),
+                )
             ],
         ),
         400: OpenApiResponse(description="잘못된 요청"),
@@ -48,6 +46,7 @@ from users.services.token_service import generate_tokens, set_cookies
         500: OpenApiResponse(description="서버 오류"),
     },
 )
+@api_view(["GET"])
 def callback(request: Request) -> Response:
     code = request.GET.get("code")
     if not code:
@@ -126,17 +125,38 @@ def callback(request: Request) -> Response:
         return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(["POST"])
 @extend_schema(
     methods=["POST"],
-    summary="로그아웃",
-    description="로그아웃 API",
-    request=UserSerializer,
+    summary="카카오 로그아웃",
+    description="카카오 로그아웃 API",
+    parameters=[
+        OpenApiParameter(
+            name="kakao_client_id",
+            type=str,
+            location=OpenApiParameter.HEADER,
+            description="Kakao client ID",
+        ),
+        OpenApiParameter(
+            name="refresh_token",
+            type=str,
+            location=OpenApiParameter.COOKIE,
+            description="Refresh token from cookies",
+        ),
+    ],
     responses={
-        200: "https://kauth.kakao.com/oauth/logout?client_id={client_id}&logout_redirect_uri=https://google.com ",
+        200: OpenApiResponse(
+            description="로그인 성공",
+            examples=[
+                OpenApiExample(
+                    "Success response",
+                    value={"redirect_url": "https://example.com"},
+                )
+            ],
+        ),
         401: OpenApiResponse(description="로그아웃 실패"),
     },
 )
+@api_view(["POST"])
 def logout(request: Request) -> Response:
     logger.info("카카오 로그아웃 request")
     try:
