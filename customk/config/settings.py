@@ -130,12 +130,6 @@ SPECTACULAR_SETTINGS = {
     "SWAGGER_UI_DIST": "//unpkg.com/swagger-ui-dist@5.17.14",
 }
 
-log_dir = os.path.join(BASE_DIR, "logs")
-log_file = os.path.join(log_dir, "django.log")
-
-# 디렉토리가 없으면 생성
-Path(log_dir).mkdir(parents=True, exist_ok=True)
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -157,17 +151,12 @@ LOGGING = {
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
-            "formatter": "simple",
-        },
-        "file": {
-            "class": "logging.FileHandler",
-            "filename": log_file,
             "formatter": "verbose",
         },
     },
     "loggers": {
         "django": {
-            "handlers": ["console", "file"],
+            "handlers": ["console"],
             "propagate": True,
         },
     },

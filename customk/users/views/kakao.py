@@ -1,7 +1,6 @@
 import os
 
 import requests
-from django.shortcuts import redirect
 from drf_spectacular.utils import (
     OpenApiExample,
     OpenApiParameter,
@@ -49,6 +48,7 @@ from users.services.token_service import generate_tokens, set_cookies
 )
 @api_view(["GET"])
 def callback(request: Request) -> Response:
+    logger.info("카카오 콜백 request")
     code = request.GET.get("code")
     if not code:
         return Response(
@@ -90,6 +90,7 @@ def callback(request: Request) -> Response:
         kakao_username = profile_info.get("properties", {}).get("nickname")
 
         if not kakao_email:
+            logger.warning(f"kakao email empty")
             return Response(
                 "Email not provided by Kakao", status=status.HTTP_400_BAD_REQUEST
             )
@@ -108,7 +109,7 @@ def callback(request: Request) -> Response:
             response = Response(
                 {"redirect_url": "https://google.com"}, status=status.HTTP_200_OK
             )
-
+        logger.info(f"created user, {created}")
         tokens = generate_tokens(user)
         set_cookies(response, tokens)
 
