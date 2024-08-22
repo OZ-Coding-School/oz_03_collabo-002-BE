@@ -8,11 +8,11 @@ from common.models import CommonModel
 
 class Review(CommonModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    class_id = models.ForeignKey(Class, on_delete=models.CASCADE)
+    class_id = models.ForeignKey(Class, related_name='reviews', on_delete=models.CASCADE)
     review = models.TextField()
     rating = models.DecimalField(
-        max_digits=2,  # 최대 자리수 (5.0, 4.5 등 최대 2자리)
-        decimal_places=1,  # 소수점 아래 한 자리수만 허용
+        max_digits=2,
+        decimal_places=1,
         validators=[
             MinValueValidator(Decimal("0.5")),  # 최소 0.5점
             MaxValueValidator(Decimal("5.0")),  # 최대 5점

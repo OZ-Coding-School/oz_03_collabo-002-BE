@@ -1,6 +1,7 @@
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from common.models import CommonModel
+from django.db.models import Avg
 
 
 class ExchangeRate(models.Model):
@@ -29,6 +30,11 @@ class Class(CommonModel):
         if exchange_rate:
             return round(self.price / exchange_rate.rate, 2)
         return None
+
+    @property
+    def average_rating(self):
+        avg = self.reviews.aggregate(average=Avg('rating'))['average'] or 0
+        return round(avg, 1)
 
 
 class ClassDate(models.Model):
