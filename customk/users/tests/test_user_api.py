@@ -4,8 +4,9 @@ from rest_framework import status
 
 from users.models import User
 
+pytestmark = pytest.mark.django_db
 
-@pytest.mark.django_db
+
 def test_signup(api_client):
     url = reverse("signup")
     data = {
@@ -18,7 +19,6 @@ def test_signup(api_client):
     assert User.objects.filter(email="test@example.com").exists()
 
 
-@pytest.mark.django_db
 def test_login(api_client, sample_user):
     url = reverse("login")
     data = {"email": "test@example.com", "password": "strongpassword"}
@@ -26,7 +26,6 @@ def test_login(api_client, sample_user):
     assert response.status_code == status.HTTP_200_OK
 
 
-@pytest.mark.django_db
 def test_login_failure(api_client):
     url = reverse("login")
     data = {"email": "nonexistent@example.com", "password": "wrongpassword"}
@@ -34,7 +33,6 @@ def test_login_failure(api_client):
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
-@pytest.mark.django_db
 def test_user_detail(api_client, sample_user):
     user = sample_user
     url = reverse("user-detail")
@@ -44,7 +42,6 @@ def test_user_detail(api_client, sample_user):
     assert response.data["email"] == user.email
 
 
-@pytest.mark.django_db
 def test_user_update(api_client, sample_user):
     user = sample_user
     url = reverse("user-detail")
@@ -56,7 +53,6 @@ def test_user_update(api_client, sample_user):
     assert user.name == "newtestname"
 
 
-@pytest.mark.django_db
 def test_user_delete(api_client, sample_user):
     user = sample_user
     url = reverse("user-detail")
@@ -66,7 +62,6 @@ def test_user_delete(api_client, sample_user):
     assert not User.objects.filter(email=user.email).exists()
 
 
-@pytest.mark.django_db
 def test_logout(api_client, sample_user):
     user = sample_user
     url = reverse("logout")

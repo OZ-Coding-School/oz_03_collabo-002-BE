@@ -2,18 +2,10 @@ from unittest.mock import patch
 
 import pytest
 from django.urls import reverse
-from rest_framework.test import APIClient
 
 from users.services.token_service import generate_tokens
 
-# from .test_user_api import sample_user
-
 pytestmark = pytest.mark.django_db
-
-
-@pytest.fixture
-def api_client():
-    return APIClient()
 
 
 @patch("requests.post")
@@ -29,7 +21,8 @@ def test_callback_success(mock_get, mock_post, api_client):
     }
 
     url = reverse("kakao_callback")
-    response = api_client.get(url, {"code": "mock_authorization_code"})
+    data = {"code": "mock_authorization_code"}
+    response = api_client.post(url, data=data)
 
     assert response.status_code == 201
     assert response.data["redirect_url"] == "https://naver.com"

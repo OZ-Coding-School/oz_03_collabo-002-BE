@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, logout
+from django.contrib.auth import authenticate
 from django.db import IntegrityError
 from drf_spectacular.utils import OpenApiResponse, extend_schema, inline_serializer
 from rest_framework import serializers, status
@@ -6,6 +6,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from config.logger import logger
 from users.serializers.user_serializer import (
@@ -112,13 +113,18 @@ class LoginView(APIView):
     @extend_schema(
         methods=["POST"],
         summary="일반 로그인",
+        description="로그인 성공 시 HttpOnly 쿠키에 JWT 토큰이 전달됩니다.",
         request=inline_serializer(
-            name="InlineFormSerializer",
+            name="login",
             fields={
                 "email": serializers.EmailField(),
                 "password": serializers.CharField(),
             },
         ),
+        responses={
+            200: OpenApiResponse(description="로그인 성공"),
+            401: OpenApiResponse(description="로그인 실패"),
+        },
     )
     def post(self, request: Request) -> Response:
         logger.info("로그인 request")
@@ -158,6 +164,17 @@ class LogoutView(APIView):
 
     def post(self, request: Request) -> Response:
         logger.info("로그아웃 request")
-        logout(request)
+        refresh_token = request.COOKIES.get("refresh_token")
 
-        return Response(data={"message": "로그아웃 성공"}, status=status.HTTP_200_OK)
+        if refresh_token:
+            token = RefreshToken(refresh_token)  # type: ignore
+            token.blacklist()
+
+        response = Response(
+            data={"message": "로그아웃 성공"}, status=status.HTTP_200_OK
+        )
+
+        response.delete_cookie("access_token")
+        response.delete_cookie("refresh_token")
+
+        return response

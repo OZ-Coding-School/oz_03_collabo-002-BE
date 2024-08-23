@@ -58,6 +58,7 @@ REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "config.authentication.CookieJWTAuthentication",
     ),
 }
 
@@ -113,6 +114,9 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "customk API Document",
     "DESCRIPTION": "customk API 문서입니다.",
     "CONTACT": {"name": "cusotmk", "url": "http://www.naver.com/", "email": ""},
+    "AUTHENTICATION_WHITELIST": [
+        "config.authentication.JWTAuthentication",
+    ],
     "SWAGGER_UI_SETTINGS": {
         "dom_id": "#swagger-ui",
         "layout": "BaseLayout",
@@ -127,6 +131,7 @@ SPECTACULAR_SETTINGS = {
     },
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
     "SWAGGER_UI_DIST": "//unpkg.com/swagger-ui-dist@5.17.14",
 }
 
