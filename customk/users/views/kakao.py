@@ -6,8 +6,9 @@ from drf_spectacular.utils import (
     OpenApiParameter,
     OpenApiResponse,
     extend_schema,
+    inline_serializer,
 )
-from rest_framework import status
+from rest_framework import serializers, status
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
@@ -20,17 +21,15 @@ from users.services.token_service import generate_tokens, set_cookies
 
 
 @extend_schema(
-    methods=["GET"],
+    methods=["POST"],
     summary="카카오 로그인 callback",
-    description="카카오 로그인 callback API",
-    parameters=[
-        OpenApiParameter(
-            name="code",
-            type=str,
-            location=OpenApiParameter.QUERY,
-            description="OAuth 인증 코드",
-        )
-    ],
+    description="로그인 성공 시 HttpOnly 쿠키에 JWT 토큰이 전달됩니다.",
+    request=inline_serializer(
+        name="InlineFormSerializer",
+        fields={
+            "code": serializers.CharField(help_text="OAuth 인증 코드"),
+        },
+    ),
     responses={
         200: OpenApiResponse(
             description="로그인 성공",
@@ -46,10 +45,10 @@ from users.services.token_service import generate_tokens, set_cookies
         500: OpenApiResponse(description="서버 오류"),
     },
 )
-@api_view(["GET"])
+@api_view(["POST"])
 def callback(request: Request) -> Response:
     logger.info("카카오 콜백 request")
-    code = request.GET.get("code")
+    code = request.data.get("code")
     if not code:
         return Response(
             "Authorization code is missing", status=status.HTTP_400_BAD_REQUEST
@@ -128,7 +127,7 @@ def callback(request: Request) -> Response:
 @extend_schema(
     methods=["POST"],
     summary="카카오 로그아웃",
-    description="카카오 로그아웃 API",
+    description="로그아웃을 성공하면 쿠키에 jwt 토큰을 삭제합니다.",
     request=None,
     parameters=[
         OpenApiParameter(
