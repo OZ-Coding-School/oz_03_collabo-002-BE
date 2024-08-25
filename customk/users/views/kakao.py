@@ -1,11 +1,5 @@
 import requests
-from drf_spectacular.utils import (
-    OpenApiExample,
-    OpenApiTypes,
-    extend_schema,
-    inline_serializer,
-)
-from rest_framework import serializers, status
+from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny
@@ -13,70 +7,11 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from config.logger import logger
+from users.extend_schemas.social import create_social_login_schema
 from users.services.oauth import auth_return_response
 
 
-@extend_schema(
-    methods=["POST"],
-    summary="카카오 로그인 callback",
-    description="로그인 성공 시 HttpOnly 쿠키에 JWT 토큰이 전달됩니다.",
-    request=inline_serializer(
-        name="InlineFormSerializer",
-        fields={
-            "code": serializers.CharField(help_text="OAuth 인증 코드"),
-            "client_id": serializers.CharField(help_text="OAuth 인증키"),
-        },
-    ),
-    responses={
-        200: OpenApiTypes.OBJECT,
-        400: OpenApiTypes.OBJECT,
-        500: OpenApiTypes.OBJECT,
-    },
-    examples=[
-        OpenApiExample(
-            "Success response",
-            value={"redirect_url": "https://example.com"},
-            response_only=True,
-            status_codes=[status.HTTP_200_OK],
-        ),
-        OpenApiExample(
-            "이메일 가져오기 실패",
-            value={
-                "message": "OAuth 서비스에 등록된 이메일이 존재하지 않습니다.",
-                "result": {
-                    "name": "name",
-                    "profile_image": "profile_image",
-                },
-            },
-            response_only=True,
-            status_codes=[status.HTTP_400_BAD_REQUEST],
-        ),
-        OpenApiExample(
-            "Body에 코드가 없는 경우",
-            value={"error": "Authorization code not provided"},
-            response_only=True,
-            status_codes=[status.HTTP_400_BAD_REQUEST],
-        ),
-        OpenApiExample(
-            "Access Token 발급 실패",
-            value={"error": "Failed to obtain access token"},
-            response_only=True,
-            status_codes=[status.HTTP_400_BAD_REQUEST],
-        ),
-        OpenApiExample(
-            "프로필 정보 가져오기 실패",
-            value={"error": "Failed to get user profile"},
-            response_only=True,
-            status_codes=[status.HTTP_400_BAD_REQUEST],
-        ),
-        OpenApiExample(
-            "서버 에러",
-            value={"error": "Error during Kakao authentication: {error message}"},
-            response_only=True,
-            status_codes=[status.HTTP_500_INTERNAL_SERVER_ERROR],
-        ),
-    ],
-)
+@create_social_login_schema("Kakao")
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def callback(request: Request) -> Response:
