@@ -1,3 +1,5 @@
+import os
+
 import requests
 from drf_spectacular.utils import (
     OpenApiExample,
@@ -18,7 +20,7 @@ from users.services.oauth import auth_return_response
 
 @extend_schema(
     methods=["POST"],
-    summary="카카오 로그인 callback",
+    summary="LINE 로그인 callback",
     description="로그인 성공 시 HttpOnly 쿠키에 JWT 토큰이 전달됩니다.",
     request=inline_serializer(
         name="InlineFormSerializer",
@@ -71,7 +73,7 @@ from users.services.oauth import auth_return_response
         ),
         OpenApiExample(
             "서버 에러",
-            value={"error": "Error during Kakao authentication: {error message}"},
+            value={"error": "Error during Line authentication: {error message}"},
             response_only=True,
             status_codes=[status.HTTP_500_INTERNAL_SERVER_ERROR],
         ),
@@ -80,51 +82,68 @@ from users.services.oauth import auth_return_response
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def callback(request: Request) -> Response:
-    logger.info("카카오 callback request")
+    logger.info("line callback request")
+
     code = request.data.get("code")
     client_id = request.data.get("client_id")
+    secret_id = os.environ.get("LINE_SECRET_ID")
+    redirect_uri = os.environ.get("LINE_REDIRECT_URI")
 
     if not code:
         return Response(
-            "Authorization code is missing", status=status.HTTP_400_BAD_REQUEST
+            {"error": "Authorization code not provided"},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     try:
-        kakao_token_url = "https://kauth.kakao.com/oauth/token"
-        kakao_profile_url = "https://kapi.kakao.com/v2/user/me"
+        token_url = "https://api.line.me/oauth2/v2.1/token"
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        data = {
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": redirect_uri,
+            "client_id": client_id,
+            "client_secret": secret_id,
+        }
 
-        token_response = requests.post(
-            kakao_token_url,
-            headers={"Content-Type": "application/x-www-form-urlencoded;charset=utf-8"},
-            data={
-                "grant_type": "authorization_code",
-                "client_id": client_id,
-                "code": code,
-            },
-            timeout=30,
-        )
+        response = requests.post(token_url, headers=headers, data=data)
 
-        token_response.raise_for_status()
-        access_token = token_response.json()["access_token"]
+        if response.status_code != 200:
+            return Response(
+                {"error": "Failed to obtain access token"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        profile_response = requests.get(
-            kakao_profile_url,
-            headers={
-                "Authorization": f"Bearer {access_token}",
-                "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-            },
-            timeout=30,
-        )
+        tokens = response.json()
+
+        id_token = tokens.get("id_token")
+
+        data = {"id_token": id_token, "client_id": client_id}
+
+        line_url = "https://api.line.me/oauth2/v2.1/verify"
+
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+
+        profile_response = requests.post(line_url, headers=headers, data=data)
+
+        if profile_response.status_code != 200:
+            return Response(
+                {"error": "Failed to get user profile"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         profile_response.raise_for_status()
-        profile_info = profile_response.json()
+        profile = profile_response.json()
 
-        email = profile_info.get("kakao_account", {}).get("email")
-        name = profile_info.get("properties", {}).get("nickname")
-        profile_image = profile_info.get("properties", {}).get("profile_image")
+        email = profile.get("email")
+        name = profile.get("name")
+        profile_image = profile.get("picture")
+
+        if not profile_image:
+            profile_image = "default.image.uri"  # TODO: 기본 이미지 필요
 
         if not email:
-            logger.warning("kakao email empty")
+            logger.warning("line email empty")
             return Response(
                 data={
                     "message": "이메일이 존재하지 않습니다.",
@@ -142,11 +161,11 @@ def callback(request: Request) -> Response:
             "profile_image": profile_image,
         }
 
-        return auth_return_response(service="kakao", **user_data)
+        return auth_return_response(service="line", **user_data)
 
     except requests.RequestException as e:
         return Response(
-            f"Error during Kakao authentication: {str(e)}",
+            f"Error during Line authentication: {str(e)}",
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 

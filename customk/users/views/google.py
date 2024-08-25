@@ -1,3 +1,5 @@
+import os
+
 import requests
 from drf_spectacular.utils import (
     OpenApiExample,
@@ -18,7 +20,7 @@ from users.services.oauth import auth_return_response
 
 @extend_schema(
     methods=["POST"],
-    summary="카카오 로그인 callback",
+    summary="구글 로그인 callback",
     description="로그인 성공 시 HttpOnly 쿠키에 JWT 토큰이 전달됩니다.",
     request=inline_serializer(
         name="InlineFormSerializer",
@@ -71,7 +73,7 @@ from users.services.oauth import auth_return_response
         ),
         OpenApiExample(
             "서버 에러",
-            value={"error": "Error during Kakao authentication: {error message}"},
+            value={"error": "Error during Google authentication: {error message}"},
             response_only=True,
             status_codes=[status.HTTP_500_INTERNAL_SERVER_ERROR],
         ),
@@ -80,60 +82,59 @@ from users.services.oauth import auth_return_response
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def callback(request: Request) -> Response:
-    logger.info("카카오 callback request")
+    logger.info("구글 callback request")
+
     code = request.data.get("code")
     client_id = request.data.get("client_id")
 
     if not code:
         return Response(
-            "Authorization code is missing", status=status.HTTP_400_BAD_REQUEST
+            {"error": "Authorization code not provided"},
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
     try:
-        kakao_token_url = "https://kauth.kakao.com/oauth/token"
-        kakao_profile_url = "https://kapi.kakao.com/v2/user/me"
+        token_url = "https://oauth2.googleapis.com/token"
+        data = {
+            "code": code,
+            "client_id": client_id,
+            "client_secret": os.environ.get("GOOGLE_SECRET_ID"),
+            "redirect_uri": os.environ.get("GOOGLE_REDIRECT_URI"),  # required
+            "grant_type": "authorization_code",
+        }
 
-        token_response = requests.post(
-            kakao_token_url,
-            headers={"Content-Type": "application/x-www-form-urlencoded;charset=utf-8"},
-            data={
-                "grant_type": "authorization_code",
-                "client_id": client_id,
-                "code": code,
-            },
-            timeout=30,
-        )
+        response = requests.post(token_url, data=data)
 
-        token_response.raise_for_status()
-        access_token = token_response.json()["access_token"]
+        if response.status_code != 200:
+            return Response(
+                {"error": "Failed to obtain access token"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        profile_response = requests.get(
-            kakao_profile_url,
-            headers={
-                "Authorization": f"Bearer {access_token}",
-                "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-            },
-            timeout=30,
-        )
+        tokens = response.json()
+        access_token = tokens.get("access_token")
 
-        profile_response.raise_for_status()
-        profile_info = profile_response.json()
+        user_info_url = "https://www.googleapis.com/oauth2/v2/userinfo"
+        headers = {"Authorization": f"Bearer {access_token}"}
 
-        email = profile_info.get("kakao_account", {}).get("email")
-        name = profile_info.get("properties", {}).get("nickname")
-        profile_image = profile_info.get("properties", {}).get("profile_image")
+        user_info_response = requests.get(user_info_url, headers=headers)
+
+        if user_info_response.status_code != 200:
+            return Response(
+                {"error": "Failed to get user info"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user_info_response.raise_for_status()
+        user_info = user_info_response.json()
+
+        email = user_info.get("email")
+        name = user_info.get("name")
+        profile_image = user_info.get("picture")
 
         if not email:
-            logger.warning("kakao email empty")
+            logger.warning("google email empty")
             return Response(
-                data={
-                    "message": "이메일이 존재하지 않습니다.",
-                    "result": {
-                        "name": name,
-                        "profile_image": profile_image,
-                    },
-                },
-                status=status.HTTP_400_BAD_REQUEST,
+                "Email not provided by google", status=status.HTTP_400_BAD_REQUEST
             )
 
         user_data = {
@@ -142,11 +143,11 @@ def callback(request: Request) -> Response:
             "profile_image": profile_image,
         }
 
-        return auth_return_response(service="kakao", **user_data)
+        return auth_return_response(service="google", **user_data)
 
     except requests.RequestException as e:
         return Response(
-            f"Error during Kakao authentication: {str(e)}",
+            f"Error during Google authentication: {str(e)}",
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 

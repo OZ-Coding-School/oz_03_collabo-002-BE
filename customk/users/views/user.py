@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate
 from django.db import IntegrityError
 from drf_spectacular.utils import OpenApiResponse, extend_schema, inline_serializer
 from rest_framework import serializers, status
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -137,7 +137,10 @@ class LoginView(APIView):
             password=serializer.validated_data["password"],
         )
         if user is None:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                data={"detail": "존재하지 않는 유저입니다."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
 
         tokens = generate_tokens(user)  # type: ignore
 
@@ -160,8 +163,6 @@ class LoginView(APIView):
     },
 )
 class LogoutView(APIView):
-    permission_classes = [IsAuthenticated]
-
     def post(self, request: Request) -> Response:
         logger.info("로그아웃 request")
         refresh_token = request.COOKIES.get("refresh_token")
