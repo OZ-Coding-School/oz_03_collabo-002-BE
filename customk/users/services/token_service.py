@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -16,9 +17,13 @@ def generate_tokens(user: User) -> Token:
 
 
 def set_cookies(response: Response, token: Token) -> Response:
+    access_max_age = int(settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds())
+    refresh_max_age = int(settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds())
+
     response.set_cookie(
         "access_token",
         token.access_token,
+        max_age=access_max_age,
         httponly=True,
         secure=True,
         samesite="Lax",
@@ -27,6 +32,7 @@ def set_cookies(response: Response, token: Token) -> Response:
     response.set_cookie(
         "refresh_token",
         token.refresh_token,
+        max_age=refresh_max_age,
         httponly=True,
         secure=True,
         samesite="Lax",
