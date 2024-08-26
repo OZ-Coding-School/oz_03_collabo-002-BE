@@ -58,4 +58,3 @@ class ClassListView(APIView):
             return Response(
                 {"status": "error", "message": "삭제 실패했습니다"}, status=404
             )
-

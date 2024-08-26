@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Review, ReviewImage
+from reactions.models import Reaction
 
 
 class ReviewImageInline(admin.TabularInline):
@@ -11,11 +12,10 @@ class ReviewImageInline(admin.TabularInline):
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ("user", "class_id", "rating", "created_at")
+    list_display = ("user", "class_id", "rating", "created_at", "likes_count")
     list_filter = ("rating", "created_at", "class_id")
     search_fields = ("user__name", "class_id__title", "review")
     inlines = [ReviewImageInline]
-    readonly_fields = ("rating",)
     fieldsets = (
         ("기본 정보", {"fields": ("user", "class_id", "rating")}),
         (
@@ -23,6 +23,12 @@ class ReviewAdmin(admin.ModelAdmin):
             {"fields": ("review",), "description": "리뷰 내용을 여기에 입력하세요."},
         ),
     )
+
+    def likes_count(self, obj):
+        reactions = Reaction.get_review_reactions(obj)
+        return reactions["likes_count"]
+
+    likes_count.short_description = "좋아요 수"
 
 
 @admin.register(ReviewImage)

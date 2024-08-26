@@ -6,21 +6,33 @@ from reviews.models import Review
 from reviews.serializers import ReviewSerializer
 from classes.models import Class
 
+from reactions.models import Reaction
+
 
 class ReviewListView(APIView):
     def get(self, request, class_id, *args, **kwargs):
-        try:
-            class_id = Class.objects.get(id=class_id)
-        except Class.DoesNotExist:
-            return Response({"class_id": "Invalid class ID."}, status=400)
+        class_id = Class.objects.get(id=class_id)
 
         reviews = Review.objects.filter(class_id=class_id)
+
         if not reviews.exists():
             return Response({"message": "No reviews found for this class."}, status=404)
 
-        serializer = ReviewSerializer(reviews, many=True)
+        review_data = []
+        for review in reviews:
+            reactions = Reaction.get_review_reactions(review)
+            review_data.append(
+                {
+                    "review": ReviewSerializer(review).data,
+                    "likes_count": reactions["likes_count"],
+                    "dislikes_count": reactions["dislikes_count"],
+                }
+            )
 
-        return Response(serializer.data, status=200)
+        response_data = {
+            "reviews": review_data,
+        }
+        return Response(response_data, status=200)
 
     def post(self, request, class_id, *args, **kwargs):
         try:
