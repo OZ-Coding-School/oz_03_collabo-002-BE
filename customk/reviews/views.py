@@ -1,3 +1,5 @@
+from typing import Any, Dict, Optional, Tuple
+
 from django.shortcuts import get_object_or_404, render
 from drf_spectacular.utils import (
     OpenApiParameter,
@@ -7,6 +9,7 @@ from drf_spectacular.utils import (
 )
 from rest_framework import serializers
 from rest_framework.permissions import AllowAny
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -14,8 +17,7 @@ from classes.models import Class
 from reactions.models import Reaction
 from reviews.models import Review
 from reviews.serializers import ReviewSerializer
-from typing import Any, Dict, Optional, Tuple
-from rest_framework.request import Request
+
 
 class ReviewListView(APIView):
     @extend_schema(
@@ -137,7 +139,9 @@ class ReviewListView(APIView):
             404: OpenApiResponse(description="리뷰를 찾을 수 없음"),
         },
     )
-    def patch(self, request: Request, class_id: int, *args: Any, **kwargs: Any) -> Response:
+    def patch(
+        self, request: Request, class_id: int, *args: Any, **kwargs: Any
+    ) -> Response:
         review_id = request.data.get("id")
 
         if not review_id:
@@ -177,7 +181,9 @@ class ReviewDeleteView(APIView):
             404: OpenApiResponse(description="리뷰를 찾을 수 없음"),
         },
     )
-    def delete(self, request: Request, class_id: int, review_id: int, *args: Any, **kwargs: Any) -> Response:
+    def delete(
+        self, request: Request, class_id: int, review_id: int, *args: Any, **kwargs: Any
+    ) -> Response:
         review = get_object_or_404(Review, id=review_id, class_id=class_id)
         review.delete()
 

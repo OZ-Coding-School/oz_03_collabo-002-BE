@@ -1,4 +1,5 @@
-from typing import Optional, Any
+from typing import Any, Optional
+
 from django.contrib import admin
 
 from reactions.models import Reaction
@@ -31,7 +32,7 @@ class ReviewAdmin(admin.ModelAdmin):  # type: ignore
         reactions = Reaction.get_review_reactions(obj)
         return reactions["likes_count"]
 
-    likes_count.short_description = "좋아요 수" # type: ignore
+    likes_count.short_description = "좋아요 수"  # type: ignore
 
 
 @admin.register(ReviewImage)
