@@ -1,13 +1,26 @@
 services:
   app:
-    platform: linux/amd64
-    build:
-      context: .
-      args:
-        - DEV=false
-    ports:
-      - "8000:8000"
+    build: .
+    image: ${NCP_CONTAINER_REGISTRY}/customk-app:latest
+    command: sh ./scripts/start-deploy.sh
     volumes:
       - ./customk:/app
-    command: >
-      sh -c "python manage.py runserver 0.0.0.0:8000"
+      - static-data:/vol/web
+    env_file:
+      - .env.prod
+
+  nginx:
+    build: ./nginx
+    image: ${NCP_CONTAINER_REGISTRY}/customk-nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - static-data:/vol/web
+    depends_on:
+      - app
+    environment:
+      - SERVER_NAME=${SERVER_NAME}
+
+volumes:
+  static-data:

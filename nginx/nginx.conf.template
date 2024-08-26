@@ -1,0 +1,27 @@
+server {
+    listen 80;
+    server_name ${SERVER_NAME};
+
+    location /health {
+        access_log off;
+        return 200 'OK';
+    }
+
+    location / {
+        proxy_pass http://app:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /static/ {
+        alias /vol/web/static/;
+    }
+}
+
+server {
+    listen 80;
+    server_name www.${SERVER_NAME};
+    return 301 $scheme://${SERVER_NAME}$request_uri;
+}

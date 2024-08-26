@@ -1,12 +1,20 @@
+import os
+from datetime import timedelta
 from pathlib import Path
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = "django-insecure-(1(*q!kq8yq-&=nm*t-10*7m*cr5mr2ek20i!=%ijhpv^uyw9z"
+SECRET_KEY = os.getenv("SECRET_KEY")
 
-DEBUG = True
+ENVIRONMENT = os.getenv("DJANGO_ENVIRONMENT", "development")
 
-ALLOWED_HOSTS = ["*"]
+DEBUG = ENVIRONMENT == "development"
+
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
 
 DJANGO_SYSTEM_APPS = [
     "django.contrib.admin",
@@ -17,16 +25,24 @@ DJANGO_SYSTEM_APPS = [
     "django.contrib.staticfiles",
 ]
 
-CUSTOM_USER_APPS = ["users", "common", "classes", "questions", "reviews", "reactions"]
+CUSTOM_USER_APPS = ["users", "common", "classes", "questions", "reviews", "reactions", "corsheaders"]
 
-THIRD_PARTY_APPS = ["rest_framework"]
 
-INSTALLED_APPS = DJANGO_SYSTEM_APPS + CUSTOM_USER_APPS + THIRD_PARTY_APPS
+THIRD_PARTY_APPS = [
+    "rest_framework",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
+    "drf_spectacular",
+]
 
+CUSTOM_USER_APPS = ["users", "common", "classes", "questions", "reviews", "reactions", "corsheaders"]
+
+INSTALLED_APPS = DJANGO_SYSTEM_APPS + THIRD_PARTY_APPS + CUSTOM_USER_APPS
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -43,6 +59,18 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = "config.urls"
+
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+}
+
+CORS_ORIGIN_WHITELIST = os.getenv("CORS_ORIGIN_WHITELIST", "").split(" ")
+
+CORS_ALLOW_CREDENTIALS = True
 
 TEMPLATES = [
     {
@@ -66,6 +94,12 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
+        # "ENGINE": "django.db.backends.postgresql",
+        # "HOST": os.getenv("DB_HOST"),
+        # "NAME": os.getenv("DB_NAME"),
+        # "USER": os.getenv("DB_USER"),
+        # "PASSWORD": os.getenv("DB_PASS"),
+        # "PORT": os.getenv("DB_PORT", "5432"),
     }
 }
 
@@ -84,17 +118,85 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+SPECTACULAR_SETTINGS = {
+    "TITLE": "customk API Document",
+    "DESCRIPTION": "customk API 문서입니다.",
+    "CONTACT": {"name": "cusotmk", "url": "http://www.naver.com/", "email": ""},
+    "SWAGGER_UI_SETTINGS": {
+        "dom_id": "#swagger-ui",
+        "layout": "BaseLayout",
+        "deepLinking": True,
+        "theme": "dark",
+        "persistAuthorization": True,
+        "filter": True,
+    },
+    "LICENSE": {
+        "name": "MIT License",
+        "url": "https://github.com/KimSoungRyoul/DjangoBackendProgramming/blob/main/LICENSE",
+    },
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SWAGGER_UI_DIST": "//unpkg.com/swagger-ui-dist@5.17.14",
+}
 
-LANGUAGE_CODE = "en-us"
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "filters": {
+        "require_debug_true": {
+            "()": "django.utils.log.RequireDebugTrue",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "propagate": True,
+        },
+    },
+}
 
-TIME_ZONE = "UTC"
-
+LANGUAGE_CODE = "ko-KR"
+TIME_ZONE = "Asia/Seoul"
+SITE_ID = 1
 USE_I18N = True
 
 USE_TZ = True
 
 AUTH_USER_MODEL = "users.User"
 
-STATIC_URL = "static/"
+
+STATIC_URL = "/static/"
+STATIC_ROOT = "/vol/web/static"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "TOKEN_TYPE_CLAIM": "token_type",
+    "JTI_CLAIM": "jti",
+}

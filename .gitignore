@@ -228,3 +228,6 @@ pyrightconfig.json
 
 db
 
+.env.*
+
+dev.env
