@@ -10,4 +10,3 @@ from django.dispatch import receiver
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):  # type: ignore
     list_display = ("email", "name")
-

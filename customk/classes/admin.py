@@ -45,7 +45,8 @@ class ClassAdmin(admin.ModelAdmin):  # type: ignore
 
         if unviewed_classes_count > 0:
             messages.warning(
-                request, f"{unviewed_classes_count}개의 조회되지 않은 클래스가 있습니다."
+                request,
+                f"{unviewed_classes_count}개의 조회되지 않은 클래스가 있습니다.",
             )
 
         return super().changelist_view(request, extra_context=extra_context)

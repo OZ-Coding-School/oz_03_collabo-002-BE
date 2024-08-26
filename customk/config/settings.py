@@ -25,7 +25,15 @@ DJANGO_SYSTEM_APPS = [
     "django.contrib.staticfiles",
 ]
 
-CUSTOM_USER_APPS = ["users", "common", "classes", "questions", "reviews", "reactions", "corsheaders"]
+CUSTOM_USER_APPS = [
+    "users",
+    "common",
+    "classes",
+    "questions",
+    "reviews",
+    "reactions",
+    "corsheaders",
+]
 
 
 THIRD_PARTY_APPS = [
@@ -35,7 +43,15 @@ THIRD_PARTY_APPS = [
     "drf_spectacular",
 ]
 
-CUSTOM_USER_APPS = ["users", "common", "classes", "questions", "reviews", "reactions", "corsheaders"]
+CUSTOM_USER_APPS = [
+    "users",
+    "common",
+    "classes",
+    "questions",
+    "reviews",
+    "reactions",
+    "corsheaders",
+]
 
 INSTALLED_APPS = DJANGO_SYSTEM_APPS + THIRD_PARTY_APPS + CUSTOM_USER_APPS
 

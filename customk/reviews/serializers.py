@@ -10,7 +10,6 @@ class ReviewImageSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    # TODO user_id로 받고 있지만 user_name으로 받을 생각을 해야할 수 있음
     images = ReviewImageSerializer(many=True, required=False)
     user = serializers.ReadOnlyField(source="user.id")
 

@@ -5,9 +5,10 @@ from common.models import CommonModel
 
 
 class Question(CommonModel):
-    # TODO 로그인 기능 구현 시 user model null 삭제
-    class_id = models.ForeignKey(Class, related_name="questions", on_delete=models.CASCADE)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    class_id = models.ForeignKey(
+        Class, related_name="questions", on_delete=models.CASCADE
+    )
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     question = models.TextField(blank=False)
     question_title = models.TextField(blank=False)
 
@@ -16,9 +17,9 @@ class Question(CommonModel):
 
 
 class Answer(CommonModel):
-    # TODO 문의답변 작성에 대한 권한 설정
-    # TODO 로그인 기능 구현 시 user model null 삭제
-    question_id = models.ForeignKey(Question, related_name="answers", on_delete=models.CASCADE)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    question_id = models.ForeignKey(
+        Question, related_name="answers", on_delete=models.CASCADE
+    )
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     answer = models.TextField()
     answer_title = models.TextField(null=True, blank=True)

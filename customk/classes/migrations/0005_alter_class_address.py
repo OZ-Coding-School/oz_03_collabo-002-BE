@@ -14,7 +14,9 @@ class Migration(migrations.Migration):
             model_name="class",
             name="address",
             field=models.JSONField(
-                blank=True, default=dict, encoder=django.core.serializers.json.DjangoJSONEncoder
+                blank=True,
+                default=dict,
+                encoder=django.core.serializers.json.DjangoJSONEncoder,
             ),
         ),
     ]

@@ -11,7 +11,11 @@ class Reaction(CommonModel):
     DISLIKE = -1
     NO_REACTION = 0
 
-    REACTON_CHOICES = ((LIKE, "Like"), (DISLIKE, "Dislike"), (NO_REACTION, "No Reaction"))
+    REACTON_CHOICES = (
+        (LIKE, "Like"),
+        (DISLIKE, "Dislike"),
+        (NO_REACTION, "No Reaction"),
+    )
 
     reaction = models.IntegerField(choices=REACTON_CHOICES, default=NO_REACTION)
 

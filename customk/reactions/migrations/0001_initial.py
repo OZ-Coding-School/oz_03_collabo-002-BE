@@ -20,7 +20,10 @@ class Migration(migrations.Migration):
                 (
                     "id",
                     models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
                     ),
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
@@ -28,7 +31,8 @@ class Migration(migrations.Migration):
                 (
                     "reaction",
                     models.IntegerField(
-                        choices=[(1, "Like"), (-1, "Dislike"), (0, "No Reaction")], default=0
+                        choices=[(1, "Like"), (-1, "Dislike"), (0, "No Reaction")],
+                        default=0,
                     ),
                 ),
                 (
@@ -40,7 +44,8 @@ class Migration(migrations.Migration):
                 (
                     "user",
                     models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
                     ),
                 ),
             ],

@@ -36,7 +36,8 @@ class ReviewListView(APIView):
         if serializer.is_valid():
             serializer.save(user=request.user, class_id=class_id)
             return Response(
-                {"message": "Review successfully created.", "review": serializer.data}, status=201
+                {"message": "Review successfully created.", "review": serializer.data},
+                status=201,
             )
 
         return Response(serializer.errors, status=400)
@@ -53,7 +54,8 @@ class ReviewListView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(
-                {"message": "Review successfully updated.", "review": serializer.data}, status=200
+                {"message": "Review successfully updated.", "review": serializer.data},
+                status=200,
             )
 
         return Response(serializer.errors, status=400)

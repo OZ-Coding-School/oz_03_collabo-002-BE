@@ -38,7 +38,6 @@ class Class(CommonModel):
 
 
 class ClassDate(models.Model):
-    # TODO person field 수정에 대해 논의
     class_id = models.ForeignKey(Class, related_name="dates", on_delete=models.CASCADE)
     start_date = models.DateField(blank=False, null=False)
     start_time = models.TimeField(blank=False, null=False)

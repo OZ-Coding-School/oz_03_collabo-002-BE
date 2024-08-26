@@ -47,7 +47,8 @@ class QuestionListView(APIView):
 
         if question.user != request.user:
             return Response(
-                {"error": "You do not have permission to delete this question."}, status=403
+                {"error": "You do not have permission to delete this question."},
+                status=403,
             )
 
         question.delete()
@@ -79,7 +80,8 @@ class AnswerListView(APIView):
             question = Question.objects.get(id=question_id, class_id=class_id)
         except Question.DoesNotExist:
             return Response(
-                {"error": "Question not found or does not belong to this class."}, status=404
+                {"error": "Question not found or does not belong to this class."},
+                status=404,
             )
 
         data = request.data.copy()
@@ -107,13 +109,17 @@ class AnswerListView(APIView):
             answer = Answer.objects.get(id=answer_id, question__class_id=class_id)
         except Answer.DoesNotExist:
             return Response(
-                {"error": "Answer not found or does not belong to this class."}, status=404
+                {"error": "Answer not found or does not belong to this class."},
+                status=404,
             )
 
         if answer.user != request.user:
             return Response(
-                {"error": "You do not have permission to delete this answer."}, status=403
+                {"error": "You do not have permission to delete this answer."},
+                status=403,
             )
 
         answer.delete()
-        return Response({"status": "success", "message": "Answer deleted successfully"}, status=200)
+        return Response(
+            {"status": "success", "message": "Answer deleted successfully"}, status=200
+        )

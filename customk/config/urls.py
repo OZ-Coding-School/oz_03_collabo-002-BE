@@ -7,6 +7,7 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
+
 def hello_test(request: HttpRequest) -> HttpResponse:
     return HttpResponse("Hello World")
 
