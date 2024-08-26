@@ -1,6 +1,8 @@
+from typing import Dict
+
 from django.db import models
 from django.db.models import Count, Q
-from typing import Dict
+
 from common.models import CommonModel
 from reviews.models import Review
 

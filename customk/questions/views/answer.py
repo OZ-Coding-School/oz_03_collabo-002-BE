@@ -1,3 +1,5 @@
+from typing import Any
+
 from drf_spectacular.utils import (
     OpenApiParameter,
     OpenApiResponse,
@@ -12,9 +14,6 @@ from rest_framework.views import APIView
 from classes.models import Class
 from questions.models import Answer, Question
 from questions.serializers import AnswerSerializer, QuestionSerializer
-
-from typing import Any
-
 
 
 class AnswerListView(APIView):
@@ -40,7 +39,9 @@ class AnswerListView(APIView):
             404: OpenApiResponse(description="클래스를 찾을 수 없음"),
         },
     )
-    def get(self, request: Request, class_id: int, *args: Any, **kwargs: Any) -> Response:
+    def get(
+        self, request: Request, class_id: int, *args: Any, **kwargs: Any
+    ) -> Response:
         answers = Answer.objects.filter(question_id__class_id=class_id)
         serializer = AnswerSerializer(answers, many=True)
         return Response(serializer.data)
@@ -71,7 +72,9 @@ class AnswerListView(APIView):
             404: OpenApiResponse(description="클래스 또는 질문을 찾을 수 없음"),
         },
     )
-    def post(self, request: Request, class_id: int, *args: Any, **kwargs: Any) -> Response:
+    def post(
+        self, request: Request, class_id: int, *args: Any, **kwargs: Any
+    ) -> Response:
         try:
             Class.objects.get(id=class_id)
         except Class.DoesNotExist:
@@ -134,7 +137,9 @@ class AnswerListView(APIView):
             403: OpenApiResponse(description="권한 없음"),
         },
     )
-    def patch(self, request: Request, class_id: int, *args: Any, **kwargs: Any) -> Response:
+    def patch(
+        self, request: Request, class_id: int, *args: Any, **kwargs: Any
+    ) -> Response:
         answer_id = request.data.get("answer_id")
 
         if answer_id is None:
@@ -197,7 +202,9 @@ class AnswerListView(APIView):
             403: OpenApiResponse(description="권한 없음"),
         },
     )
-    def delete(self, request: Request, class_id: int, *args: Any, **kwargs: Any) -> Response:
+    def delete(
+        self, request: Request, class_id: int, *args: Any, **kwargs: Any
+    ) -> Response:
         answer_id = request.data.get("answer_id")
 
         if not answer_id:

@@ -1,3 +1,5 @@
+from typing import Any
+
 from drf_spectacular.utils import (
     OpenApiParameter,
     OpenApiResponse,
@@ -5,14 +7,14 @@ from drf_spectacular.utils import (
     inline_serializer,
 )
 from rest_framework import serializers
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from classes.models import Class
 from questions.models import Answer, Question
 from questions.serializers import AnswerSerializer, QuestionSerializer
-from rest_framework.request import Request
-from typing import Any
+
 
 class QuestionListView(APIView):
     @extend_schema(
@@ -39,7 +41,9 @@ class QuestionListView(APIView):
             404: OpenApiResponse(description="클래스를 찾을 수 없음"),
         },
     )
-    def get(self, request: Request, class_id: int, *args: Any, **kwargs: Any) -> Response:
+    def get(
+        self, request: Request, class_id: int, *args: Any, **kwargs: Any
+    ) -> Response:
         questions = Question.objects.filter(class_id=class_id)
         serializer = QuestionSerializer(questions, many=True)
         return Response(serializer.data)
@@ -70,7 +74,9 @@ class QuestionListView(APIView):
             404: OpenApiResponse(description="클래스를 찾을 수 없음"),
         },
     )
-    def post(self, request: Request, class_id: int, *args: Any, **kwargs: Any) -> Response:
+    def post(
+        self, request: Request, class_id: int, *args: Any, **kwargs: Any
+    ) -> Response:
         try:
             class_instance = Class.objects.get(id=class_id)
         except Class.DoesNotExist:
@@ -119,7 +125,9 @@ class QuestionListView(APIView):
             403: OpenApiResponse(description="권한 없음"),
         },
     )
-    def patch(self, request: Request, class_id: int, *args: Any, **kwargs: Any) -> Response:
+    def patch(
+        self, request: Request, class_id: int, *args: Any, **kwargs: Any
+    ) -> Response:
         question_id = request.data.get("id")
         if question_id is None:
             return Response({"error": "Question ID is required."}, status=400)
@@ -177,7 +185,9 @@ class QuestionListView(APIView):
             403: OpenApiResponse(description="권한 없음"),
         },
     )
-    def delete(self, request: Request, question_id: int, *args: Any, **kwargs: Any) -> Response:
+    def delete(
+        self, request: Request, question_id: int, *args: Any, **kwargs: Any
+    ) -> Response:
         try:
             question = Question.objects.get(id=question_id)
         except Question.DoesNotExist:

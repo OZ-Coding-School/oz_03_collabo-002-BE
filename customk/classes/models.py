@@ -1,7 +1,8 @@
+from typing import Any, Dict, Optional
+
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.db.models import Avg
-from typing import Optional, Dict, Any
 
 from common.models import CommonModel
 
@@ -24,18 +25,22 @@ class Class(CommonModel):
 
     is_viewed = models.BooleanField(default=False)
 
-    def __str__(self)-> str:
+    def __str__(self) -> str:
         return self.title
 
-    def get_price_in_usd(self)-> Optional[float]:
-        exchange_rate: Optional[ExchangeRate] = ExchangeRate.objects.filter(currency="USD").first()
+    def get_price_in_usd(self) -> Optional[float]:
+        exchange_rate: Optional[ExchangeRate] = ExchangeRate.objects.filter(
+            currency="USD"
+        ).first()
         if exchange_rate:
             return round(float(self.price) / float(exchange_rate.rate), 2)
         return None
 
     @property
-    def average_rating(self)-> Optional[float]:
-        avg: Optional[float] = self.reviews.aggregate(average=Avg("rating"))["average"] or 0
+    def average_rating(self) -> Optional[float]:
+        avg: Optional[float] = (
+            self.reviews.aggregate(average=Avg("rating"))["average"] or 0
+        )
 
         if avg is None:
             return None
