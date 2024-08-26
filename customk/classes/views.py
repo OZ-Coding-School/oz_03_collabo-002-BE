@@ -3,12 +3,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Class
 from .serializers import ClassSerializer
-from rest_framework.permissions import IsAuthenticated
 
 
 class ClassListView(APIView):
-    permission_classes = [IsAuthenticated]
-
     def get(self, request, *args, **kwargs):
         classes = Class.objects.all()
         serializer = ClassSerializer(classes, many=True)
@@ -20,7 +17,6 @@ class ClassListView(APIView):
         return Response(response_data, status=200)
 
     def post(self, request, *args, **kwargs):
-        self.check_permissions(request)
         serializer = ClassSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -33,7 +29,6 @@ class ClassListView(APIView):
         return Response(serializer.errors, status=400)
 
     def patch(self, request, *args, **kwargs):
-        self.check_permissions(request)
         serializer = ClassSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -46,7 +41,6 @@ class ClassListView(APIView):
         return Response(serializer.errors, status=400)
 
     def delete(self, request, *args, **kwargs):
-        self.check_permissions(request)
         class_id = request.data.get("id", None)
         if class_id is None:
             return Response(
@@ -57,14 +51,11 @@ class ClassListView(APIView):
             class_instance = Class.objects.get(id=class_id)
             class_instance.delete()
             return Response(
-                {"status": "success", "message": "Event deleted successfully"},
+                {"status": "success", "message": "삭제 성공했습니다"},
                 status=204,
             )
         except Class.DoesNotExist:
             return Response(
-                {"status": "error", "message": "Event not found"}, status=404
+                {"status": "error", "message": "삭제 실패했습니다"}, status=404
             )
 
-    def check_permissions(self, request):
-        if not request.user.is_staff:
-            self.permission_denied(request, message="관리자 권한이 필요합니다")
