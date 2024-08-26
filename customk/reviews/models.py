@@ -23,7 +23,7 @@ class Review(CommonModel):
         ],
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Review: {self.review}, Rating: {self.rating}"
 
 
@@ -31,5 +31,5 @@ class ReviewImage(models.Model):
     review = models.ForeignKey(Review, related_name="images", on_delete=models.CASCADE)
     image_url = models.URLField(null=True, blank=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Image for Review {self.review.id}: {self.image_url}"

@@ -6,7 +6,7 @@ from drf_spectacular.utils import (
     inline_serializer,
 )
 from rest_framework import serializers
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -14,11 +14,10 @@ from classes.models import Class
 from reactions.models import Reaction
 from reviews.models import Review
 from reviews.serializers import ReviewSerializer
-
+from typing import Any, Dict, Optional, Tuple
+from rest_framework.request import Request
 
 class ReviewListView(APIView):
-    permission_classes = [IsAuthenticated]
-
     @extend_schema(
         methods=["GET"],
         summary="리뷰 목록 조회",
@@ -50,10 +49,10 @@ class ReviewListView(APIView):
             404: OpenApiResponse(description="리뷰를 찾을 수 없음"),
         },
     )
-    def get(self, request, class_id, *args, **kwargs):
-        class_id = Class.objects.get(id=class_id)
+    def get(self, request: Any, class_id: int, *args: Any, **kwargs: Any) -> Response:
+        class_instance = get_object_or_404(Class, id=class_id)
 
-        reviews = Review.objects.filter(class_id=class_id)
+        reviews = Review.objects.filter(class_id=class_instance.id)
 
         if not reviews.exists():
             return Response({"message": "No reviews found for this class."}, status=404)
@@ -98,15 +97,15 @@ class ReviewListView(APIView):
             400: OpenApiResponse(description="잘못된 요청"),
         },
     )
-    def post(self, request, class_id, *args, **kwargs):
+    def post(self, request: Any, class_id: int, *args: Any, **kwargs: Any) -> Response:
         try:
-            class_id = Class.objects.get(id=class_id)
+            class_instance = Class.objects.get(id=class_id)
         except Class.DoesNotExist:
             return Response({"class_id": "Invalid class ID."}, status=400)
 
         data = request.data.copy()
         data["user"] = request.user.id
-        data["class_id"] = class_id.id
+        data["class_id"] = class_instance.id
 
         serializer = ReviewSerializer(data=data)
         if serializer.is_valid():
@@ -138,7 +137,7 @@ class ReviewListView(APIView):
             404: OpenApiResponse(description="리뷰를 찾을 수 없음"),
         },
     )
-    def patch(self, request, class_id, *args, **kwargs):
+    def patch(self, request: Request, class_id: int, *args: Any, **kwargs: Any) -> Response:
         review_id = request.data.get("id")
 
         if not review_id:
@@ -158,7 +157,7 @@ class ReviewListView(APIView):
 
 
 class ReviewDeleteView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     @extend_schema(
         methods=["DELETE"],
@@ -178,7 +177,7 @@ class ReviewDeleteView(APIView):
             404: OpenApiResponse(description="리뷰를 찾을 수 없음"),
         },
     )
-    def delete(self, request, class_id, review_id, *args, **kwargs):
+    def delete(self, request: Request, class_id: int, review_id: int, *args: Any, **kwargs: Any) -> Response:
         review = get_object_or_404(Review, id=review_id, class_id=class_id)
         review.delete()
 

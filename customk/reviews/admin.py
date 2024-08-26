@@ -1,3 +1,4 @@
+from typing import Optional, Any
 from django.contrib import admin
 
 from reactions.models import Reaction
@@ -5,7 +6,7 @@ from reactions.models import Reaction
 from .models import Review, ReviewImage
 
 
-class ReviewImageInline(admin.TabularInline):
+class ReviewImageInline(admin.TabularInline):  # type: ignore
     model = ReviewImage
     extra = 1
     max_num = 5
@@ -13,7 +14,7 @@ class ReviewImageInline(admin.TabularInline):
 
 
 @admin.register(Review)
-class ReviewAdmin(admin.ModelAdmin):
+class ReviewAdmin(admin.ModelAdmin):  # type: ignore
     list_display = ("user", "class_id", "rating", "created_at", "likes_count")
     list_filter = ("rating", "created_at", "class_id")
     search_fields = ("user__name", "class_id__title", "review")
@@ -26,20 +27,14 @@ class ReviewAdmin(admin.ModelAdmin):
         ),
     )
 
-    def likes_count(self, obj):
+    def likes_count(self, obj: Review) -> int:
         reactions = Reaction.get_review_reactions(obj)
         return reactions["likes_count"]
 
-    likes_count.short_description = "좋아요 수"
+    likes_count.short_description = "좋아요 수" # type: ignore
 
 
 @admin.register(ReviewImage)
-class ReviewImageAdmin(admin.ModelAdmin):
+class ReviewImageAdmin(admin.ModelAdmin):  # type: ignore
     list_display = ("review", "image_url")
     search_fields = ("review__review",)
-
-    def has_add_permission(self, request, obj=None):
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        return False

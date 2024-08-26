@@ -13,8 +13,8 @@ class Question(CommonModel):
     question = models.TextField(blank=False)
     question_title = models.TextField(blank=False)
 
-    def __str__(self):
-        return f"Question by {self.user_id.username} on {self.class_id.title}"
+    def __str__(self) -> str:
+        return f"Question by {self.user_id.name} on {self.class_id.title}"
 
 
 class Answer(CommonModel):

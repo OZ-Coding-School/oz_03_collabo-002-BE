@@ -1,7 +1,9 @@
-from django.shortcuts import render
+from typing import Any, Dict
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.request import Request
+from rest_framework.response import Response
 
 from .models import Class
 from .serializers import ClassSerializer
@@ -18,7 +20,7 @@ class ClassListView(APIView):
             ),
         },
     )
-    def get(self, request, *args, **kwargs):
+    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         classes = Class.objects.all()
         serializer = ClassSerializer(classes, many=True)
         response_data = {
@@ -40,7 +42,7 @@ class ClassListView(APIView):
             400: OpenApiResponse(description="잘못된 요청"),
         },
     )
-    def post(self, request, *args, **kwargs):
+    def post(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         serializer = ClassSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -64,7 +66,7 @@ class ClassListView(APIView):
             400: OpenApiResponse(description="잘못된 요청"),
         },
     )
-    def patch(self, request, *args, **kwargs):
+    def patch(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         serializer = ClassSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -87,7 +89,7 @@ class ClassListView(APIView):
             404: OpenApiResponse(description="클래스가 존재하지 않음"),
         },
     )
-    def delete(self, request, *args, **kwargs):
+    def delete(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         class_id = request.data.get("id", None)
         if class_id is None:
             return Response(
