@@ -1,7 +1,8 @@
 from django.db import models
+
 from classes.models import Class
-from users.models import User
 from common.models import CommonModel
+from users.models import User
 
 
 class Question(CommonModel):

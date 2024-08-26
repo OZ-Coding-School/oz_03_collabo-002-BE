@@ -1,8 +1,10 @@
-from django.db.models import Avg
-from rest_framework import serializers
-from .models import Class, ClassDate, ClassImages
-from django.utils import timezone
 from datetime import timedelta
+
+from django.db.models import Avg
+from django.utils import timezone
+from rest_framework import serializers
+
+from .models import Class, ClassDate, ClassImages
 
 
 class ClassDateSerializer(serializers.ModelSerializer):
@@ -27,6 +29,7 @@ class ClassSerializer(serializers.ModelSerializer):
     is_new = serializers.SerializerMethodField()
     price_in_usd = serializers.SerializerMethodField()
     is_best = serializers.SerializerMethodField()
+    formatted_address = serializers.ReadOnlyField()
 
     class Meta:
         model = Class

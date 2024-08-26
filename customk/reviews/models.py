@@ -1,9 +1,11 @@
-from django.db import models
 from decimal import Decimal
-from django.core.validators import MinValueValidator, MaxValueValidator
-from users.models import User
+
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
+
 from classes.models import Class
 from common.models import CommonModel
+from users.models import User
 
 
 class Review(CommonModel):

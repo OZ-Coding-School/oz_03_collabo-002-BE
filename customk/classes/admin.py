@@ -1,4 +1,5 @@
 from django.contrib import admin, messages
+
 from .models import Class, ClassDate, ClassImages, ExchangeRate
 
 
@@ -21,7 +22,7 @@ class ClassAdmin(admin.ModelAdmin):  # type: ignore
         "require_person",
         "price",
         "price_in_usd",
-        "address",
+        "formatted_address",
         "is_viewed_badge",
         "average_rating",
     )

@@ -1,6 +1,8 @@
 from django.contrib import admin
-from .models import Review, ReviewImage
+
 from reactions.models import Reaction
+
+from .models import Review, ReviewImage
 
 
 class ReviewImageInline(admin.TabularInline):

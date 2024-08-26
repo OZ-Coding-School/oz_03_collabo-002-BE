@@ -1,15 +1,55 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404, render
+from drf_spectacular.utils import (
+    OpenApiParameter,
+    OpenApiResponse,
+    extend_schema,
+    inline_serializer,
+)
+from rest_framework import serializers
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from classes.models import Class
+from reactions.models import Reaction
 from reviews.models import Review
 from reviews.serializers import ReviewSerializer
-from classes.models import Class
-
-from reactions.models import Reaction
 
 
 class ReviewListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        methods=["GET"],
+        summary="리뷰 목록 조회",
+        description="특정 클래스에 대한 리뷰 목록을 조회하는 API입니다.",
+        parameters=[
+            OpenApiParameter(
+                name="class_id", description="클래스 ID", required=True, type=int
+            )
+        ],
+        responses={
+            200: OpenApiResponse(
+                description="리뷰 목록 조회 성공",
+                response=inline_serializer(
+                    name="ReviewListResponse",
+                    fields={
+                        "reviews": serializers.ListSerializer(
+                            child=inline_serializer(
+                                name="ReviewData",
+                                fields={
+                                    "review": ReviewSerializer(),
+                                    "likes_count": serializers.IntegerField(),
+                                    "dislikes_count": serializers.IntegerField(),
+                                },
+                            )
+                        )
+                    },
+                ),
+            ),
+            404: OpenApiResponse(description="리뷰를 찾을 수 없음"),
+        },
+    )
     def get(self, request, class_id, *args, **kwargs):
         class_id = Class.objects.get(id=class_id)
 
@@ -34,6 +74,30 @@ class ReviewListView(APIView):
         }
         return Response(response_data, status=200)
 
+    @extend_schema(
+        methods=["POST"],
+        summary="리뷰 생성",
+        description="특정 클래스에 대해 새 리뷰를 생성하는 API입니다.",
+        parameters=[
+            OpenApiParameter(
+                name="class_id", description="클래스 ID", required=True, type=int
+            )
+        ],
+        request=ReviewSerializer,
+        responses={
+            201: OpenApiResponse(
+                description="리뷰 생성 성공",
+                response=inline_serializer(
+                    name="ReviewCreateResponse",
+                    fields={
+                        "message": serializers.CharField(),
+                        "review": ReviewSerializer(),
+                    },
+                ),
+            ),
+            400: OpenApiResponse(description="잘못된 요청"),
+        },
+    )
     def post(self, request, class_id, *args, **kwargs):
         try:
             class_id = Class.objects.get(id=class_id)
@@ -54,6 +118,26 @@ class ReviewListView(APIView):
 
         return Response(serializer.errors, status=400)
 
+    @extend_schema(
+        methods=["PATCH"],
+        summary="리뷰 업데이트",
+        description="특정 리뷰를 업데이트하는 API입니다.",
+        request=ReviewSerializer,
+        responses={
+            200: OpenApiResponse(
+                description="리뷰 업데이트 성공",
+                response=inline_serializer(
+                    name="ReviewUpdateResponse",
+                    fields={
+                        "message": serializers.CharField(),
+                        "review": ReviewSerializer(),
+                    },
+                ),
+            ),
+            400: OpenApiResponse(description="잘못된 요청"),
+            404: OpenApiResponse(description="리뷰를 찾을 수 없음"),
+        },
+    )
     def patch(self, request, class_id, *args, **kwargs):
         review_id = request.data.get("id")
 
@@ -72,6 +156,28 @@ class ReviewListView(APIView):
 
         return Response(serializer.errors, status=400)
 
+
+class ReviewDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        methods=["DELETE"],
+        summary="리뷰 삭제",
+        description="특정 리뷰를 삭제하는 API입니다.",
+        parameters=[
+            OpenApiParameter(
+                name="class_id", description="클래스 ID", required=True, type=int
+            ),
+            OpenApiParameter(
+                name="review_id", description="리뷰 ID", required=True, type=int
+            ),
+        ],
+        responses={
+            204: OpenApiResponse(description="리뷰 삭제 성공"),
+            400: OpenApiResponse(description="잘못된 요청"),
+            404: OpenApiResponse(description="리뷰를 찾을 수 없음"),
+        },
+    )
     def delete(self, request, class_id, review_id, *args, **kwargs):
         review = get_object_or_404(Review, id=review_id, class_id=class_id)
         review.delete()

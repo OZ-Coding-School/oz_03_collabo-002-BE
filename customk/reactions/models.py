@@ -1,6 +1,7 @@
 from django.db import models
-from common.models import CommonModel
 from django.db.models import Count, Q
+
+from common.models import CommonModel
 
 
 class Reaction(CommonModel):

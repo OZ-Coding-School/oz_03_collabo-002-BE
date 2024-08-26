@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import QuestionListView, AnswerListView
+
+from .views import AnswerListView, QuestionListView
 
 urlpatterns = [
     path("<int:class_id>/", QuestionListView.as_view(), name="class-question-list"),

@@ -1,7 +1,8 @@
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
-from common.models import CommonModel
 from django.db.models import Avg
+
+from common.models import CommonModel
 
 
 class ExchangeRate(models.Model):
@@ -35,6 +36,14 @@ class Class(CommonModel):
     def average_rating(self):
         avg = self.reviews.aggregate(average=Avg("rating"))["average"] or 0
         return round(avg, 1)
+
+    @property
+    def formatted_address(self):
+        address = self.address or {}
+        state = address.get("state", "")
+        city = address.get("city", "")
+        street = address.get("street", "")
+        return f"{state} {city} {street}".strip()
 
 
 class ClassDate(models.Model):
