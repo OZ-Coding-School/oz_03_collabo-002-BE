@@ -1,3 +1,5 @@
+import os
+
 import requests
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -17,7 +19,7 @@ from users.services.oauth import auth_return_response
 def callback(request: Request) -> Response:
     logger.info("카카오 callback request")
     code = request.data.get("code")
-    client_id = request.data.get("client_id")
+    client_id = os.environ.get("KAKAO_CLIENT_ID")
 
     if not code:
         return Response(
