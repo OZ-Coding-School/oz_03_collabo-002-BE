@@ -37,7 +37,7 @@ class TestCustomTokenVerifyView:
         api_client.cookies["access_token"] = access_token
         url = reverse("token_verify")
         response = api_client.post(url)
-        print(response.data)
+
         assert response.status_code == status.HTTP_200_OK
         assert response.data["detail"] == "Token is valid"
 
