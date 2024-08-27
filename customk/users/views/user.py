@@ -1,6 +1,5 @@
-from django.contrib.auth import authenticate
 from django.db import IntegrityError
-from drf_spectacular.utils import OpenApiResponse, extend_schema, inline_serializer
+from drf_spectacular.utils import OpenApiResponse, extend_schema, inline_serializer, OpenApiExample
 from rest_framework import serializers, status
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
@@ -11,6 +10,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from config.logger import logger
 from users.serializers.user_serializer import (
     UserInfoSerializer,
+    UserLoginSerializer,
     UserSerializer,
     UserUpdateSerializer,
 )
@@ -115,40 +115,66 @@ class LoginView(APIView):
         summary="일반 로그인",
         description="로그인 성공 시 HttpOnly 쿠키에 JWT 토큰이 전달됩니다.",
         request=inline_serializer(
-            name="login",
+            name="UserLoginRequest",
             fields={
-                "email": serializers.EmailField(),
-                "password": serializers.CharField(),
+                "email": serializers.EmailField(help_text="User's email address"),
+                "password": serializers.CharField(help_text="User's password"),
             },
         ),
         responses={
-            200: OpenApiResponse(description="로그인 성공"),
-            401: OpenApiResponse(description="로그인 실패"),
+            200: inline_serializer(
+                name="UserLoginResponse",
+                fields={
+                    "id": serializers.IntegerField(),
+                    "name": serializers.CharField(),
+                    "email": serializers.EmailField(),
+                    "profile_image": serializers.URLField(),
+                },
+            ),
+            400: OpenApiResponse(description="Invalid credentials"),
+            401: OpenApiResponse(description="Unauthorized or inactive user"),
         },
+        examples=[
+            OpenApiExample(
+                "Successful Login",
+                value={
+                    "id": 1,
+                    "name": "John Doe",
+                    "email": "johndoe@example.com",
+                    "profile_image": "https://example.com/profile_image.png",
+                },
+                response_only=True,
+                status_codes=[200],
+            ),
+            OpenApiExample(
+                "Invalid Credentials",
+                value={"detail": "Invalid login credentials"},
+                response_only=True,
+                status_codes=[400],
+            ),
+            OpenApiExample(
+                "Inactive User",
+                value={"detail": "User account is deactivated"},
+                response_only=True,
+                status_codes=[401],
+            ),
+        ]
     )
     def post(self, request: Request) -> Response:
-        logger.info("로그인 request")
-        serializer = UserSerializer(data=request.data)
+        logger.info("Login attempt", extra={'email': request.data.get('email')})
+
+        serializer = UserLoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        user = authenticate(
-            request,
-            username=serializer.validated_data["email"],
-            password=serializer.validated_data["password"],
-        )
-        if user is None:
-            return Response(
-                data={"detail": "존재하지 않는 유저입니다."},
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
+        user = serializer.validated_data['user']
 
-        tokens = generate_tokens(user)  # type: ignore
+        user_info_serializer = UserInfoSerializer(user)
+        user_data = user_info_serializer.data
 
-        response = Response(
-            data={"status": "success", "message": "로그인 성공"},
-            status=status.HTTP_200_OK,
-        )
+        response = Response(user_data, status=status.HTTP_200_OK)
+        tokens = generate_tokens(user)
         set_cookies(response, tokens)
+
         return response
 
 

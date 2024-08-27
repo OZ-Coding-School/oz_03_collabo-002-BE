@@ -1,20 +1,38 @@
+import base64
+import uuid
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth import authenticate
+from django.db import transaction
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
+from rest_framework.exceptions import AuthenticationFailed
 
+from common.services.ncp_api_conf import ObjectStorage
+from config.logger import logger
 from users.models import User
-
+from django.utils import timezone
 
 class UserSerializer(serializers.ModelSerializer):
     email = serializers.EmailField()
     name = serializers.CharField(required=False)
     password = serializers.CharField(write_only=True)
+    profile_image = serializers.CharField(write_only=True, required=False)
+    profile_image_url = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
-        fields = ("name", "email", "password")
+        fields = (
+            "name",
+            "email",
+            "password",
+            "profile_image",
+            "profile_image_url",
+        )
 
-    def validate(self, data):
+    def get_profile_image_url(self, obj):
+        return obj.profile_image
+
+    def velidate(self, data):
         user = User(**data)
 
         errors = dict()
@@ -27,10 +45,43 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(errors)
         return super().validate(data)
 
+    @transaction.atomic
     def create(self, validated_data):
-        user = User(**validated_data)
+        profile_image_base64 = validated_data.pop("profile_image", None)
 
+        user = User(**validated_data)
         user.set_password(validated_data["password"])
+
+        if profile_image_base64:
+            obj_client = ObjectStorage()
+            try:
+                formatted, img_str = profile_image_base64.split(";base64,")
+                ext = formatted.split("/")[-1]
+                decoded_image = base64.b64decode(img_str)
+            except (ValueError, IndexError):
+                raise serializers.ValidationError(
+                    {"profile_image_base64": "Invalid base64 image format"}
+                )
+
+            file_name = f"{uuid.uuid4()}.{ext}"
+
+            bucket_name = "customk-imagebucket"
+            object_name = f"profile-images/{file_name}"
+            try:
+                status_code, image_url = obj_client.put_object(bucket_name, object_name, decoded_image)
+                if status_code != 200:
+                    error_message = (
+                        f"Failed to upload image. Status code: {status_code}"
+                    )
+                    logger.error(error_message)
+                    raise serializers.ValidationError({"profile_image": error_message})
+                user.profile_image = image_url
+            except Exception as e:
+                logger.error(f"Unexpected error during ObjectStorage upload: {str(e)}")
+                raise serializers.ValidationError(
+                    {"profile_image": "An unexpected error occurred"}
+                )
+
         user.save()
         return user
 
@@ -38,10 +89,33 @@ class UserSerializer(serializers.ModelSerializer):
 class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("name", "email", "profile_image")
+        fields = ('id', "name", "email", "profile_image")
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ("name", "profile_image")
+
+
+class UserLoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        email = data.get("email")
+        password = data.get("password")
+
+        if email and password:
+            user = authenticate(username=email, password=password)
+            if user is None:
+                raise AuthenticationFailed('Invalid login credentials')
+            if not user.is_active:
+                raise AuthenticationFailed('User account is deactivated')
+
+            user.last_login = timezone.now()
+            user.save(update_fields=['last_login'])
+
+            return {'user': user}
+        else:
+            raise serializers.ValidationError('Must include "email" and "password"')

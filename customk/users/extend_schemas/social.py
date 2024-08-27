@@ -1,13 +1,13 @@
-from drf_spectacular.utils import extend_schema, OpenApiExample, inline_serializer
-from rest_framework import serializers, status
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiExample, extend_schema, inline_serializer
+from rest_framework import serializers, status
 
 
 def create_social_login_schema(service_name: str):
     return extend_schema(
         methods=["POST"],
         summary=f"{service_name} 로그인 callback",
-        description=f"로그인 성공 시 HttpOnly 쿠키에 JWT 토큰이 전달됩니다.",
+        description="로그인 성공 시 HttpOnly 쿠키에 JWT 토큰이 전달됩니다.",
         request=inline_serializer(
             name=f"{service_name}InlineFormSerializer",
             fields={
@@ -59,7 +59,9 @@ def create_social_login_schema(service_name: str):
             ),
             OpenApiExample(
                 "서버 에러",
-                value={"error": f"Error during {service_name} authentication: {{error message}}"},
+                value={
+                    "error": f"Error during {service_name} authentication: {{error message}}"
+                },
                 response_only=True,
                 status_codes=[status.HTTP_500_INTERNAL_SERVER_ERROR],
             ),

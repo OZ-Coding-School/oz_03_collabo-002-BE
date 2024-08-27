@@ -1,7 +1,11 @@
-from django.conf import settings
+# from django.conf import settings
+from datetime import timedelta
+from typing import cast
+
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from config import settings
 from users.models import User
 
 
@@ -17,8 +21,12 @@ def generate_tokens(user: User) -> Token:
 
 
 def set_cookies(response: Response, token: Token) -> Response:
-    access_max_age = int(settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds())
-    refresh_max_age = int(settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds())
+    access_max_age = int(
+        cast(timedelta, settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"]).total_seconds()
+    )
+    refresh_max_age = int(
+        cast(timedelta, settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"]).total_seconds()
+    )
 
     response.set_cookie(
         "access_token",
