@@ -20,7 +20,6 @@ def callback(request: Request) -> Response:
     logger.info("구글 callback request")
 
     code = request.data.get("code")
-    client_id = request.data.get("client_id")
 
     if not code:
         return Response(
@@ -32,7 +31,7 @@ def callback(request: Request) -> Response:
         token_url = "https://oauth2.googleapis.com/token"
         data = {
             "code": code,
-            "client_id": client_id,
+            "client_id": os.environ.get("GOOGLE_CLIENT_ID"),
             "client_secret": os.environ.get("GOOGLE_SECRET_ID"),
             "redirect_uri": os.environ.get("GOOGLE_REDIRECT_URI"),  # required
             "grant_type": "authorization_code",

@@ -20,7 +20,7 @@ def callback(request: Request) -> Response:
     logger.info("line callback request")
 
     code = request.data.get("code")
-    client_id = request.data.get("client_id")
+    client_id = os.environ.get("LINE_CLIENT_ID")
     secret_id = os.environ.get("LINE_SECRET_ID")
     redirect_uri = os.environ.get("LINE_REDIRECT_URI")
 
