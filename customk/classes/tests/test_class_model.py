@@ -5,6 +5,7 @@ from classes.models import Class
 
 pytestmark = pytest.mark.django_db
 
+
 @pytest.fixture
 def sample_class():
     """
@@ -19,6 +20,7 @@ def sample_class():
         address={"state": "서울", "city": "강남구", "street": "테헤란로"},
     )
 
+
 def test_class_create_success():
     """
     클래스 모델 생성 성공
@@ -29,14 +31,19 @@ def test_class_create_success():
         max_person=20,
         require_person=10,
         price=60000,
-        address={"state": "서울", "city": "강남구", "street": "테헤란로"}
+        address={"state": "서울", "city": "강남구", "street": "테헤란로"},
     )
     assert class_instance.title == "New Class"
     assert class_instance.description == "Description of new class"
     assert class_instance.max_person == 20
     assert class_instance.require_person == 10
     assert class_instance.price == 60000
-    assert class_instance.address == {"state": "서울", "city": "강남구", "street": "테헤란로"}
+    assert class_instance.address == {
+        "state": "서울",
+        "city": "강남구",
+        "street": "테헤란로",
+    }
+
 
 def test_class_update_success(sample_class):
     sample_class.title = "Updated Class Title"
@@ -48,4 +55,8 @@ def test_class_update_success(sample_class):
     assert updated_class.max_person == 10
     assert updated_class.require_person == 5
     assert updated_class.price == 50000
-    assert updated_class.address == {"state": "서울", "city": "강남구", "street": "테헤란로"}
+    assert updated_class.address == {
+        "state": "서울",
+        "city": "강남구",
+        "street": "테헤란로",
+    }

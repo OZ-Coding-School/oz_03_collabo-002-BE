@@ -7,6 +7,6 @@ urlpatterns = [
     path(
         "<int:class_id>/delete/<int:review_id>/",
         ReviewDeleteView.as_view(),
-        name="review-delete"
+        name="review-delete",
     ),
 ]
