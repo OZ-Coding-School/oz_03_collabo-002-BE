@@ -43,16 +43,6 @@ THIRD_PARTY_APPS = [
     "drf_spectacular",
 ]
 
-CUSTOM_USER_APPS = [
-    "users",
-    "common",
-    "classes",
-    "questions",
-    "reviews",
-    "reactions",
-    "corsheaders",
-]
-
 INSTALLED_APPS = DJANGO_SYSTEM_APPS + THIRD_PARTY_APPS + CUSTOM_USER_APPS
 
 MIDDLEWARE = [
@@ -64,12 +54,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
-]
-
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8000",  # 웹소켓 서버가 실행되고 있는 도메인
-    "http://127.0.0.1:8000",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -79,14 +63,14 @@ ROOT_URLCONF = "config.urls"
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "config.authentication.CookieJWTAuthentication",
     ),
 }
 
 CORS_ORIGIN_WHITELIST = os.getenv("CORS_ORIGIN_WHITELIST", "").split(" ")
-
-CORS_ALLOW_CREDENTIALS = True
 
 TEMPLATES = [
     {
@@ -108,21 +92,16 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-        # "ENGINE": "django.db.backends.postgresql",
-        # "HOST": os.getenv("DB_HOST"),
-        # "NAME": os.getenv("DB_NAME"),
-        # "USER": os.getenv("DB_USER"),
-        # "PASSWORD": os.getenv("DB_PASS"),
-        # "PORT": os.getenv("DB_PORT", "5432"),
+        "ENGINE": "django.db.backends.postgresql",
+        "HOST": os.getenv("DB_HOST"),
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASS"),
+        "PORT": os.getenv("DB_PORT", "5432"),
     }
 }
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
@@ -138,6 +117,9 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "customk API Document",
     "DESCRIPTION": "customk API 문서입니다.",
     "CONTACT": {"name": "cusotmk", "url": "http://www.naver.com/", "email": ""},
+    "AUTHENTICATION_WHITELIST": [
+        "config.authentication.JWTAuthentication",
+    ],
     "SWAGGER_UI_SETTINGS": {
         "dom_id": "#swagger-ui",
         "layout": "BaseLayout",
@@ -152,6 +134,7 @@ SPECTACULAR_SETTINGS = {
     },
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
     "SWAGGER_UI_DIST": "//unpkg.com/swagger-ui-dist@5.17.14",
 }
 
@@ -203,7 +186,7 @@ STATIC_ROOT = "/vol/web/static"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
