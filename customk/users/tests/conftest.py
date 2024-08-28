@@ -16,7 +16,6 @@ def sample_user(django_db_setup):
         "name": "testname",
         "email": "test@example.com",
         "password": "strongpassword",
-
     }
     serializer = UserSerializer(data=data)
     serializer.is_valid(raise_exception=True)

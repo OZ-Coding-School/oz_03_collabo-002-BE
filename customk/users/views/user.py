@@ -1,5 +1,10 @@
 from django.db import IntegrityError
-from drf_spectacular.utils import OpenApiResponse, extend_schema, inline_serializer, OpenApiExample
+from drf_spectacular.utils import (
+    OpenApiExample,
+    OpenApiResponse,
+    extend_schema,
+    inline_serializer,
+)
 from rest_framework import serializers, status
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
@@ -158,15 +163,15 @@ class LoginView(APIView):
                 response_only=True,
                 status_codes=[401],
             ),
-        ]
+        ],
     )
     def post(self, request: Request) -> Response:
-        logger.info("Login attempt", extra={'email': request.data.get('email')})
+        logger.info("Login attempt", extra={"email": request.data.get("email")})
 
         serializer = UserLoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        user = serializer.validated_data['user']
+        user = serializer.validated_data["user"]
 
         user_info_serializer = UserInfoSerializer(user)
         user_data = user_info_serializer.data
