@@ -14,7 +14,8 @@ ENVIRONMENT = os.getenv("DJANGO_ENVIRONMENT", "development")
 
 DEBUG = ENVIRONMENT == "development"
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(" ")
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
+
 DJANGO_SYSTEM_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -24,19 +25,23 @@ DJANGO_SYSTEM_APPS = [
     "django.contrib.staticfiles",
 ]
 
+CUSTOM_USER_APPS = [
+    "users",
+    "common",
+    "classes",
+    "questions",
+    "reviews",
+    "reactions",
+    "corsheaders",
+]
+
+
 THIRD_PARTY_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "drf_spectacular",
 ]
-
-CUSTOM_USER_APPS = [
-    "common",
-    "users",
-    "corsheaders",
-]
-
 
 INSTALLED_APPS = DJANGO_SYSTEM_APPS + THIRD_PARTY_APPS + CUSTOM_USER_APPS
 
@@ -51,19 +56,21 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+CORS_ALLOW_CREDENTIALS = True
+
 ROOT_URLCONF = "config.urls"
 
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "config.authentication.CookieJWTAuthentication",
     ),
 }
 
-CORS_ORIGIN_WHITELIST = os.getenv("CORS_ORIGIN_WHITELIST").split(" ")
-
-CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_WHITELIST = os.getenv("CORS_ORIGIN_WHITELIST", "").split(" ")
 
 TEMPLATES = [
     {
@@ -96,9 +103,6 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
@@ -113,6 +117,9 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "customk API Document",
     "DESCRIPTION": "customk API 문서입니다.",
     "CONTACT": {"name": "cusotmk", "url": "http://www.naver.com/", "email": ""},
+    "AUTHENTICATION_WHITELIST": [
+        "config.authentication.JWTAuthentication",
+    ],
     "SWAGGER_UI_SETTINGS": {
         "dom_id": "#swagger-ui",
         "layout": "BaseLayout",
@@ -127,6 +134,7 @@ SPECTACULAR_SETTINGS = {
     },
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
     "SWAGGER_UI_DIST": "//unpkg.com/swagger-ui-dist@5.17.14",
 }
 
@@ -171,13 +179,14 @@ USE_TZ = True
 
 AUTH_USER_MODEL = "users.User"
 
+
 STATIC_URL = "/static/"
 STATIC_ROOT = "/vol/web/static"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,

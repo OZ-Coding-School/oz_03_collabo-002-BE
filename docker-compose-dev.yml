@@ -10,8 +10,13 @@ services:
       - ./customk:/app
     ports:
       - "8000:8000"
+    environment:
+      - DB_HOST=localdb
+      - DB_NAME=testdb
+      - DB_USER=rbwo
+      - DB_PASS=password123
     env_file:
-      - dev.env
+      - .env
     depends_on:
       - localdb
 
@@ -19,8 +24,12 @@ services:
     image: postgres:13-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=testdb
+      - POSTGRES_USER=rbwo
+      - POSTGRES_PASSWORD=password123
     env_file:
-      - dev.env
+      - .env
     ports:
       - "5432:5432"
 
