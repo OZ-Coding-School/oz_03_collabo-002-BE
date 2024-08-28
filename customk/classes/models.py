@@ -22,6 +22,7 @@ class Class(CommonModel):
     require_person = models.IntegerField(blank=False, default=0)
     price = models.IntegerField(blank=False, default=0)
     address = models.JSONField(encoder=DjangoJSONEncoder, default=dict, blank=True)
+    class_type = models.JSONField(encoder=DjangoJSONEncoder, default=list, blank=True)
 
     is_viewed = models.BooleanField(default=False)
 

@@ -183,7 +183,7 @@ class QuestionListView(APIView):
                     fields={
                         "status": serializers.CharField(),
                         "message": serializers.CharField(),
-                        "data": serializers.SerializerMethodField()
+                        "data": serializers.SerializerMethodField(),
                     },
                 ),
             ),
