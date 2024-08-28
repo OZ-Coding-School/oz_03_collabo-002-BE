@@ -1,3 +1,5 @@
+import os
+
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
@@ -33,6 +35,7 @@ class UserManager(BaseUserManager["User"]):
 class User(AbstractBaseUser, PermissionsMixin, CommonModel):
     email = models.EmailField(max_length=255, unique=True, editable=False)
     name = models.CharField(max_length=50)
+    profile_image = models.URLField(max_length=255, null=True)
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
