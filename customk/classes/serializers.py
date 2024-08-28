@@ -1,10 +1,45 @@
 from datetime import timedelta
+import base64
+import uuid
 
 from django.db.models import Avg
 from django.utils import timezone
 from rest_framework import serializers
-
 from .models import Class, ClassDate, ClassImages
+from common.services.ncp_api_conf import ObjectStorage
+from config.logger import logger
+
+
+def upload_image_to_object_storage(base64_image: str) -> str:
+    obj_client = ObjectStorage()
+
+    try:
+        formatted, img_str = base64_image.split(";base64,")
+        ext = formatted.split("/")[-1]
+        decoded_image = base64.b64decode(img_str)
+    except (ValueError, IndexError):
+        raise serializers.ValidationError(
+            {"class_image_base64": "Invalid base64 image format"}
+        )
+
+    file_name = f"{uuid.uuid4()}.{ext}"
+
+    bucket_name = "customk-imagebucket"
+    object_name = f"class-images/{file_name}"
+    try:
+        status_code, image_url = obj_client.put_object(
+            bucket_name, object_name, decoded_image
+        )
+        if status_code != 200:
+            error_message = f"Failed to upload image. Status code: {status_code}"
+            logger.error(error_message)
+            raise serializers.ValidationError({"class_image": error_message})
+        return image_url
+    except Exception as e:
+        logger.error(f"Unexpected error during ObjectStorage upload: {str(e)}")
+        raise serializers.ValidationError(
+            {"class_image": "An unexpected error occurred"}
+        )
 
 
 class ClassDateSerializer(serializers.ModelSerializer):
@@ -22,10 +57,14 @@ class ClassImagesSerializer(serializers.ModelSerializer):
         model = ClassImages
         fields = "__all__"
 
+    def get_image_url(self, obj):
+        # Return the URL of the uploaded image
+        return obj.image_url
+
 
 class ClassSerializer(serializers.ModelSerializer):
     dates = ClassDateSerializer(many=True, required=False)
-    images = ClassImagesSerializer(many=True, required=False)
+    images = serializers.ListField(child=serializers.CharField(), required=False)
     is_new = serializers.SerializerMethodField()
     price_in_usd = serializers.SerializerMethodField()
     is_best = serializers.SerializerMethodField()
@@ -68,14 +107,15 @@ class ClassSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         dates_data = validated_data.pop("dates", [])
-        images_data = validated_data.pop("images", [])
+        images_data64 = validated_data.pop("images", [])
 
         class_instance = Class.objects.create(**validated_data)
 
         for date_data in dates_data:
             ClassDate.objects.create(class_id=class_instance, **date_data)
 
-        for image_data in images_data:
-            ClassImages.objects.create(class_id=class_instance, **image_data)
+        for image_data64 in images_data64:
+            image_url = upload_image_to_object_storage(image_data64)
+            ClassImages.objects.create(class_id=class_instance, image_url=image_url)
 
         return class_instance
