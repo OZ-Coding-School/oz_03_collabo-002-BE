@@ -1,10 +1,10 @@
 from typing import Any
 
 from drf_spectacular.utils import OpenApiResponse, extend_schema
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from .models import Class
 from .serializers import ClassSerializer
@@ -12,7 +12,7 @@ from .serializers import ClassSerializer
 
 class ClassListView(APIView):
     def get_permissions(self):
-        if self.request.method == 'GET':
+        if self.request.method == "GET":
             return [AllowAny()]
         return [IsAuthenticated()]
 
