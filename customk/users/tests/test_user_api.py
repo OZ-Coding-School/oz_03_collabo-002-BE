@@ -1,8 +1,9 @@
-import os
-import mimetypes
-import pytest
 import base64
+import mimetypes
+import os
 from unittest.mock import patch
+
+import pytest
 from django.urls import reverse
 from rest_framework import status
 
@@ -14,7 +15,7 @@ pytestmark = pytest.mark.django_db
 def encode_image_to_base64(image_path):
     try:
         with open(image_path, "rb") as image_file:
-            encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+            encoded_string = base64.b64encode(image_file.read()).decode("utf-8")
             mime_type, _ = mimetypes.guess_type(image_path)
             return f"data:{mime_type};base64,{encoded_string}"
     except FileNotFoundError:
@@ -32,11 +33,16 @@ def test_signup(api_client):
         "name": "testname",
         "email": "testsign@example.com",
         "password": "strongpassword",
-        "profile_image": image_base64_str
+        "profile_image": image_base64_str,
     }
 
-    with patch("common.services.ncp_api_conf.ObjectStorage.put_object") as mock_put_object:
-        mock_put_object.return_value = (200, "https://mock-storage-url.com/profile-images/testimage.png")
+    with patch(
+        "common.services.ncp_api_conf.ObjectStorage.put_object"
+    ) as mock_put_object:
+        mock_put_object.return_value = (
+            200,
+            "https://mock-storage-url.com/profile-images/testimage.png",
+        )
 
         response = api_client.post(url, data)
         print(response.data)
