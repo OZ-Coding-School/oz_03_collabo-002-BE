@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from common.services.ncp_api_conf import ObjectStorage
 from config.logger import logger
 from users.serializers.user_serializer import (
     UserInfoSerializer,
@@ -28,7 +29,7 @@ class SignupView(APIView):
     @extend_schema(
         methods=["POST"],
         summary="일반 회원가입",
-        description="일반 회원가입 API",
+        description="이메일, 이름, 비밀번호, 이미지링크(optional)을 사용한 회원가입입니다",
         request=UserSerializer,
         responses={
             200: UserSerializer,
@@ -60,7 +61,7 @@ class UserDetailView(APIView):
     @extend_schema(
         methods=["GET"],
         summary="유저 정보 조회",
-        description="특정 유저 조회 API",
+        description="이메일, 이름, 이미지가 반환됩니다",
         responses={
             200: UserInfoSerializer,
             404: OpenApiResponse(description="존재하지 않는 유저"),
@@ -77,7 +78,7 @@ class UserDetailView(APIView):
     @extend_schema(
         methods=["PATCH"],
         summary="유저 정보 업데이트",
-        description="유저 정보 업데이트 API",
+        description="이름 또는 이미지를 수정합니다",
         request=UserUpdateSerializer,
         responses={
             200: UserUpdateSerializer,
@@ -100,16 +101,43 @@ class UserDetailView(APIView):
     @extend_schema(
         methods=["DELETE"],
         summary="유저 탈퇴",
-        description="유저 탈퇴 API",
+        description="쿠키에 저장된 토큰 및 프로필 이미지도 같이 삭제됩니다",
         responses={204: OpenApiResponse(description="탈퇴에 성공하였습니다")},
     )
     def delete(self, request: Request) -> Response:
         logger.info("유저 삭제 request")
         user = request.user
-        if user is None:
+
+        from users.models import User
+
+        if not isinstance(user, User):
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+        refresh_token = request.COOKIES.get("refresh_token")
+
+        if refresh_token:
+            token = RefreshToken(refresh_token)  # type: ignore
+            token.blacklist()
+
+        obj = ObjectStorage()
+        if user.profile_image:
+            obj_status_code = obj.delete_object(user.profile_image)
+
+            if obj_status_code != 204:
+                return Response(
+                    {"message": "delete image error"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
         user.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+
+        response = Response(
+            {"message": "success delete user"}, status=status.HTTP_204_NO_CONTENT
+        )
+        response.delete_cookie("access_token")
+        response.delete_cookie("refresh_token")
+
+        return response
 
 
 class LoginView(APIView):
