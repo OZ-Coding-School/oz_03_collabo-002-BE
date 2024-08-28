@@ -185,3 +185,20 @@ class ObjectStorage:
         )
 
         return r.status_code, request_url
+
+    def delete_object(self, object_url, request_parameters=None):
+        http_method = "DELETE"
+
+        time = datetime.datetime.utcnow()
+        time_stamp = time.strftime(self.time_format)
+        headers = {
+            "x-amz-date": time_stamp,
+            "x-amz-content-sha256": self.payload_hash,
+            "host": self.host,
+        }
+
+        request_path = object_url.split("https://kr.object.ncloudstorage.com")[-1]
+        self._sign(http_method, request_path, headers, time, request_parameters)
+        r = requests.delete(object_url, headers=headers, params=request_parameters)
+
+        return r.status_code
