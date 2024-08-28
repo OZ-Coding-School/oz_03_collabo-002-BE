@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.http import HttpRequest, HttpResponse
 from django.urls import include, path
 from drf_spectacular.views import (
     SpectacularAPIView,
@@ -6,8 +7,17 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
+
+def hello_test(request: HttpRequest) -> HttpResponse:
+    return HttpResponse("Hello World")
+
+
 urlpatterns = [
+    path("", hello_test, name="hello_test"),
     path("admin/", admin.site.urls),
+    path("api/v1/classes/", include("classes.urls")),
+    path("api/v1/question/", include("questions.urls")),
+    path("api/v1/reviews/", include("reviews.urls")),
     path("api/v1/schema", SpectacularAPIView.as_view(), name="schema"),
     path(
         "api/v1/schema/swagger-ui/",

@@ -14,7 +14,8 @@ ENVIRONMENT = os.getenv("DJANGO_ENVIRONMENT", "development")
 
 DEBUG = ENVIRONMENT == "development"
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(" ")
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(" ")
+
 DJANGO_SYSTEM_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -24,6 +25,17 @@ DJANGO_SYSTEM_APPS = [
     "django.contrib.staticfiles",
 ]
 
+CUSTOM_USER_APPS = [
+    "users",
+    "common",
+    "classes",
+    "questions",
+    "reviews",
+    "reactions",
+    "corsheaders",
+]
+
+
 THIRD_PARTY_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
@@ -32,11 +44,14 @@ THIRD_PARTY_APPS = [
 ]
 
 CUSTOM_USER_APPS = [
-    "common",
     "users",
+    "common",
+    "classes",
+    "questions",
+    "reviews",
+    "reactions",
     "corsheaders",
 ]
-
 
 INSTALLED_APPS = DJANGO_SYSTEM_APPS + THIRD_PARTY_APPS + CUSTOM_USER_APPS
 
@@ -49,7 +64,15 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",  # 웹소켓 서버가 실행되고 있는 도메인
+    "http://127.0.0.1:8000",
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = "config.urls"
 
@@ -61,7 +84,7 @@ REST_FRAMEWORK = {
     ),
 }
 
-CORS_ORIGIN_WHITELIST = os.getenv("CORS_ORIGIN_WHITELIST").split(" ")
+CORS_ORIGIN_WHITELIST = os.getenv("CORS_ORIGIN_WHITELIST", "").split(" ")
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -85,12 +108,14 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "HOST": os.getenv("DB_HOST"),
-        "NAME": os.getenv("DB_NAME"),
-        "USER": os.getenv("DB_USER"),
-        "PASSWORD": os.getenv("DB_PASS"),
-        "PORT": os.getenv("DB_PORT", "5432"),
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+        # "ENGINE": "django.db.backends.postgresql",
+        # "HOST": os.getenv("DB_HOST"),
+        # "NAME": os.getenv("DB_NAME"),
+        # "USER": os.getenv("DB_USER"),
+        # "PASSWORD": os.getenv("DB_PASS"),
+        # "PORT": os.getenv("DB_PORT", "5432"),
     }
 }
 
@@ -170,6 +195,7 @@ USE_I18N = True
 USE_TZ = True
 
 AUTH_USER_MODEL = "users.User"
+
 
 STATIC_URL = "/static/"
 STATIC_ROOT = "/vol/web/static"
