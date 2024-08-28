@@ -12,15 +12,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from classes.models import Class
-from questions.models import Answer, Question
-from questions.serializers import AnswerSerializer, QuestionSerializer
+from questions.models import Question
+from questions.serializers import QuestionSerializer
 
 
 class QuestionListView(APIView):
     @extend_schema(
         methods=["GET"],
-        summary="질문 목록 조회",
-        description="특정 클래스에 대한 질문 목록을 조회하는 API입니다.",
+        summary="질문 및 답변 목록 조회",
+        description="특정 클래스에 대한 질문 및 답변 목록을 조회하는 API입니다.",
         parameters=[
             OpenApiParameter(
                 name="class_id", description="클래스 ID", required=True, type=int
@@ -28,7 +28,7 @@ class QuestionListView(APIView):
         ],
         responses={
             200: OpenApiResponse(
-                description="질문 목록 조회 성공",
+                description="질문 및 답변 목록 조회 성공",
                 response=inline_serializer(
                     name="QuestionListResponse",
                     fields={
@@ -50,8 +50,8 @@ class QuestionListView(APIView):
 
     @extend_schema(
         methods=["POST"],
-        summary="질문 생성",
-        description="특정 클래스에 대해 새 질문을 생성하는 API입니다.",
+        summary="질문 및 답변 생성",
+        description="특정 클래스에 대해 새 질문 또는 답변을 생성하는 API입니다.",
         parameters=[
             OpenApiParameter(
                 name="class_id", description="클래스 ID", required=True, type=int
@@ -60,7 +60,7 @@ class QuestionListView(APIView):
         request=QuestionSerializer,
         responses={
             201: OpenApiResponse(
-                description="질문 생성 성공",
+                description="질문 또는 답변 생성 성공",
                 response=inline_serializer(
                     name="QuestionCreateResponse",
                     fields={
@@ -82,7 +82,6 @@ class QuestionListView(APIView):
         except Class.DoesNotExist:
             return Response({"error": "Class not found."}, status=404)
 
-        # 요청 데이터 복사 및 사용자와 수업 정보 추가
         data = request.data.copy()
         data["user_id"] = request.user.id
         data["class_id"] = class_instance.id
@@ -92,7 +91,7 @@ class QuestionListView(APIView):
             serializer.save()
             response_data = {
                 "status": "success",
-                "message": "Question submitted successfully",
+                "message": "Question or Answer submitted successfully",
                 "data": serializer.data,
             }
             return Response(response_data, status=201)
@@ -100,8 +99,8 @@ class QuestionListView(APIView):
 
     @extend_schema(
         methods=["PATCH"],
-        summary="질문 업데이트",
-        description="특정 질문을 업데이트하는 API입니다.",
+        summary="질문 또는 답변 업데이트",
+        description="특정 질문 또는 답변을 업데이트하는 API입니다.",
         parameters=[
             OpenApiParameter(
                 name="class_id", description="클래스 ID", required=True, type=int
@@ -110,7 +109,7 @@ class QuestionListView(APIView):
         request=QuestionSerializer,
         responses={
             200: OpenApiResponse(
-                description="질문 업데이트 성공",
+                description="질문 또는 답변 업데이트 성공",
                 response=inline_serializer(
                     name="QuestionUpdateResponse",
                     fields={
@@ -121,7 +120,7 @@ class QuestionListView(APIView):
                 ),
             ),
             400: OpenApiResponse(description="잘못된 요청"),
-            404: OpenApiResponse(description="질문을 찾을 수 없음"),
+            404: OpenApiResponse(description="질문 또는 답변을 찾을 수 없음"),
             403: OpenApiResponse(description="권한 없음"),
         },
     )
@@ -136,13 +135,17 @@ class QuestionListView(APIView):
             question = Question.objects.get(id=int(question_id), class_id=class_id)
         except Question.DoesNotExist:
             return Response(
-                {"error": "Question not found or does not belong to this class."},
+                {
+                    "error": "Question or Answer not found or does not belong to this class."
+                },
                 status=404,
             )
 
         if question.user_id != request.user:
             return Response(
-                {"error": "You do not have permission to update this question."},
+                {
+                    "error": "You do not have permission to update this question or answer."
+                },
                 status=403,
             )
 
@@ -152,7 +155,7 @@ class QuestionListView(APIView):
             return Response(
                 {
                     "status": "success",
-                    "message": "Question updated successfully",
+                    "message": "Question or Answer updated successfully",
                     "data": serializer.data,
                 },
                 status=200,
@@ -162,26 +165,29 @@ class QuestionListView(APIView):
 
     @extend_schema(
         methods=["DELETE"],
-        summary="질문 삭제",
-        description="특정 질문을 삭제하는 API입니다.",
+        summary="질문 또는 답변 삭제",
+        description="특정 질문 또는 답변을 삭제하는 API입니다.",
         parameters=[
             OpenApiParameter(
-                name="question_id", description="질문 ID", required=True, type=int
+                name="question_id",
+                description="질문 또는 답변 ID",
+                required=True,
+                type=int,
             )
         ],
         responses={
             200: OpenApiResponse(
-                description="질문 삭제 성공",
+                description="질문 또는 답변 삭제 성공",
                 response=inline_serializer(
                     name="QuestionDeleteResponse",
                     fields={
                         "status": serializers.CharField(),
                         "message": serializers.CharField(),
-                        "data": AnswerSerializer(),
+                        "data": serializers.SerializerMethodField()
                     },
                 ),
             ),
-            404: OpenApiResponse(description="질문을 찾을 수 없음"),
+            404: OpenApiResponse(description="질문 또는 답변을 찾을 수 없음"),
             403: OpenApiResponse(description="권한 없음"),
         },
     )
@@ -191,18 +197,20 @@ class QuestionListView(APIView):
         try:
             question = Question.objects.get(id=question_id)
         except Question.DoesNotExist:
-            return Response({"error": "Question not found."}, status=404)
+            return Response({"error": "Question or Answer not found."}, status=404)
 
         if question.user_id != request.user.id:
             return Response(
-                {"error": "You do not have permission to delete this question."},
+                {
+                    "error": "You do not have permission to delete this question or answer."
+                },
                 status=403,
             )
 
         question.delete()
         response_data = {
             "status": "success",
-            "message": "Question deleted successfully",
+            "message": "Question or Answer deleted successfully",
             "data": None,
         }
         return Response(response_data, status=200)
