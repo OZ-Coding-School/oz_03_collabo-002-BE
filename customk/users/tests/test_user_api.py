@@ -45,7 +45,6 @@ def test_signup(api_client):
         )
 
         response = api_client.post(url, data)
-        print(response.data)
 
         assert response.status_code == status.HTTP_201_CREATED
         assert User.objects.filter(email="testsign@example.com").exists()
@@ -68,38 +67,34 @@ def test_login_failure(api_client):
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 
-def test_user_detail(api_client, sample_user):
+def test_user_detail(api_client_with_token, sample_user):
     user = sample_user
     url = reverse("user-detail")
-    api_client.force_authenticate(user=user)
-    response = api_client.get(url)
+
+    response = api_client_with_token.get(url)
     assert response.status_code == status.HTTP_200_OK
     assert response.data["email"] == user.email
 
 
-def test_user_update(api_client, sample_user):
+def test_user_update(api_client_with_token, sample_user):
     user = sample_user
     url = reverse("user-detail")
-    api_client.force_authenticate(user=user)
     data = {"name": "newtestname"}
-    response = api_client.patch(url, data)
+    response = api_client_with_token.patch(url, data)
     assert response.status_code == status.HTTP_200_OK
     user.refresh_from_db()
     assert user.name == "newtestname"
 
 
-def test_user_delete(api_client, sample_user):
+def test_user_delete(api_client_with_token, sample_user):
     user = sample_user
     url = reverse("user-detail")
-    api_client.force_authenticate(user=user)
-    response = api_client.delete(url)
+    response = api_client_with_token.delete(url)
     assert response.status_code == status.HTTP_204_NO_CONTENT
     assert not User.objects.filter(email=user.email).exists()
 
 
-def test_logout(api_client, sample_user):
-    user = sample_user
+def test_logout(api_client_with_token, sample_user):
     url = reverse("logout")
-    api_client.force_authenticate(user=user)
-    response = api_client.post(url)
+    response = api_client_with_token.post(url)
     assert response.status_code == status.HTTP_200_OK

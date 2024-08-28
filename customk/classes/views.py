@@ -1,15 +1,21 @@
-from typing import Any, Dict
+from typing import Any
 
 from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from .models import Class
 from .serializers import ClassSerializer
 
 
 class ClassListView(APIView):
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
     @extend_schema(
         methods=["GET"],
         summary="클래스 목록 조회",
@@ -67,7 +73,14 @@ class ClassListView(APIView):
         },
     )
     def patch(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        serializer = ClassSerializer(data=request.data)
+        class_id = request.data.get("id", None)
+        if class_id is None:
+            return Response(
+                {"status": "error", "message": "Class ID not provided"}, status=400
+            )
+        class_instance = Class.objects.get(id=class_id)
+        serializer = ClassSerializer(data=class_instance)
+
         if serializer.is_valid():
             serializer.save()
             response_data = {
