@@ -23,8 +23,8 @@ jobs:
       - name: package install
         run: poetry install
 
-      - name: Rename dev.env to .env
-        run: mv dev.env .env
+      - name: Inject .env file
+        run: echo "${{ secrets.ENV_PROD }}" > ./.env
 
       - name: Run Lint && Type Check
         run: |

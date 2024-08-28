@@ -33,8 +33,6 @@ def set_cookies(response: Response, token: Token) -> Response:
         token.access_token,
         max_age=access_max_age,
         httponly=True,
-        secure=True,
-        samesite="Lax",
     )
 
     response.set_cookie(
@@ -42,8 +40,6 @@ def set_cookies(response: Response, token: Token) -> Response:
         token.refresh_token,
         max_age=refresh_max_age,
         httponly=True,
-        secure=True,
-        samesite="Lax",
     )
 
     return response
