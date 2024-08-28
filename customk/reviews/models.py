@@ -29,7 +29,7 @@ class Review(CommonModel):
 
 class ReviewImage(models.Model):
     review = models.ForeignKey(Review, related_name="images", on_delete=models.CASCADE)
-    image_url = models.URLField(null=True, blank=True)
+    image_url = models.CharField()
 
     def __str__(self) -> str:
         return f"Image for Review {self.review.id}: {self.image_url}"

@@ -5,30 +5,29 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('users', '0003_rename_nickname_user_name'),
+        ("users", "0003_rename_nickname_user_name"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='profile_image',
+            model_name="user",
+            name="profile_image",
             field=models.URLField(max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='created_at',
+            model_name="user",
+            name="created_at",
             field=models.DateTimeField(default=django.utils.timezone.now),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='email',
+            model_name="user",
+            name="email",
             field=models.EmailField(editable=False, max_length=255, unique=True),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='name',
+            model_name="user",
+            name="name",
             field=models.CharField(max_length=50),
         ),
     ]

@@ -1,13 +1,15 @@
-from datetime import timedelta
 import base64
 import uuid
+from datetime import timedelta
 
 from django.db.models import Avg
 from django.utils import timezone
 from rest_framework import serializers
-from .models import Class, ClassDate, ClassImages
+
 from common.services.ncp_api_conf import ObjectStorage
 from config.logger import logger
+
+from .models import Class, ClassDate, ClassImages
 
 
 def upload_image_to_object_storage(base64_image: str) -> str:
@@ -17,7 +19,8 @@ def upload_image_to_object_storage(base64_image: str) -> str:
         formatted, img_str = base64_image.split(";base64,")
         ext = formatted.split("/")[-1]
         decoded_image = base64.b64decode(img_str)
-    except (ValueError, IndexError):
+    except (ValueError, IndexError) as e:
+        logger.error(f"Invalid base64 image format: {str(e)}")
         raise serializers.ValidationError(
             {"class_image_base64": "Invalid base64 image format"}
         )
@@ -58,13 +61,12 @@ class ClassImagesSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def get_image_url(self, obj):
-        # Return the URL of the uploaded image
         return obj.image_url
 
 
 class ClassSerializer(serializers.ModelSerializer):
     dates = ClassDateSerializer(many=True, required=False)
-    images = serializers.ListField(child=serializers.CharField(), required=False)
+    images = ClassImagesSerializer(many=True, required=False)
     is_new = serializers.SerializerMethodField()
     price_in_usd = serializers.SerializerMethodField()
     is_best = serializers.SerializerMethodField()
@@ -108,14 +110,13 @@ class ClassSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         dates_data = validated_data.pop("dates", [])
         images_data64 = validated_data.pop("images", [])
-
         class_instance = Class.objects.create(**validated_data)
 
         for date_data in dates_data:
             ClassDate.objects.create(class_id=class_instance, **date_data)
 
         for image_data64 in images_data64:
-            image_url = upload_image_to_object_storage(image_data64)
+            image_url = upload_image_to_object_storage(image_data64["image_url"])
             ClassImages.objects.create(class_id=class_instance, image_url=image_url)
 
         return class_instance
