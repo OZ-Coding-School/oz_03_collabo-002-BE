@@ -1,11 +1,11 @@
-from django.urls import path
+from django.urls import re_path
 
 from .views import ReviewDeleteView, ReviewListView
 
 urlpatterns = [
-    path("<int:class_id>/", ReviewListView.as_view(), name="review-list"),
-    path(
-        "<int:class_id>/delete/<int:review_id>/",
+    re_path(r"^(?P<class_id>\d+)/?$", ReviewListView.as_view(), name="review-list"),
+    re_path(
+        r"^(?P<class_id>\d+)/delete/(?P<review_id>\d+)/?$",
         ReviewDeleteView.as_view(),
         name="review-delete",
     ),

@@ -1,4 +1,4 @@
-# from django.conf import settings
+import os
 from datetime import timedelta
 from typing import cast
 
@@ -32,14 +32,18 @@ def set_cookies(response: Response, token: Token) -> Response:
         "access_token",
         token.access_token,
         max_age=access_max_age,
+        secure=True,
         httponly=True,
+        domain=os.environ.get("DOMAIN_NAME"),
     )
 
     response.set_cookie(
         "refresh_token",
         token.refresh_token,
         max_age=refresh_max_age,
+        secure=True,
         httponly=True,
+        domain=os.environ.get("DOMAIN_NAME"),
     )
 
     return response

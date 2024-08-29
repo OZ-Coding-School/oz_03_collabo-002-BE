@@ -1,7 +1,9 @@
-from django.urls import path
+from django.urls import re_path
 
 from questions.views import QuestionListView
 
 urlpatterns = [
-    path("<int:class_id>/", QuestionListView.as_view(), name="class-question-list")
+    re_path(
+        r"^(?P<class_id>\d+)/?$", QuestionListView.as_view(), name="class-question-list"
+    )
 ]
