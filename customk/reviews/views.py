@@ -203,6 +203,9 @@ class ReviewImageListView(generics.ListAPIView):
         description="특정 리뷰에 연결된 이미지 목록을 조회하는 API입니다.",
         parameters=[
             OpenApiParameter(
+                name="class_id", description="클래스 ID", required=True, type=int
+            ),
+            OpenApiParameter(
                 name="review_id", description="리뷰 ID", required=True, type=int
             ),
         ],
@@ -228,9 +231,11 @@ class ReviewImageListView(generics.ListAPIView):
         },
     )
     def get(
-        self, request: Request, review_id: int, *args: Any, **kwargs: Any
+        self, request: Request, class_id: int, review_id: int, *args: Any, **kwargs: Any
     ) -> Response:
-        review_images = ReviewImage.objects.filter(review_id=review_id)
+        review_images = ReviewImage.objects.filter(
+            review_id=review_id, review__class_id=class_id
+        )
 
         if not review_images.exists():
             return Response({"message": "No images found for this review."}, status=404)
@@ -244,11 +249,16 @@ class PhotoReviewListView(generics.ListAPIView):
 
     @extend_schema(
         methods=["GET"],
-        summary="전체 이미지 목록 조회",
-        description="모든 리뷰 이미지 목록을 조회하는 API입니다.",
+        summary="특정 클래스의 리뷰 이미지 목록 조회",
+        description="특정 클래스에 연결된 리뷰 이미지 목록을 조회하는 API입니다.",
+        parameters=[
+            OpenApiParameter(
+                name="class_id", description="클래스 ID", required=True, type=int
+            ),
+        ],
         responses={
             200: OpenApiResponse(
-                description="전체 이미지 목록 조회 성공",
+                description="특정 클래스 리뷰 이미지 목록 조회 성공",
                 response=inline_serializer(
                     name="PhotoReviewListResponse",
                     fields={
@@ -264,10 +274,16 @@ class PhotoReviewListView(generics.ListAPIView):
                     },
                 ),
             ),
+            404: OpenApiResponse(description="이미지를 찾을 수 없음"),
         },
     )
-    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        all_images = ReviewImage.objects.all()
+    def get(
+        self, request: Request, class_id: int, *args: Any, **kwargs: Any
+    ) -> Response:
+        review_images = ReviewImage.objects.filter(review__class_id=class_id)
 
-        serializer = ReviewImageSerializer(all_images, many=True)
+        if not review_images.exists():
+            return Response({"message": "No images found for this class."}, status=404)
+
+        serializer = ReviewImageSerializer(review_images, many=True)
         return Response({"images": serializer.data}, status=200)
