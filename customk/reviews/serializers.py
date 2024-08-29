@@ -52,6 +52,14 @@ class ReviewImageSerializer(serializers.ModelSerializer):
     def get_image_url(self, obj):
         return obj.image_url
 
+    def validate(self, data):
+        review = data.get("review")
+        if ReviewImage.objects.filter(review=review).count() >= 4:
+            raise serializers.ValidationError(
+                "A review can only have a maximum of 4 images."
+            )
+        return data
+
 
 class ReviewSerializer(serializers.ModelSerializer):
     images = ReviewImageSerializer(many=True, required=False)

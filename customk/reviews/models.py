@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
@@ -33,3 +34,8 @@ class ReviewImage(models.Model):
 
     def __str__(self) -> str:
         return f"Image for Review {self.review.id}: {self.image_url}"
+
+    def save(self, *args, **kwargs):
+        if ReviewImage.objects.filter(review=self.review).count() >= 4:
+            raise ValidationError("A review can only have a maximum of 4 images.")
+        super().save(*args, **kwargs)
