@@ -19,9 +19,3 @@ server {
         alias /vol/web/static/;
     }
 }
-
-server {
-    listen 80;
-    server_name www.${SERVER_NAME};
-    return 301 $scheme://${SERVER_NAME}$request_uri;
-}
