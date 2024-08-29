@@ -120,7 +120,13 @@ class ReviewListView(APIView):
                 status=201,
             )
 
-        return Response(serializer.errors, status=400)
+        return Response(
+            {
+                "message": "Review creation failed due to validation errors.",
+                "errors": serializer.errors,
+            },
+            status=400,
+        )
 
 
 class ReviewUpdateView(APIView):
