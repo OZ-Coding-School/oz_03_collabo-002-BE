@@ -1,6 +1,5 @@
-from typing import Any, Optional
-
 from django.contrib import admin
+from django.core.exceptions import ValidationError
 
 from reactions.models import Reaction
 
@@ -39,3 +38,8 @@ class ReviewAdmin(admin.ModelAdmin):  # type: ignore
 class ReviewImageAdmin(admin.ModelAdmin):  # type: ignore
     list_display = ("review", "image_url")
     search_fields = ("review__review",)
+
+    def save_model(self, request, obj, form, change):
+        if ReviewImage.objects.filter(review=obj.review).count() >= 4:
+            raise ValidationError("A review can only have a maximum of 4 images.")
+        super().save_model(request, obj, form, change)

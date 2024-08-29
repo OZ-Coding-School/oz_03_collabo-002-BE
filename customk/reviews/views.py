@@ -7,7 +7,7 @@ from drf_spectacular.utils import (
     extend_schema,
     inline_serializer,
 )
-from rest_framework import serializers
+from rest_framework import generics, serializers
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -17,6 +17,9 @@ from classes.models import Class
 from reactions.models import Reaction
 from reviews.models import Review
 from reviews.serializers import ReviewSerializer
+
+from .models import ReviewImage
+from .serializers import ReviewImageSerializer
 
 
 class ReviewListView(APIView):
@@ -117,7 +120,17 @@ class ReviewListView(APIView):
                 status=201,
             )
 
-        return Response(serializer.errors, status=400)
+        return Response(
+            {
+                "message": "Review creation failed due to validation errors.",
+                "errors": serializer.errors,
+            },
+            status=400,
+        )
+
+
+class ReviewUpdateView(APIView):
+    permission_classes = [AllowAny]
 
     @extend_schema(
         methods=["PATCH"],
@@ -140,13 +153,8 @@ class ReviewListView(APIView):
         },
     )
     def patch(
-        self, request: Request, class_id: int, *args: Any, **kwargs: Any
+        self, request: Request, class_id: int, review_id: int, *args: Any, **kwargs: Any
     ) -> Response:
-        review_id = request.data.get("id")
-
-        if not review_id:
-            return Response({"error": "Review ID is required for update."}, status=400)
-
         review = get_object_or_404(Review, id=review_id, class_id=class_id)
 
         serializer = ReviewSerializer(review, data=request.data, partial=True)
@@ -158,10 +166,6 @@ class ReviewListView(APIView):
             )
 
         return Response(serializer.errors, status=400)
-
-
-class ReviewDeleteView(APIView):
-    permission_classes = [AllowAny]
 
     @extend_schema(
         methods=["DELETE"],
@@ -188,3 +192,98 @@ class ReviewDeleteView(APIView):
         review.delete()
 
         return Response({"message": "Review successfully deleted."}, status=204)
+
+
+class ReviewImageListView(generics.ListAPIView):
+    serializer_class = ReviewImageSerializer
+
+    @extend_schema(
+        methods=["GET"],
+        summary="리뷰 이미지 목록 조회",
+        description="특정 리뷰에 연결된 이미지 목록을 조회하는 API입니다.",
+        parameters=[
+            OpenApiParameter(
+                name="class_id", description="클래스 ID", required=True, type=int
+            ),
+            OpenApiParameter(
+                name="review_id", description="리뷰 ID", required=True, type=int
+            ),
+        ],
+        responses={
+            200: OpenApiResponse(
+                description="리뷰 이미지 목록 조회 성공",
+                response=inline_serializer(
+                    name="ReviewImageListResponse",
+                    fields={
+                        "images": serializers.ListSerializer(
+                            child=inline_serializer(
+                                name="ReviewImageData",
+                                fields={
+                                    "id": serializers.IntegerField(),
+                                    "image_url": serializers.CharField(),
+                                },
+                            )
+                        )
+                    },
+                ),
+            ),
+            404: OpenApiResponse(description="리뷰 이미지를 찾을 수 없음"),
+        },
+    )
+    def get(
+        self, request: Request, class_id: int, review_id: int, *args: Any, **kwargs: Any
+    ) -> Response:
+        review_images = ReviewImage.objects.filter(
+            review_id=review_id, review__class_id=class_id
+        )
+
+        if not review_images.exists():
+            return Response({"message": "No images found for this review."}, status=404)
+
+        serializer = ReviewImageSerializer(review_images, many=True)
+        return Response({"images": serializer.data}, status=200)
+
+
+class PhotoReviewListView(generics.ListAPIView):
+    serializer_class = ReviewImageSerializer
+
+    @extend_schema(
+        methods=["GET"],
+        summary="특정 클래스의 리뷰 이미지 목록 조회",
+        description="특정 클래스에 연결된 리뷰 이미지 목록을 조회하는 API입니다.",
+        parameters=[
+            OpenApiParameter(
+                name="class_id", description="클래스 ID", required=True, type=int
+            ),
+        ],
+        responses={
+            200: OpenApiResponse(
+                description="특정 클래스 리뷰 이미지 목록 조회 성공",
+                response=inline_serializer(
+                    name="PhotoReviewListResponse",
+                    fields={
+                        "images": serializers.ListSerializer(
+                            child=inline_serializer(
+                                name="PhotoReviewImageData",
+                                fields={
+                                    "id": serializers.IntegerField(),
+                                    "image_url": serializers.CharField(),
+                                },
+                            )
+                        )
+                    },
+                ),
+            ),
+            404: OpenApiResponse(description="이미지를 찾을 수 없음"),
+        },
+    )
+    def get(
+        self, request: Request, class_id: int, *args: Any, **kwargs: Any
+    ) -> Response:
+        review_images = ReviewImage.objects.filter(review__class_id=class_id)
+
+        if not review_images.exists():
+            return Response({"message": "No images found for this class."}, status=404)
+
+        serializer = ReviewImageSerializer(review_images, many=True)
+        return Response({"images": serializer.data}, status=200)
