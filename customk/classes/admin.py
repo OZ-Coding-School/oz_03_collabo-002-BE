@@ -3,7 +3,9 @@ from typing import Any, Dict, Optional
 from django.contrib import admin, messages
 from django.http import HttpRequest, HttpResponse
 
+from .forms import ClassImagesForm
 from .models import Class, ClassDate, ClassImages, ExchangeRate
+from .utils import upload_image_to_object_storage
 
 
 class ClassDateInline(admin.TabularInline):  # type: ignore
@@ -77,3 +79,20 @@ class ClassAdmin(admin.ModelAdmin):  # type: ignore
 @admin.register(ExchangeRate)
 class ExchangeRateAdmin(admin.ModelAdmin):  # type: ignore
     list_display = ("currency", "rate")
+
+
+@admin.register(ClassImages)
+class ClassImagesAdmin(admin.ModelAdmin):
+    form = ClassImagesForm
+    list_display = ["class_id", "image_url"]
+    search_fields = ["class_id"]
+
+    def save_model(self, request, obj, form, change):
+        # 이미지 파일을 Object Storage에 업로드하고 URL을 받아와서 저장
+        if "image" in form.files:
+            image_file = form.files["image"]
+            image_url = upload_image_to_object_storage(
+                image_file
+            )  # Object Storage 업로드 함수
+            obj.image_url = image_url
+        super().save_model(request, obj, form, change)

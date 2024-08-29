@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, re_path
 from drf_spectacular.views import (
@@ -28,4 +30,4 @@ urlpatterns = [
     re_path(r"^v1/classes/?", include("classes.urls")),
     re_path(r"^v1/question/?", include("questions.urls")),
     re_path(r"^v1/reviews/?", include("reviews.urls")),
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
