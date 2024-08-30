@@ -34,7 +34,7 @@ def set_cookies(response: Response, token: Token) -> Response:
         max_age=access_max_age,
         secure=True,
         httponly=True,
-        domain=os.environ.get("DOMAIN_NAME"),
+        samesite=None
     )
 
     response.set_cookie(
@@ -43,7 +43,7 @@ def set_cookies(response: Response, token: Token) -> Response:
         max_age=refresh_max_age,
         secure=True,
         httponly=True,
-        domain=os.environ.get("DOMAIN_NAME"),
+        samesite=None
     )
 
     return response
