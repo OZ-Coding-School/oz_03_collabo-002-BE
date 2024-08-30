@@ -1,5 +1,3 @@
-from django.conf import settings
-from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, re_path
 from drf_spectacular.views import (
@@ -10,7 +8,6 @@ from drf_spectacular.views import (
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny
 
-# config.urls.py
 urlpatterns = [
     re_path(r"^admin/", admin.site.urls),
     re_path(r"^v1/schema/?$", SpectacularAPIView.as_view(), name="schema"),
@@ -30,4 +27,4 @@ urlpatterns = [
     re_path(r"^v1/classes/?", include("classes.urls")),
     re_path(r"^v1/question/?", include("questions.urls")),
     re_path(r"^v1/reviews/?", include("reviews.urls")),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+]

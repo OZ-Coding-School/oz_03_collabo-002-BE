@@ -90,8 +90,8 @@ class ClassImagesAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):  #
         super().save_model(request, obj, form, change)
 
-        if 'images' in request.FILES:
-            files = request.FILES.getlist('images')
+        if "images" in request.FILES:
+            files = request.FILES.getlist("images")
             for image_file in files:
                 image_url = upload_image_to_object_storage(image_file)
                 ClassImages.objects.create(class_id=obj.class_id, image_url=image_url)
