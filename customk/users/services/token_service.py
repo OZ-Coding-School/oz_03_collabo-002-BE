@@ -1,11 +1,13 @@
-import os
 from datetime import timedelta
 from typing import cast
+from urllib.parse import urlparse
 
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from config import settings
+from config.logger import logger
 from users.models import User
 
 
@@ -20,7 +22,22 @@ def generate_tokens(user: User) -> Token:
     return Token(str(refresh), str(refresh.access_token))  # type: ignore
 
 
-def set_cookies(response: Response, token: Token) -> Response:
+def get_domain(request: Request) -> str:
+    origin = request.headers.get("Origin")
+    if not origin:
+        return ""
+
+    try:
+        parsed_url = urlparse(origin)
+        return parsed_url.hostname or ""
+    except ValueError:
+        return ""
+
+
+def set_cookies(request: Request, response: Response, token: Token) -> Response:
+    domain = get_domain(request)
+    logger.info(f"Set cookie - Domain: {domain}")
+
     access_max_age = int(
         cast(timedelta, settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"]).total_seconds()
     )
@@ -34,7 +51,7 @@ def set_cookies(response: Response, token: Token) -> Response:
         max_age=access_max_age,
         secure=True,
         httponly=True,
-        domain=os.environ.get("DOMAIN_NAME"),
+        domain=domain,
     )
 
     response.set_cookie(
@@ -43,7 +60,7 @@ def set_cookies(response: Response, token: Token) -> Response:
         max_age=refresh_max_age,
         secure=True,
         httponly=True,
-        domain=os.environ.get("DOMAIN_NAME"),
+        domain=domain,
     )
 
     return response

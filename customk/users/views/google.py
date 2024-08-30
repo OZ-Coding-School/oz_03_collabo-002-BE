@@ -77,7 +77,7 @@ def callback(request: Request) -> Response:
             "profile_image": profile_image,
         }
 
-        return auth_return_response(service="google", **user_data)
+        return auth_return_response(service="google", request=request, **user_data)
 
     except requests.RequestException as e:
         return Response(
