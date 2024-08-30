@@ -1,5 +1,6 @@
 from django.utils import timezone
 from rest_framework import status
+from rest_framework.request import Request
 from rest_framework.response import Response
 
 from config.logger import logger
@@ -8,7 +9,7 @@ from users.models import User
 from .token_service import generate_tokens, set_cookies
 
 
-def auth_return_response(service: str, **user_info) -> Response:
+def auth_return_response(service: str, request: Request, **user_info) -> Response:
     user, created = User.objects.get_or_create(
         email=user_info["email"],
         defaults={
@@ -31,6 +32,6 @@ def auth_return_response(service: str, **user_info) -> Response:
 
     logger.info(f"{service} created user, {created}")
     tokens = generate_tokens(user)
-    set_cookies(response, tokens)
+    set_cookies(request, response, tokens)
 
     return response
