@@ -3,7 +3,9 @@ from typing import Any, Dict, Optional
 from django.contrib import admin, messages
 from django.http import HttpRequest, HttpResponse
 
+from .forms import ClassImagesForm
 from .models import Class, ClassDate, ClassImages, ExchangeRate
+from .utils import upload_image_to_object_storage
 
 
 class ClassDateInline(admin.TabularInline):  # type: ignore
@@ -77,3 +79,19 @@ class ClassAdmin(admin.ModelAdmin):  # type: ignore
 @admin.register(ExchangeRate)
 class ExchangeRateAdmin(admin.ModelAdmin):  # type: ignore
     list_display = ("currency", "rate")
+
+
+@admin.register(ClassImages)
+class ClassImagesAdmin(admin.ModelAdmin):
+    form = ClassImagesForm
+    list_display = ["class_id", "image_url"]
+    search_fields = ["class_id"]
+
+    def save_model(self, request, obj, form, change):  #
+        super().save_model(request, obj, form, change)
+
+        if "images" in request.FILES:
+            files = request.FILES.getlist("images")
+            for image_file in files:
+                image_url = upload_image_to_object_storage(image_file)
+                ClassImages.objects.create(class_id=obj.class_id, image_url=image_url)

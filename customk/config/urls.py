@@ -8,7 +8,6 @@ from drf_spectacular.views import (
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny
 
-# config.urls.py
 urlpatterns = [
     re_path(r"^admin/", admin.site.urls),
     re_path(r"^v1/schema/?$", SpectacularAPIView.as_view(), name="schema"),
