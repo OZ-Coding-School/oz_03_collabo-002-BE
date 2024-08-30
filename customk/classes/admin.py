@@ -95,3 +95,7 @@ class ClassImagesAdmin(admin.ModelAdmin):
             for image_file in files:
                 image_url = upload_image_to_object_storage(image_file)
                 ClassImages.objects.create(class_id=obj.class_id, image_url=image_url)
+            image_file = request.FILES["images"]
+            image_url = upload_image_to_object_storage(image_file)
+            obj.image_url = image_url
+            obj.save()

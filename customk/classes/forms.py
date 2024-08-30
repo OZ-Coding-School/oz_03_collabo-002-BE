@@ -8,4 +8,4 @@ class ClassImagesForm(forms.ModelForm):
 
     class Meta:
         model = ClassImages
-        fields = ["class_id"]
+        fields = ["class_id", "images"]
