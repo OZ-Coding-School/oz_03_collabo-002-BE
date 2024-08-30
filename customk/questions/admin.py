@@ -33,7 +33,9 @@ class QuestionAdmin(admin.ModelAdmin):
 
     def answer_icon(self, obj):
         if obj.answer:
-            return format_html('<span style="font-size: 1.2em; color: #00FF00;">✅</span>')
+            return format_html(
+                '<span style="font-size: 1.2em; color: #00FF00;">✅</span>'
+            )
         else:
             return format_html('<span style="font-size: 1.2em; color: red;">❌</span>')
 
@@ -42,9 +44,7 @@ class QuestionAdmin(admin.ModelAdmin):
     def changelist_view(
         self, request: HttpRequest, extra_context: Optional[Dict[str, Any]] = None
     ) -> HttpResponse:
-        unanswered_questions_count = Question.objects.filter(
-            answer=''
-        ).count()
+        unanswered_questions_count = Question.objects.filter(answer="").count()
 
         if unanswered_questions_count > 0:
             messages.warning(

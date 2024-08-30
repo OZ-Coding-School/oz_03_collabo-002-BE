@@ -1,6 +1,8 @@
+import math
 from typing import Any, Dict, Optional
 
 from django.core.serializers.json import DjangoJSONEncoder
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Avg
 
@@ -15,15 +17,35 @@ class ExchangeRate(models.Model):
         return f"{self.currency}: {self.rate}"
 
 
+class Genre(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Class(CommonModel):
     title = models.CharField(max_length=400)
     description = models.TextField(blank=True)
     max_person = models.IntegerField(blank=False, default=0)
     require_person = models.IntegerField(blank=False, default=0)
     price = models.IntegerField(blank=False, default=0)
-    address = models.JSONField(encoder=DjangoJSONEncoder, default=dict, blank=True)
+    address = models.CharField(
+        max_length=255, help_text="주소를 '도, 시, 구' 형식으로 입력해주세요."
+    )
     class_type = models.JSONField(encoder=DjangoJSONEncoder, default=list, blank=True)
-
+    genre = models.ForeignKey("Genre", on_delete=models.SET_NULL, null=True, blank=True)
+    category = models.ForeignKey(
+        "Category", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    discount_rate = models.PositiveIntegerField(default=0)
     is_viewed = models.BooleanField(default=False)
 
     def __str__(self) -> str:
@@ -34,7 +56,9 @@ class Class(CommonModel):
             currency="USD"
         ).first()
         if exchange_rate:
-            return round(float(self.price) / float(exchange_rate.rate), 2)
+            price_in_usd = float(self.price) / float(exchange_rate.rate)
+            rounded_price = math.ceil(price_in_usd)
+            return rounded_price
         return None
 
     @property
@@ -46,14 +70,6 @@ class Class(CommonModel):
         if avg is None:
             return None
         return round(float(avg), 1)
-
-    @property
-    def formatted_address(self) -> str:
-        address = self.address or {}
-        state = address.get("state", "")
-        city = address.get("city", "")
-        street = address.get("street", "")
-        return f"{state} {city} {street}".strip()
 
 
 class ClassDate(models.Model):

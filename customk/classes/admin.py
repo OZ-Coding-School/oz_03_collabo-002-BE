@@ -4,7 +4,7 @@ from django.contrib import admin, messages
 from django.http import HttpRequest, HttpResponse
 
 from .forms import ClassImagesForm
-from .models import Class, ClassDate, ClassImages, ExchangeRate
+from .models import Category, Class, ClassDate, ClassImages, ExchangeRate, Genre
 from .utils import upload_image_to_object_storage
 
 
@@ -27,7 +27,7 @@ class ClassAdmin(admin.ModelAdmin):  # type: ignore
         "require_person",
         "price",
         "price_in_usd",
-        "formatted_address",
+        "address",
         "is_viewed_badge",
         "average_rating",
     )
@@ -95,3 +95,15 @@ class ClassImagesAdmin(admin.ModelAdmin):
             image_url = upload_image_to_object_storage(image_file)
             obj.image_url = image_url
             obj.save()
+
+
+@admin.register(Genre)
+class GenreAdmin(admin.ModelAdmin):
+    list_display = ("name",)
+    search_fields = ("name",)
+
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ("name",)
+    search_fields = ("name",)
