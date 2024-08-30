@@ -206,7 +206,7 @@ class LoginView(APIView):
 
         response = Response(user_data, status=status.HTTP_200_OK)
         tokens = generate_tokens(user)
-        set_cookies(response, tokens)
+        set_cookies(request, response, tokens)
 
         return response
 

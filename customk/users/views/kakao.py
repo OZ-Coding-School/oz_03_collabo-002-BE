@@ -79,7 +79,7 @@ def callback(request: Request) -> Response:
             "profile_image": profile_image,
         }
 
-        return auth_return_response(service="kakao", **user_data)
+        return auth_return_response(service="kakao", request=request, **user_data)
 
     except requests.RequestException as e:
         return Response(
