@@ -1,15 +1,15 @@
 from typing import Any, Dict, Optional, Tuple
 
 from django.shortcuts import get_object_or_404, render
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
     OpenApiParameter,
     OpenApiResponse,
     extend_schema,
     inline_serializer,
 )
-from drf_spectacular.types import OpenApiTypes
 from rest_framework import generics, serializers
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -27,6 +27,7 @@ class ReviewListView(APIView):
     def get_permissions(self):
         if self.request.method == "GET":
             return [AllowAny()]
+        return [IsAuthenticated()]
 
     @extend_schema(
         methods=["GET"],
@@ -34,7 +35,11 @@ class ReviewListView(APIView):
         description="특정 클래스에 대한 리뷰 목록을 조회하는 API입니다.",
         parameters=[
             OpenApiParameter(
-                name="class_id", description="클래스 ID", required=True, type=OpenApiTypes.INT, location=OpenApiParameter.PATH
+                name="class_id",
+                description="클래스 ID",
+                required=True,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
             )
         ],
         responses={
@@ -89,7 +94,11 @@ class ReviewListView(APIView):
         description="특정 클래스에 대해 새 리뷰를 생성하는 API입니다.",
         parameters=[
             OpenApiParameter(
-                name="class_id", description="클래스 ID", required=True, type=OpenApiTypes.INT, location=OpenApiParameter.PATH
+                name="class_id",
+                description="클래스 ID",
+                required=True,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
             )
         ],
         request=ReviewSerializer,
@@ -176,10 +185,18 @@ class ReviewUpdateView(APIView):
         description="특정 리뷰를 삭제하는 API입니다.",
         parameters=[
             OpenApiParameter(
-                name="class_id", description="클래스 ID", required=True, type=OpenApiTypes.INT, location=OpenApiParameter.PATH
+                name="class_id",
+                description="클래스 ID",
+                required=True,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
             ),
             OpenApiParameter(
-                name="review_id", description="리뷰 ID", required=True, type=OpenApiTypes.INT, location=OpenApiParameter.PATH
+                name="review_id",
+                description="리뷰 ID",
+                required=True,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
             ),
         ],
         responses={
@@ -210,10 +227,18 @@ class ReviewImageListView(generics.ListAPIView):
         description="특정 리뷰에 연결된 이미지 목록을 조회하는 API입니다.",
         parameters=[
             OpenApiParameter(
-                name="class_id", description="클래스 ID", required=True, type=OpenApiTypes.INT, location=OpenApiParameter.PATH
+                name="class_id",
+                description="클래스 ID",
+                required=True,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
             ),
             OpenApiParameter(
-                name="review_id", description="리뷰 ID", required=True, type=OpenApiTypes.INT, location=OpenApiParameter.PATH
+                name="review_id",
+                description="리뷰 ID",
+                required=True,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
             ),
         ],
         responses={
@@ -264,7 +289,11 @@ class PhotoReviewListView(generics.ListAPIView):
         description="특정 클래스에 연결된 리뷰 이미지 목록을 조회하는 API입니다.",
         parameters=[
             OpenApiParameter(
-                name="class_id", description="클래스 ID", required=True, type=OpenApiTypes.INT, location=OpenApiParameter.PATH
+                name="class_id",
+                description="클래스 ID",
+                required=True,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
             ),
         ],
         responses={
