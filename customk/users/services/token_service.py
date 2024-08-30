@@ -23,13 +23,15 @@ def generate_tokens(user: User) -> Token:
 
 
 def get_domain(request: Request) -> str:
-    origin = request.headers.get("Origin", "")
-    domain = origin.split("://")[1]
+    origin = request.headers.get("Origin")
+    if not origin:
+        return ""
 
-    if ":" in domain:
-        domain = domain.split(":")[0]
-
-    return domain
+    try:
+        parsed_url = urlparse(origin)
+        return parsed_url.hostname or ""
+    except ValueError:
+        return ""
 
 
 def set_cookies(request: Request, response: Response, token: Token) -> Response:
