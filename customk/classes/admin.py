@@ -87,12 +87,11 @@ class ClassImagesAdmin(admin.ModelAdmin):
     list_display = ["class_id", "image_url"]
     search_fields = ["class_id"]
 
-    def save_model(self, request, obj, form, change):
-        # 이미지 파일을 Object Storage에 업로드하고 URL을 받아와서 저장
-        if "image" in form.files:
-            image_file = form.files["image"]
-            image_url = upload_image_to_object_storage(
-                image_file
-            )  # Object Storage 업로드 함수
-            obj.image_url = image_url
+    def save_model(self, request, obj, form, change):  #
         super().save_model(request, obj, form, change)
+
+        if 'images' in request.FILES:
+            files = request.FILES.getlist('images')
+            for image_file in files:
+                image_url = upload_image_to_object_storage(image_file)
+                ClassImages.objects.create(class_id=obj.class_id, image_url=image_url)
