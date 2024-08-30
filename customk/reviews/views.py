@@ -24,6 +24,10 @@ from .serializers import ReviewImageSerializer
 
 
 class ReviewListView(APIView):
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [AllowAny()]
+
     @extend_schema(
         methods=["GET"],
         summary="리뷰 목록 조회",
@@ -131,8 +135,6 @@ class ReviewListView(APIView):
 
 
 class ReviewUpdateView(APIView):
-    permission_classes = [AllowAny]
-
     @extend_schema(
         methods=["PATCH"],
         summary="리뷰 업데이트",
@@ -196,6 +198,10 @@ class ReviewUpdateView(APIView):
 
 
 class ReviewImageListView(generics.ListAPIView):
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [AllowAny()]
+
     serializer_class = ReviewImageSerializer
 
     @extend_schema(
@@ -246,6 +252,10 @@ class ReviewImageListView(generics.ListAPIView):
 
 
 class PhotoReviewListView(generics.ListAPIView):
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [AllowAny()]
+
     serializer_class = ReviewImageSerializer
 
     @extend_schema(
