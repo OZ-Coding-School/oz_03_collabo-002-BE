@@ -1,5 +1,6 @@
 from typing import Any
 
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
     OpenApiParameter,
     OpenApiResponse,
@@ -23,7 +24,11 @@ class QuestionListView(APIView):
         description="특정 클래스에 대한 질문 및 답변 목록을 조회하는 API입니다.",
         parameters=[
             OpenApiParameter(
-                name="class_id", description="클래스 ID", required=True, type=int
+                name="class_id",
+                description="클래스 ID",
+                required=True,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
             )
         ],
         responses={
@@ -54,7 +59,11 @@ class QuestionListView(APIView):
         description="특정 클래스에 대해 새 질문 또는 답변을 생성하는 API입니다.",
         parameters=[
             OpenApiParameter(
-                name="class_id", description="클래스 ID", required=True, type=int
+                name="class_id",
+                description="클래스 ID",
+                required=True,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
             )
         ],
         request=QuestionSerializer,
@@ -103,7 +112,11 @@ class QuestionListView(APIView):
         description="특정 질문 또는 답변을 업데이트하는 API입니다.",
         parameters=[
             OpenApiParameter(
-                name="class_id", description="클래스 ID", required=True, type=int
+                name="class_id",
+                description="클래스 ID",
+                required=True,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
             ),
         ],
         request=QuestionSerializer,
@@ -172,7 +185,8 @@ class QuestionListView(APIView):
                 name="question_id",
                 description="질문 또는 답변 ID",
                 required=True,
-                type=int,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.PATH,
             )
         ],
         responses={
