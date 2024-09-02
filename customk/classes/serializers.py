@@ -55,13 +55,20 @@ class ClassDateSerializer(serializers.ModelSerializer):
 
 class ClassImagesSerializer(serializers.ModelSerializer):
     class_id = serializers.PrimaryKeyRelatedField(read_only=True)
+    thumbnail_image_url = serializers.CharField(required=False)
+    description_image_url = serializers.CharField(required=False)
+    detail_image_url = serializers.CharField(required=False)
 
     class Meta:
         model = ClassImages
         fields = "__all__"
 
-    def get_image_url(self, obj):
-        return obj.image_url
+    def get_image_urls(self, obj):
+        return {
+            "thumbnail_image_url": obj.thumbnail_image_url,
+            "description_image_url": obj.description_image_url,
+            "additional_image_url": obj.additional_image_url,
+        }
 
 
 class ClassSerializer(serializers.ModelSerializer):
@@ -123,7 +130,21 @@ class ClassSerializer(serializers.ModelSerializer):
             ClassDate.objects.create(class_id=class_instance, **date_data)
 
         for image_data64 in images_data64:
-            image_url = upload_image_to_object_storage(image_data64["image_url"])
-            ClassImages.objects.create(class_id=class_instance, image_url=image_url)
+            thumbnail_url = upload_image_to_object_storage(
+                image_data64["thumbnail_image_url"]
+            )
+            description_url = upload_image_to_object_storage(
+                image_data64["description_image_url"]
+            )
+            detail_image_url = upload_image_to_object_storage(
+                image_data64["detail_image_url"]
+            )
+
+            ClassImages.objects.create(
+                class_id=class_instance,
+                thumbnail_image_url=thumbnail_url,
+                description_image_url=description_url,
+                detail_image_url=detail_image_url,
+            )
 
         return class_instance

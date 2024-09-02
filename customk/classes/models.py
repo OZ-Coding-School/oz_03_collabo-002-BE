@@ -82,7 +82,9 @@ class ClassDate(models.Model):
 
 class ClassImages(models.Model):
     class_id = models.ForeignKey(Class, related_name="images", on_delete=models.CASCADE)
-    image_url = models.CharField()
+    description_image_url = models.CharField(max_length=255, blank=True)
+    thumbnail_image_url = models.CharField(max_length=255)
+    detail_image_url = models.CharField(max_length=255)
 
     def __str__(self) -> str:
         return f"{self.class_id.title}"

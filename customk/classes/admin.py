@@ -84,17 +84,33 @@ class ExchangeRateAdmin(admin.ModelAdmin):  # type: ignore
 @admin.register(ClassImages)
 class ClassImagesAdmin(admin.ModelAdmin):
     form = ClassImagesForm
-    list_display = ["class_id", "image_url"]
+    list_display = [
+        "class_id",
+        "thumbnail_image_url",
+        "description_image_url",
+        "detail_image_url",
+    ]
     search_fields = ["class_id"]
 
-    def save_model(self, request, obj, form, change):  #
+    def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
 
-        if "images" in request.FILES:
-            image_file = request.FILES["images"]
-            image_url = upload_image_to_object_storage(image_file)
-            obj.image_url = image_url
-            obj.save()
+        if form.cleaned_data.get("thumbnail_image"):
+            thumbnail_image = form.cleaned_data["thumbnail_image"]
+            thumbnail_url = upload_image_to_object_storage(thumbnail_image)
+            obj.thumbnail_image_url = thumbnail_url
+
+        if form.cleaned_data.get("description_image"):
+            description_image = form.cleaned_data["description_image"]
+            description_url = upload_image_to_object_storage(description_image)
+            obj.description_image_url = description_url
+
+        if form.cleaned_data.get("detail_image"):
+            detail_image = form.cleaned_data["detail_image"]
+            detail_url = upload_image_to_object_storage(detail_image)
+            obj.detail_image_url = detail_url
+
+        obj.save()
 
 
 @admin.register(Genre)
