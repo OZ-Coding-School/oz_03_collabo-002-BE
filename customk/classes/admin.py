@@ -86,29 +86,38 @@ class ClassImagesAdmin(admin.ModelAdmin):
     form = ClassImagesForm
     list_display = [
         "class_id",
-        "thumbnail_image_url",
-        "description_image_url",
-        "detail_image_url",
+        "thumbnail_image_urls",
+        "description_image_urls",
+        "detail_image_urls",
     ]
     search_fields = ["class_id"]
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
 
+        # Handle thumbnail image
         if form.cleaned_data.get("thumbnail_image"):
             thumbnail_image = form.cleaned_data["thumbnail_image"]
             thumbnail_url = upload_image_to_object_storage(thumbnail_image)
-            obj.thumbnail_image_url = thumbnail_url
+            thumbnail_image_urls = obj.thumbnail_image_urls or []
+            thumbnail_image_urls.append(thumbnail_url)
+            obj.thumbnail_image_urls = thumbnail_image_urls
 
+        # Handle description image
         if form.cleaned_data.get("description_image"):
             description_image = form.cleaned_data["description_image"]
             description_url = upload_image_to_object_storage(description_image)
-            obj.description_image_url = description_url
+            description_image_urls = obj.description_image_urls or []
+            description_image_urls.append(description_url)
+            obj.description_image_urls = description_image_urls
 
+        # Handle detail image
         if form.cleaned_data.get("detail_image"):
             detail_image = form.cleaned_data["detail_image"]
             detail_url = upload_image_to_object_storage(detail_image)
-            obj.detail_image_url = detail_url
+            detail_image_urls = obj.detail_image_urls or []
+            detail_image_urls.append(detail_url)
+            obj.detail_image_urls = detail_image_urls
 
         obj.save()
 

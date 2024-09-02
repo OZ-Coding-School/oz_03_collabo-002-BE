@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional
 
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
-from django.db.models import Avg
+from django.db.models import Avg, JSONField
 
 from common.models import CommonModel
 
@@ -81,9 +81,9 @@ class ClassDate(models.Model):
 
 class ClassImages(models.Model):
     class_id = models.ForeignKey(Class, related_name="images", on_delete=models.CASCADE)
-    description_image_url = models.CharField(max_length=255, blank=True)
-    thumbnail_image_url = models.CharField(max_length=255, blank=True)
-    detail_image_url = models.CharField(max_length=255, blank=True)
+    description_image_urls = JSONField(blank=True, default=list)
+    detail_image_urls = JSONField(blank=True, default=list)
+    thumbnail_image_urls = JSONField(blank=True, default=list)
 
     def __str__(self) -> str:
         return f"{self.class_id.title}"
