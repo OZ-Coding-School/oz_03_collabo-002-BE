@@ -51,6 +51,7 @@ def set_cookies(request: Request, response: Response, token: Token) -> Response:
         max_age=access_max_age,
         secure=True,
         httponly=True,
+        samesite="None",
         domain=domain,
     )
 
@@ -60,7 +61,14 @@ def set_cookies(request: Request, response: Response, token: Token) -> Response:
         max_age=refresh_max_age,
         secure=True,
         httponly=True,
+        samesite="None",
         domain=domain,
     )
+
+    if hasattr(response, 'data'):
+        response.data['access_token'] = token.access_token
+        response.data['refresh_token'] = token.refresh_token
+    else:
+        response.data = {'access_token': token.access_token, 'refresh_token': token.refresh_token}
 
     return response
