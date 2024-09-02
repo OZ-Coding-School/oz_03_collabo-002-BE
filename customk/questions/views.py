@@ -21,7 +21,7 @@ class QuestionListView(APIView):
     @extend_schema(
         methods=["GET"],
         summary="질문 및 답변 목록 조회",
-        description="특정 클래스에 대한 질문 및 답변 목록을 조회하는 API입니다.",
+        description="특정 클래스에 대한 질문 및 답변 목록을 페이지네이션 형태로 조회하는 API입니다.",
         parameters=[
             OpenApiParameter(
                 name="class_id",
@@ -29,7 +29,23 @@ class QuestionListView(APIView):
                 required=True,
                 type=OpenApiTypes.INT,
                 location=OpenApiParameter.PATH,
-            )
+            ),
+            OpenApiParameter(
+                name="page",
+                description="페이지 번호",
+                required=False,
+                default=1,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+            ),
+            OpenApiParameter(
+                name="size",
+                description="페이지당 항목 수",
+                required=False,
+                default=15,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+            ),
         ],
         responses={
             200: OpenApiResponse(
@@ -37,9 +53,12 @@ class QuestionListView(APIView):
                 response=inline_serializer(
                     name="QuestionListResponse",
                     fields={
+                        "total_count": serializers.IntegerField(),
+                        "total_pages": serializers.IntegerField(),
+                        "current_page": serializers.IntegerField(),
                         "questions": serializers.ListSerializer(
                             child=QuestionSerializer()
-                        )
+                        ),
                     },
                 ),
             ),
@@ -49,9 +68,32 @@ class QuestionListView(APIView):
     def get(
         self, request: Request, class_id: int, *args: Any, **kwargs: Any
     ) -> Response:
-        questions = Question.objects.filter(class_id=class_id)
+        page = int(request.query_params.get("page", 1))
+        size = int(request.query_params.get("size", 15))
+        offset = (page - 1) * size
+
+        if page < 1:
+            return Response("Page input error", status=400)
+
+        try:
+            questions = Question.objects.filter(class_id=class_id)
+        except Question.DoesNotExist:
+            return Response({"message": "Class not found."}, status=404)
+
+        total_count = questions.count()
+        total_pages = (total_count // size) + (1 if total_count % size > 0 else 0)
+
+        questions = questions.order_by("-id")[offset : offset + size]
+
         serializer = QuestionSerializer(questions, many=True)
-        return Response(serializer.data)
+        response_data = {
+            "total_count": total_count,
+            "total_pages": total_pages,
+            "current_page": page,
+            "questions": serializer.data,
+        }
+
+        return Response(response_data, status=200)
 
     @extend_schema(
         methods=["POST"],
