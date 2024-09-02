@@ -1,11 +1,11 @@
 from typing import Any
 
-from drf_spectacular.utils import OpenApiResponse, extend_schema, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from drf_spectacular.types import OpenApiTypes
 
 from .models import Class
 from .serializers import ClassSerializer
@@ -122,6 +122,7 @@ class ClassListView(APIView):
                 {"status": "error", "message": "삭제 실패했습니다"}, status=404
             )
 
+
 class ClassDetailView(APIView):
     def get_permissions(self):
         if self.request.method == "GET":
@@ -134,7 +135,7 @@ class ClassDetailView(APIView):
         description="특정 클래스의 세부 정보를 조회하는 API입니다.",
         parameters=[
             OpenApiParameter(
-                name="id",
+                name="class_id",
                 description="클래스 ID",
                 required=True,
                 type=OpenApiTypes.INT,
@@ -149,7 +150,11 @@ class ClassDetailView(APIView):
         },
     )
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        class_id = kwargs.get("id")
+        class_id = kwargs.get("class_id")
+        if class_id is None:
+            return Response(
+                {"status": "error", "message": "Class ID not provided"}, status=400
+            )
         try:
             class_instance = Class.objects.get(id=class_id)
             serializer = ClassSerializer(class_instance)
