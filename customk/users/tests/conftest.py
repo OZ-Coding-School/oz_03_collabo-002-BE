@@ -4,6 +4,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from users.serializers.user_serializer import UserSerializer
 
+pytestmark = pytest.mark.django_db
+
 
 @pytest.fixture
 def api_client():
@@ -11,7 +13,7 @@ def api_client():
 
 
 @pytest.fixture
-def sample_user(django_db_setup):
+def sample_user():
     data = {
         "name": "testname",
         "email": "test@example.com",

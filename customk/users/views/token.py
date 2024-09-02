@@ -1,7 +1,6 @@
-from typing import Any
 from datetime import timedelta
-from typing import cast
-from config import settings
+from typing import Any, cast
+
 from drf_spectacular.utils import (
     OpenApiExample,
     OpenApiParameter,
@@ -14,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import InvalidToken
 from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
+from config import settings
 from config.logger import logger
 
 
@@ -71,9 +71,12 @@ class CustomTokenRefreshView(TokenRefreshView):
             if response.status_code == 200:
                 access_token = response.data.get("access")
                 from users.services.token_service import get_domain
+
                 domain = get_domain(request=request)
                 access_max_age = int(
-                    cast(timedelta, settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"]).total_seconds()
+                    cast(
+                        timedelta, settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"]
+                    ).total_seconds()
                 )
                 response.set_cookie(
                     key="access_token",
