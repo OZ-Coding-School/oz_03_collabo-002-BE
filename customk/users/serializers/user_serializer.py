@@ -63,7 +63,7 @@ class UserSerializer(serializers.ModelSerializer):
             "profile_image_url",
         )
 
-    def get_profile_image_url(self, obj):
+    def get_profile_image_url(self, obj) -> str:
         return obj.profile_image
 
     def velidate(self, data):
@@ -107,7 +107,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         model = User
         fields = ("name", "profile_image", "profile_image_url")
 
-    def get_profile_image_url(self, obj):
+    def get_profile_image_url(self, obj) -> str:
         return obj.profile_image
 
     def update(self, instance, validated_data):
