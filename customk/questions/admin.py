@@ -2,7 +2,6 @@ from typing import Any, Dict, Optional
 
 from django.contrib import admin, messages
 from django.http import HttpRequest, HttpResponse
-from django.utils.html import format_html
 
 from .models import Question
 
@@ -33,11 +32,9 @@ class QuestionAdmin(admin.ModelAdmin):
 
     def answer_icon(self, obj):
         if obj.answer:
-            return format_html(
-                '<span style="font-size: 1.2em; color: #00FF00;">✅</span>'
-            )
+            return "✅"
         else:
-            return format_html('<span style="font-size: 1.2em; color: red;">❌</span>')
+            return "❌"
 
     answer_icon.short_description = "답변 상태"  # type: ignore
 
