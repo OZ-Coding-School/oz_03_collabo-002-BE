@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import include, path, re_path
+from django.urls import include, re_path
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
@@ -27,5 +27,5 @@ urlpatterns = [
     re_path(r"^v1/classes/?", include("classes.urls")),
     re_path(r"^v1/question/?", include("questions.urls")),
     re_path(r"^v1/reviews/?", include("reviews.urls")),
-    re_path(r"^v1/reactions/?", include("reactions.urls")),
+    re_path(r"^v1/favorites/?", include("favorites.urls")),
 ]

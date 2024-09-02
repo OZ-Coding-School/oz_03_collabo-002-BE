@@ -33,6 +33,7 @@ CUSTOM_USER_APPS = [
     "reviews",
     "reactions",
     "corsheaders",
+    "favorites"
 ]
 
 
