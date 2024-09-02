@@ -27,4 +27,5 @@ urlpatterns = [
     re_path(r"^v1/classes/?", include("classes.urls")),
     re_path(r"^v1/question/?", include("questions.urls")),
     re_path(r"^v1/reviews/?", include("reviews.urls")),
+    re_path(r"^v1/reactions/?", include("reactions.urls")),
 ]

@@ -23,7 +23,7 @@ def test_class_create(api_client_with_token):
         "max_person": 10,
         "require_person": 5,
         "price": 50000,
-        "address": {"state": "Seoul", "city": "Gangnam", "street": "Teheran-ro"},
+        "address": "성남시 중원구 희망로",
     }
     response = api_client_with_token.post(url, data, format="json")
     assert response.status_code == status.HTTP_201_CREATED

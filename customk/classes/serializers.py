@@ -9,7 +9,7 @@ from rest_framework import serializers
 from common.services.ncp_api_conf import ObjectStorage
 from config.logger import logger
 
-from .models import Class, ClassDate, ClassImages
+from .models import Category, Class, ClassDate, ClassImages, Genre
 
 
 def upload_image_to_object_storage(base64_image: str) -> str:
@@ -70,11 +70,18 @@ class ClassSerializer(serializers.ModelSerializer):
     is_new = serializers.SerializerMethodField()
     price_in_usd = serializers.SerializerMethodField()
     is_best = serializers.SerializerMethodField()
-    formatted_address = serializers.ReadOnlyField()
+    genre = serializers.SerializerMethodField()
+    category = serializers.SerializerMethodField()
 
     class Meta:
         model = Class
         fields = "__all__"
+
+    def get_genre(self, obj):
+        return obj.genre.name if obj.genre else None
+
+    def get_category(self, obj):
+        return obj.category.name if obj.category else None
 
     def get_is_new(self, obj):
         return timezone.now() - obj.created_at <= timedelta(days=30)
