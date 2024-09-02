@@ -70,25 +70,9 @@ def callback(request: Request) -> Response:
         profile_response.raise_for_status()
         profile = profile_response.json()
 
-        email = profile.get("email")
+        email = profile.get("email", "")
         name = profile.get("name")
-        profile_image = profile.get("picture")
-
-        if not profile_image:
-            profile_image = "default.image.uri"  # TODO: 기본 이미지 필요
-
-        if not email:
-            logger.warning("line email empty")
-            return Response(
-                data={
-                    "message": "이메일이 존재하지 않습니다.",
-                    "result": {
-                        "name": name,
-                        "profile_image": profile_image,
-                    },
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        profile_image = profile.get("picture", "")
 
         user_data = {
             "email": email,
