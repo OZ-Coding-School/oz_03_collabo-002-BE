@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('classes', '0018_remove_classimages_description_image_urls_and_more'),
+        ("classes", "0018_remove_classimages_description_image_urls_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='classimages',
-            name='detail_image_url',
+            model_name="classimages",
+            name="detail_image_url",
             field=models.CharField(blank=True, max_length=255),
         ),
         migrations.AlterField(
-            model_name='classimages',
-            name='thumbnail_image_url',
+            model_name="classimages",
+            name="thumbnail_image_url",
             field=models.CharField(blank=True, max_length=255),
         ),
     ]
