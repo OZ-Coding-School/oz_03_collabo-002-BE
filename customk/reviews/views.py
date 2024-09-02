@@ -76,7 +76,7 @@ class ReviewListView(APIView):
                                     "dislikes_count": serializers.IntegerField(),
                                 },
                             )
-                        )
+                        ),
                     },
                 ),
             ),
@@ -97,7 +97,7 @@ class ReviewListView(APIView):
         total_count = reviews.count()
         total_pages = (total_count // size) + (1 if total_count % size > 0 else 0)
 
-        reviews = reviews.order_by("-id")[offset:offset + size]
+        reviews = reviews.order_by("-id")[offset : offset + size]
 
         if not reviews.exists():
             return Response({"message": "No reviews found for this class."}, status=404)
@@ -307,7 +307,7 @@ class ReviewImageListView(generics.ListAPIView):
                                     "image_url": serializers.CharField(),
                                 },
                             )
-                        )
+                        ),
                     },
                 ),
             ),
@@ -317,7 +317,6 @@ class ReviewImageListView(generics.ListAPIView):
     def get(
         self, request: Request, class_id: int, review_id: int, *args: Any, **kwargs: Any
     ) -> Response:
-
         page = int(request.GET.get("page", "1"))
         size = int(request.GET.get("size", "10"))
         offset = (page - 1) * size
@@ -331,7 +330,7 @@ class ReviewImageListView(generics.ListAPIView):
         total_count = review_images.count()
         total_pages = (total_count // size) + (1 if total_count % size > 0 else 0)
 
-        review_images = review_images.order_by("-id")[offset:offset + size]
+        review_images = review_images.order_by("-id")[offset : offset + size]
 
         if not review_images.exists():
             return Response({"message": "No images found for this review."}, status=404)
