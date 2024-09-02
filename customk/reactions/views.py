@@ -1,6 +1,5 @@
 from typing import Any
 
-from users.models import User
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
@@ -45,12 +44,12 @@ class ReactToReviewView(APIView):
     def post(
         self, request: Request, class_id: int, *args: Any, **kwargs: Any
     ) -> Response:
-
-        review_id = request.query_params.get('review_id')
+        review_id = request.query_params.get("review_id")
 
         if review_id is None:
             return Response(
-                {"status": "error", "message": "리뷰 ID가 제공되지 않았습니다."}, status=400
+                {"status": "error", "message": "리뷰 ID가 제공되지 않았습니다."},
+                status=400,
             )
 
         review = get_object_or_404(Review, pk=review_id)
@@ -58,8 +57,11 @@ class ReactToReviewView(APIView):
 
         if not user.is_authenticated:
             return Response(
-                {"status": "error", "message": "인증된 사용자만 반응을 추가할 수 있습니다."},
-                status=401
+                {
+                    "status": "error",
+                    "message": "인증된 사용자만 반응을 추가할 수 있습니다.",
+                },
+                status=401,
             )
 
         try:
@@ -111,11 +113,11 @@ class ReactToReviewView(APIView):
     def patch(
         self, request: Request, class_id: int, *args: Any, **kwargs: Any
     ) -> Response:
-
-        review_id = request.query_params.get('review_id')
+        review_id = request.query_params.get("review_id")
         if review_id is None:
             return Response(
-                {"status": "error", "message": "리뷰 ID가 제공되지 않았습니다."}, status=400
+                {"status": "error", "message": "리뷰 ID가 제공되지 않았습니다."},
+                status=400,
             )
 
         review = get_object_or_404(Review, pk=review_id)
@@ -123,8 +125,11 @@ class ReactToReviewView(APIView):
 
         if not user.is_authenticated:
             return Response(
-                {"status": "error", "message": "인증된 사용자만 반응을 수정할 수 있습니다."},
-                status=401
+                {
+                    "status": "error",
+                    "message": "인증된 사용자만 반응을 수정할 수 있습니다.",
+                },
+                status=401,
             )
 
         try:
