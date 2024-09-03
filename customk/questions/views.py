@@ -8,7 +8,7 @@ from drf_spectacular.utils import (
     inline_serializer,
 )
 from rest_framework import serializers
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -19,11 +19,6 @@ from questions.serializers import QuestionSerializer
 
 
 class QuestionListView(APIView):
-    def get_permissions(self):
-        if self.request.method == "GET":
-            return [AllowAny()]
-        return [IsAuthenticated()]
-
     @extend_schema(
         methods=["GET"],
         summary="질문 및 답변 목록 조회",
@@ -82,7 +77,9 @@ class QuestionListView(APIView):
             return Response("Page input error", status=400)
 
         try:
-            questions = Question.objects.filter(class_id=class_id)
+            questions = Question.objects.filter(
+                class_id=class_id, user_id=request.user.id
+            )
         except Question.DoesNotExist:
             return Response({"message": "Class not found."}, status=404)
 
