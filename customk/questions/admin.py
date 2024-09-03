@@ -15,7 +15,6 @@ class QuestionAdmin(admin.ModelAdmin):
         "question_title",
         "created_at",
         "updated_at",
-
     )
     list_filter = ("class_id", "created_at", "user_id")
     search_fields = ("user_id__name", "class_id__title", "question", "question_title")
