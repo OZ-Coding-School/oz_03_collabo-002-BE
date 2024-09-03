@@ -7,6 +7,7 @@ from rest_framework import serializers
 from classes.models import Class
 from common.services.ncp_api_conf import ObjectStorage
 from config.logger import logger
+from users.serializers.user_serializer import UserSerializer
 
 from .models import Review, ReviewImage
 
@@ -63,7 +64,7 @@ class ReviewImageSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     images = ReviewImageSerializer(many=True, required=False)
-    user = serializers.ReadOnlyField(source="user.id")
+    user = UserSerializer()
 
     class Meta:
         model = Review

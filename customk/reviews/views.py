@@ -32,7 +32,7 @@ class ReviewListView(APIView):
     @extend_schema(
         methods=["GET"],
         summary="리뷰 목록 조회",
-        description="특정 클래스에 대한 리뷰 목록을 조회하는 API입니다.",
+        description="특정 클래스에 대한 리뷰 목록을 페이지네이션 형태로 조회하는 API입니다.",
         parameters=[
             OpenApiParameter(
                 name="class_id",
@@ -40,7 +40,23 @@ class ReviewListView(APIView):
                 required=True,
                 type=OpenApiTypes.INT,
                 location=OpenApiParameter.PATH,
-            )
+            ),
+            OpenApiParameter(
+                name="page",
+                description="페이지 번호",
+                required=False,
+                default=1,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+            ),
+            OpenApiParameter(
+                name="size",
+                description="페이지당 항목 수",
+                required=False,
+                default=15,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+            ),
         ],
         responses={
             200: OpenApiResponse(
@@ -48,6 +64,9 @@ class ReviewListView(APIView):
                 response=inline_serializer(
                     name="ReviewListResponse",
                     fields={
+                        "total_count": serializers.IntegerField(),
+                        "total_pages": serializers.IntegerField(),
+                        "current_page": serializers.IntegerField(),
                         "reviews": serializers.ListSerializer(
                             child=inline_serializer(
                                 name="ReviewData",
@@ -57,7 +76,7 @@ class ReviewListView(APIView):
                                     "dislikes_count": serializers.IntegerField(),
                                 },
                             )
-                        )
+                        ),
                     },
                 ),
             ),
@@ -67,7 +86,18 @@ class ReviewListView(APIView):
     def get(self, request: Any, class_id: int, *args: Any, **kwargs: Any) -> Response:
         class_instance = get_object_or_404(Class, id=class_id)
 
+        page = int(request.GET.get("page", "1"))
+        size = int(request.GET.get("size", "15"))
+        offset = (page - 1) * size
+
+        if page < 1:
+            return Response("Page input error", status=400)
+
         reviews = Review.objects.filter(class_id=class_instance.id)
+        total_count = reviews.count()
+        total_pages = (total_count // size) + (1 if total_count % size > 0 else 0)
+
+        reviews = reviews.order_by("-id")[offset : offset + size]
 
         if not reviews.exists():
             return Response({"message": "No reviews found for this class."}, status=404)
@@ -77,13 +107,17 @@ class ReviewListView(APIView):
             reactions = Reaction.get_review_reactions(review)
             review_data.append(
                 {
-                    "review": ReviewSerializer(review).data,
-                    "likes_count": reactions["likes_count"],
-                    "dislikes_count": reactions["dislikes_count"],
+                    "review": {
+                        **ReviewSerializer(review).data,
+                        "likes_count": reactions["likes_count"],
+                    }
                 }
             )
 
         response_data = {
+            "total_count": total_count,
+            "total_pages": total_pages,
+            "current_page": page,
             "reviews": review_data,
         }
         return Response(response_data, status=200)
@@ -223,8 +257,8 @@ class ReviewImageListView(generics.ListAPIView):
 
     @extend_schema(
         methods=["GET"],
-        summary="리뷰 이미지 목록 조회",
-        description="특정 리뷰에 연결된 이미지 목록을 조회하는 API입니다.",
+        summary="특정 리뷰의 이미지 목록 조회",
+        description="특정 리뷰에 연결된 이미지 목록을 페이지네이션 형태로 조회하는 API입니다.",
         parameters=[
             OpenApiParameter(
                 name="class_id",
@@ -240,40 +274,76 @@ class ReviewImageListView(generics.ListAPIView):
                 type=OpenApiTypes.INT,
                 location=OpenApiParameter.PATH,
             ),
+            OpenApiParameter(
+                name="page",
+                description="페이지 번호",
+                required=False,
+                default=1,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+            ),
+            OpenApiParameter(
+                name="size",
+                description="페이지당 항목 수",
+                required=False,
+                default=15,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+            ),
         ],
         responses={
             200: OpenApiResponse(
                 description="리뷰 이미지 목록 조회 성공",
                 response=inline_serializer(
-                    name="ReviewImageListResponse",
+                    name="PhotoReviewListResponse",
                     fields={
+                        "total_count": serializers.IntegerField(),
+                        "total_pages": serializers.IntegerField(),
+                        "current_page": serializers.IntegerField(),
                         "images": serializers.ListSerializer(
                             child=inline_serializer(
-                                name="ReviewImageData",
+                                name="PhotoReviewImageData",
                                 fields={
                                     "id": serializers.IntegerField(),
                                     "image_url": serializers.CharField(),
                                 },
                             )
-                        )
+                        ),
                     },
                 ),
             ),
-            404: OpenApiResponse(description="리뷰 이미지를 찾을 수 없음"),
+            404: OpenApiResponse(description="이미지를 찾을 수 없음"),
         },
     )
     def get(
         self, request: Request, class_id: int, review_id: int, *args: Any, **kwargs: Any
     ) -> Response:
+        page = int(request.GET.get("page", "1"))
+        size = int(request.GET.get("size", "10"))
+        offset = (page - 1) * size
+
+        if page < 1:
+            return Response("Page input error", status=400)
+
         review_images = ReviewImage.objects.filter(
             review_id=review_id, review__class_id=class_id
         )
+        total_count = review_images.count()
+        total_pages = (total_count // size) + (1 if total_count % size > 0 else 0)
+
+        review_images = review_images.order_by("-id")[offset : offset + size]
 
         if not review_images.exists():
             return Response({"message": "No images found for this review."}, status=404)
 
         serializer = ReviewImageSerializer(review_images, many=True)
-        return Response({"images": serializer.data}, status=200)
+        response_data = {
+            "total_count": total_count,
+            "total_pages": total_pages,
+            "current_page": page,
+            "images": serializer.data,
+        }
+        return Response(response_data, status=200)
 
 
 class PhotoReviewListView(generics.ListAPIView):
