@@ -107,9 +107,10 @@ class ReviewListView(APIView):
             reactions = Reaction.get_review_reactions(review)
             review_data.append(
                 {
-                    "review": ReviewSerializer(review).data,
-                    "likes_count": reactions["likes_count"],
-                    "dislikes_count": reactions["dislikes_count"],
+                    "review": {
+                        **ReviewSerializer(review).data,
+                        "likes_count": reactions["likes_count"],
+                    }
                 }
             )
 
