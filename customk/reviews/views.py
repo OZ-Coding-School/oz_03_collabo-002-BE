@@ -64,22 +64,36 @@ class ReviewListView(APIView):
                 response=inline_serializer(
                     name="ReviewListResponse",
                     fields={
-                        "total_count": serializers.IntegerField(),
-                        "total_pages": serializers.IntegerField(),
-                        "current_page": serializers.IntegerField(),
+                        "total_count": serializers.IntegerField(
+                            help_text="전체 리뷰 수"
+                        ),
+                        "total_pages": serializers.IntegerField(
+                            help_text="전체 페이지 수"
+                        ),
+                        "current_page": serializers.IntegerField(
+                            help_text="현재 페이지 번호"
+                        ),
                         "reviews": serializers.ListSerializer(
                             child=inline_serializer(
                                 name="ReviewData",
                                 fields={
-                                    "review": ReviewSerializer(),
-                                    "likes_count": serializers.IntegerField(),
-                                    "dislikes_count": serializers.IntegerField(),
+                                    "review": inline_serializer(
+                                        name="ReviewDetail",
+                                        fields={
+                                            **ReviewSerializer().fields,
+                                            "likes_count": serializers.IntegerField(
+                                                help_text="해당 리뷰의 좋아요 수"
+                                            ),
+                                        },
+                                    ),
                                 },
-                            )
+                            ),
+                            help_text="리뷰 목록",
                         ),
                     },
                 ),
             ),
+            400: OpenApiResponse(description="잘못된 페이지 번호 입력"),
             404: OpenApiResponse(description="리뷰를 찾을 수 없음"),
         },
     )
