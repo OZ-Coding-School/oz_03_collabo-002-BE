@@ -3,11 +3,12 @@ from typing import Any
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import status
+
 from .models import Reaction, Review
 
 
@@ -68,7 +69,8 @@ class ReactToReviewView(APIView):
             reaction_type = int(request.data.get("reaction", Reaction.NO_REACTION))
         except ValueError:
             return Response(
-                {"status": "error", "message": "잘못된 반응 값입니다."}, status=status.HTTP_400_BAD_REQUEST
+                {"status": "error", "message": "잘못된 반응 값입니다."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         reaction, created = Reaction.objects.get_or_create(user=user, review=review)
@@ -136,7 +138,8 @@ class ReactToReviewView(APIView):
             reaction_type = int(request.data.get("reaction", Reaction.NO_REACTION))
         except ValueError:
             return Response(
-                {"status": "error", "message": "잘못된 반응 값입니다."}, status=status.HTTP_400_BAD_REQUEST
+                {"status": "error", "message": "잘못된 반응 값입니다."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         try:

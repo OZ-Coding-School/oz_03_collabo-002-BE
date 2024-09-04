@@ -8,12 +8,11 @@ from drf_spectacular.utils import (
     extend_schema,
     inline_serializer,
 )
-from rest_framework import generics, serializers
+from rest_framework import generics, serializers, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import status
 
 from classes.models import Class
 from reactions.models import Reaction
@@ -115,7 +114,10 @@ class ReviewListView(APIView):
         reviews = reviews.order_by("-id")[offset : offset + size]
 
         if not reviews.exists():
-            return Response({"message": "No reviews found for this class."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"message": "No reviews found for this class."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         review_data = []
         for review in reviews:
@@ -169,7 +171,9 @@ class ReviewListView(APIView):
         try:
             class_instance = Class.objects.get(id=class_id)
         except Class.DoesNotExist:
-            return Response({"class_id": "Invalid class ID."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"class_id": "Invalid class ID."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         data = request.data.copy()
         data["user"] = request.user.id
@@ -260,7 +264,10 @@ class ReviewUpdateView(APIView):
         review = get_object_or_404(Review, id=review_id, class_id=class_id)
         review.delete()
 
-        return Response({"message": "Review successfully deleted."}, status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"message": "Review successfully deleted."},
+            status=status.HTTP_204_NO_CONTENT,
+        )
 
 
 class ReviewImageListView(generics.ListAPIView):
@@ -349,7 +356,10 @@ class ReviewImageListView(generics.ListAPIView):
         review_images = review_images.order_by("-id")[offset : offset + size]
 
         if not review_images.exists():
-            return Response({"message": "No images found for this review."}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"message": "No images found for this review."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         serializer = ReviewImageSerializer(review_images, many=True)
         response_data = {
@@ -408,7 +418,10 @@ class PhotoReviewListView(generics.ListAPIView):
         review_images = ReviewImage.objects.filter(review__class_id=class_id)
 
         if not review_images.exists():
-            return Response({"message": "No images found for this class."}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"message": "No images found for this class."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         serializer = ReviewImageSerializer(review_images, many=True)
         return Response({"images": serializer.data}, status=status.HTTP_200_OK)

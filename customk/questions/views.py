@@ -7,11 +7,11 @@ from drf_spectacular.utils import (
     extend_schema,
     inline_serializer,
 )
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import status
+
 from classes.models import Class
 from questions.models import Question
 from questions.serializers import QuestionSerializer
@@ -80,7 +80,9 @@ class QuestionListView(APIView):
                 class_id=class_id, user_id=request.user.id
             )
         except Question.DoesNotExist:
-            return Response({"message": "Class not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"message": "Class not found."}, status=status.HTTP_404_NOT_FOUND
+            )
 
         total_count = questions.count()
         total_pages = (total_count // size) + (1 if total_count % size > 0 else 0)
@@ -133,7 +135,9 @@ class QuestionListView(APIView):
         try:
             class_instance = Class.objects.get(id=class_id)
         except Class.DoesNotExist:
-            return Response({"error": "Class not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Class not found."}, status=status.HTTP_404_NOT_FOUND
+            )
 
         data = request.data.copy()
         data["user_id"] = request.user.id
@@ -186,7 +190,10 @@ class QuestionListView(APIView):
     ) -> Response:
         question_id = request.data.get("id")
         if question_id is None:
-            return Response({"error": "Question ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Question ID is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
             question = Question.objects.get(id=int(question_id), class_id=class_id)
@@ -255,7 +262,10 @@ class QuestionListView(APIView):
         try:
             question = Question.objects.get(id=question_id)
         except Question.DoesNotExist:
-            return Response({"error": "Question or Answer not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Question or Answer not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         if question.user_id != request.user.id:
             return Response(
