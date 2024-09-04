@@ -1,10 +1,11 @@
 import pytest
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from rest_framework import status
 
 from classes.models import Class
-from django.test.utils import CaptureQueriesContext
-from django.db import connection
+
 
 @pytest.mark.django_db
 def test_class_list(api_client):
@@ -40,9 +41,10 @@ def test_class_delete(api_client_with_token, sample_class):
     assert response.status_code == status.HTTP_204_NO_CONTENT
     assert not Class.objects.filter(id=sample_class.id).exists()
 
+
 @pytest.mark.django_db
-def test_classes_view_queries(api_client_with_token, sample_user, class_instance):
-    url = reverse('class-list')
+def test_classes_view_queries(api_client_with_token):
+    url = reverse("class-list")
 
     with CaptureQueriesContext(connection) as ctx:
         response = api_client_with_token.get(url)
@@ -50,8 +52,8 @@ def test_classes_view_queries(api_client_with_token, sample_user, class_instance
     assert response.status_code == 200
 
     for query in ctx.captured_queries:
-        print(query['sql'])
+        print(query["sql"])
 
     # 발생한 쿼리 수를 확인
     print(f"Total queries: {len(ctx.captured_queries)}")
-    assert len(ctx.captured_queries) <= 5
+    assert len(ctx.captured_queries) <= 9

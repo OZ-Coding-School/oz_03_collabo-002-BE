@@ -1,5 +1,6 @@
 from typing import Any
 
+from django.db.models import Avg
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -28,7 +29,7 @@ class ClassListView(APIView):
         },
     )
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        classes = Class.objects.all()
+        classes = Class.objects.annotate(average_rating=Avg("reviews__rating"))
         serializer = ClassSerializer(classes, many=True)
         response_data = {
             "status": "success",

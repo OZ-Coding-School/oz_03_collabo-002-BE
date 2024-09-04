@@ -60,16 +60,6 @@ class Class(CommonModel):
             return rounded_price
         return None
 
-    @property
-    def average_rating(self) -> Optional[float]:
-        avg: Optional[float] = (
-            self.reviews.aggregate(average=Avg("rating"))["average"] or 0
-        )
-
-        if avg is None:
-            return None
-        return round(float(avg), 1)
-
 
 class ClassDate(models.Model):
     class_id = models.ForeignKey(Class, related_name="dates", on_delete=models.CASCADE)

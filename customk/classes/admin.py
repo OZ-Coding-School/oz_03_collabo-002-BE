@@ -29,7 +29,6 @@ class ClassAdmin(admin.ModelAdmin):  # type: ignore
         "price_in_usd",
         "address",
         "is_viewed_badge",
-        "average_rating",
     )
 
     def price_in_usd(self, obj: Class) -> Optional[float]:
