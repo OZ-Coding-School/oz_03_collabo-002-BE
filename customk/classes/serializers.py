@@ -79,6 +79,7 @@ class ClassSerializer(serializers.ModelSerializer):
     is_best = serializers.SerializerMethodField()
     genre = serializers.SerializerMethodField()
     category = serializers.SerializerMethodField()
+    average_rating = serializers.FloatField(read_only=True)
 
     class Meta:
         model = Class
