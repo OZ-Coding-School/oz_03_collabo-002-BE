@@ -1,6 +1,6 @@
 from django.urls import re_path
 
-from questions.views import QuestionListView, AllQuestionsListView
+from questions.views import AllQuestionsListView, QuestionListView
 
 urlpatterns = [
     re_path(r"^$", AllQuestionsListView.as_view(), name="all-questions"),
