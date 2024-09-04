@@ -8,7 +8,6 @@ from drf_spectacular.utils import (
     inline_serializer,
 )
 from rest_framework import serializers
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -16,6 +15,73 @@ from rest_framework.views import APIView
 from classes.models import Class
 from questions.models import Question
 from questions.serializers import QuestionSerializer
+
+
+class AllQuestionsListView(APIView):
+    @extend_schema(
+        methods=["GET"],
+        summary="사용자가 작성한 모든 질문 목록 조회",
+        description="현재 사용자가 작성한 모든 질문을 페이지네이션 형태로 조회하는 API입니다.",
+        parameters=[
+            OpenApiParameter(
+                name="page",
+                description="페이지 번호",
+                required=False,
+                default=1,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+            ),
+            OpenApiParameter(
+                name="size",
+                description="페이지당 항목 수",
+                required=False,
+                default=15,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+            ),
+        ],
+        responses={
+            200: OpenApiResponse(
+                description="사용자가 작성한 모든 질문 목록 조회 성공",
+                response=inline_serializer(
+                    name="UserQuestionsListResponse",
+                    fields={
+                        "total_count": serializers.IntegerField(),
+                        "total_pages": serializers.IntegerField(),
+                        "current_page": serializers.IntegerField(),
+                        "questions": serializers.ListSerializer(
+                            child=QuestionSerializer()
+                        ),
+                    },
+                ),
+            ),
+        },
+    )
+    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        page = int(request.query_params.get("page", 1))
+        size = int(request.query_params.get("size", 15))
+        offset = (page - 1) * size
+
+        if page < 1:
+            return Response({"message": "Page input error"}, status=400)
+
+        user_id = request.user.id
+        questions = Question.objects.filter(user_id=user_id)
+
+        total_count = questions.count()
+        total_pages = (total_count // size) + (1 if total_count % size > 0 else 0)
+
+        questions = questions.order_by("-id")[offset : offset + size]
+
+        serializer = QuestionSerializer(questions, many=True)
+        response_data = {
+            "total_count": total_count,
+            "total_pages": total_pages,
+            "current_page": page,
+            "questions": serializer.data,
+        }
+
+        return Response(response_data, status=200)
 
 
 class QuestionListView(APIView):

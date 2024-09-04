@@ -64,7 +64,7 @@ class ReviewImageSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     images = ReviewImageSerializer(many=True, required=False)
-    user = UserSerializer()
+    user = UserSerializer(read_only=True)
 
     class Meta:
         model = Review
