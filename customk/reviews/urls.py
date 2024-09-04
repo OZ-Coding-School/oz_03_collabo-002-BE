@@ -1,6 +1,7 @@
 from django.urls import re_path
 
 from .views import (
+    AllReviewsListView,
     PhotoReviewListView,
     ReviewImageListView,
     ReviewListView,
@@ -8,6 +9,7 @@ from .views import (
 )
 
 urlpatterns = [
+    re_path(r"^$", AllReviewsListView.as_view(), name="all-reviews"),
     re_path(r"^(?P<class_id>\d+)/?$", ReviewListView.as_view(), name="review-list"),
     re_path(
         r"^(?P<class_id>\d+)/update/(?P<review_id>\d+)/?$",

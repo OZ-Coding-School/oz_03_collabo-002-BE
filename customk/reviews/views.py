@@ -23,6 +23,106 @@ from .models import ReviewImage
 from .serializers import ReviewImageSerializer
 
 
+class AllReviewsListView(APIView):
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [AllowAny()]
+
+    @extend_schema(
+        methods=["GET"],
+        summary="전체 리뷰 목록 조회",
+        description="전체 리뷰 목록을 페이지네이션 형태로 조회하는 API입니다.",
+        parameters=[
+            OpenApiParameter(
+                name="page",
+                description="페이지 번호",
+                required=False,
+                default=1,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+            ),
+            OpenApiParameter(
+                name="size",
+                description="페이지당 항목 수",
+                required=False,
+                default=15,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+            ),
+        ],
+        responses={
+            200: OpenApiResponse(
+                description="리뷰 목록 조회 성공",
+                response=inline_serializer(
+                    name="AllReviewListResponse",
+                    fields={
+                        "total_count": serializers.IntegerField(
+                            help_text="전체 리뷰 수"
+                        ),
+                        "total_pages": serializers.IntegerField(
+                            help_text="전체 페이지 수"
+                        ),
+                        "current_page": serializers.IntegerField(
+                            help_text="현재 페이지 번호"
+                        ),
+                        "reviews": serializers.ListSerializer(
+                            child=inline_serializer(
+                                name="AllReviewData",
+                                fields={
+                                    "review": inline_serializer(
+                                        name="AllReviewDetail",
+                                        fields={
+                                            **ReviewSerializer().fields,
+                                            "likes_count": serializers.IntegerField(
+                                                help_text="해당 리뷰의 좋아요 수"
+                                            ),
+                                        },
+                                    ),
+                                },
+                            ),
+                            help_text="리뷰 목록",
+                        ),
+                    },
+                ),
+            ),
+            400: OpenApiResponse(description="잘못된 페이지 번호 입력"),
+        },
+    )
+    def get(self, request: Any, *args: Any, **kwargs: Any) -> Response:
+        page = int(request.GET.get("page", "1"))
+        size = int(request.GET.get("size", "15"))
+        offset = (page - 1) * size
+
+        if page < 1:
+            return Response("Page input error", status=400)
+
+        reviews = Review.objects.all()
+        total_count = reviews.count()
+        total_pages = (total_count // size) + (1 if total_count % size > 0 else 0)
+
+        reviews = reviews.order_by("-id")[offset : offset + size]
+
+        review_data = []
+        for review in reviews:
+            reactions = Reaction.get_review_reactions(review)
+            review_data.append(
+                {
+                    "review": {
+                        **ReviewSerializer(review).data,
+                        "likes_count": reactions["likes_count"],
+                    }
+                }
+            )
+
+        response_data = {
+            "total_count": total_count,
+            "total_pages": total_pages,
+            "current_page": page,
+            "reviews": review_data,
+        }
+        return Response(response_data, status=200)
+
+
 class ReviewListView(APIView):
     def get_permissions(self):
         if self.request.method == "GET":
