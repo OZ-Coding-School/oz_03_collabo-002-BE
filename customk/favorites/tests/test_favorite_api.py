@@ -2,7 +2,14 @@ import pytest
 from django.urls import reverse
 from rest_framework import status
 
+from classes.tests.conftest import sample_class
 from favorites.models import Favorite
+from users.tests.conftest import (
+    access_token,
+    api_client_with_token,
+    refresh_token,
+    sample_user,
+)
 
 pytestmark = pytest.mark.django_db
 

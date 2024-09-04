@@ -2,6 +2,8 @@ server {
     listen 80;
     server_name ${SERVER_NAME};
 
+    client_max_body_size 20M;
+
     location /health {
         access_log off;
         return 200 'OK';
