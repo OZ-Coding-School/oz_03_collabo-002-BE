@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from rest_framework import status
 from .models import Reaction, Review
 
 
@@ -49,7 +49,7 @@ class ReactToReviewView(APIView):
         if review_id is None:
             return Response(
                 {"status": "error", "message": "리뷰 ID가 제공되지 않았습니다."},
-                status=400,
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         review = get_object_or_404(Review, pk=review_id)
@@ -61,14 +61,14 @@ class ReactToReviewView(APIView):
                     "status": "error",
                     "message": "인증된 사용자만 반응을 추가할 수 있습니다.",
                 },
-                status=401,
+                status=status.HTTP_401_UNAUTHORIZED,
             )
 
         try:
             reaction_type = int(request.data.get("reaction", Reaction.NO_REACTION))
         except ValueError:
             return Response(
-                {"status": "error", "message": "잘못된 반응 값입니다."}, status=400
+                {"status": "error", "message": "잘못된 반응 값입니다."}, status=status.HTTP_400_BAD_REQUEST
             )
 
         reaction, created = Reaction.objects.get_or_create(user=user, review=review)
@@ -81,7 +81,7 @@ class ReactToReviewView(APIView):
             "message": "리뷰 반응이 성공적으로 추가되었습니다.",
             "data": reactions,
         }
-        return Response(response_data, status=200)
+        return Response(response_data, status=status.HTTP_200_OK)
 
     @extend_schema(
         methods=["PATCH"],
@@ -117,7 +117,7 @@ class ReactToReviewView(APIView):
         if review_id is None:
             return Response(
                 {"status": "error", "message": "리뷰 ID가 제공되지 않았습니다."},
-                status=400,
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         review = get_object_or_404(Review, pk=review_id)
@@ -129,14 +129,14 @@ class ReactToReviewView(APIView):
                     "status": "error",
                     "message": "인증된 사용자만 반응을 수정할 수 있습니다.",
                 },
-                status=401,
+                status=status.HTTP_401_UNAUTHORIZED,
             )
 
         try:
             reaction_type = int(request.data.get("reaction", Reaction.NO_REACTION))
         except ValueError:
             return Response(
-                {"status": "error", "message": "잘못된 반응 값입니다."}, status=400
+                {"status": "error", "message": "잘못된 반응 값입니다."}, status=status.HTTP_400_BAD_REQUEST
             )
 
         try:
@@ -150,9 +150,9 @@ class ReactToReviewView(APIView):
                 "message": "리뷰 반응이 성공적으로 수정/삭제되었습니다.",
                 "data": reactions,
             }
-            return Response(response_data, status=200)
+            return Response(response_data, status=status.HTTP_200_OK)
         except Reaction.DoesNotExist:
             return Response(
                 {"status": "error", "message": "리뷰에 대한 반응이 존재하지 않습니다."},
-                status=404,
+                status=status.HTTP_400_BAD_REQUEST,
             )

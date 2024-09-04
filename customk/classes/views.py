@@ -7,6 +7,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import status
 
 from .models import Class
 from .serializers import ClassSerializer
@@ -36,7 +37,7 @@ class ClassListView(APIView):
             "message": "Event fetched successfully",
             "data": serializer.data,
         }
-        return Response(response_data, status=200)
+        return Response(response_data, status=status.HTTP_200_OK)
 
     @extend_schema(
         methods=["POST"],
@@ -59,8 +60,8 @@ class ClassListView(APIView):
                 "message": "Event created successfully",
                 "data": serializer.data,
             }
-            return Response(response_data, status=201)
-        return Response(serializer.errors, status=400)
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @extend_schema(
         methods=["PATCH"],
@@ -90,8 +91,8 @@ class ClassListView(APIView):
                 "message": "Event updated successfully",
                 "data": serializer.data,
             }
-            return Response(response_data, status=200)
-        return Response(serializer.errors, status=400)
+            return Response(response_data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @extend_schema(
         methods=["DELETE"],
@@ -108,7 +109,7 @@ class ClassListView(APIView):
         class_id = request.data.get("id", None)
         if class_id is None:
             return Response(
-                {"status": "error", "message": "Class ID not provided"}, status=400
+                {"status": "error", "message": "Class ID not provided"}, status=status.HTTP_400_BAD_REQUEST
             )
 
         try:
@@ -120,7 +121,7 @@ class ClassListView(APIView):
             )
         except Class.DoesNotExist:
             return Response(
-                {"status": "error", "message": "삭제 실패했습니다"}, status=404
+                {"status": "error", "message": "삭제 실패했습니다"}, status=status.HTTP_400_BAD_REQUEST
             )
 
 
@@ -154,7 +155,7 @@ class ClassDetailView(APIView):
         class_id = kwargs.get("class_id")
         if class_id is None:
             return Response(
-                {"status": "error", "message": "Class ID not provided"}, status=400
+                {"status": "error", "message": "Class ID not provided"}, status=status.HTTP_400_BAD_REQUEST
             )
         try:
             class_instance = Class.objects.get(id=class_id)
@@ -167,5 +168,5 @@ class ClassDetailView(APIView):
             return Response(response_data, status=200)
         except Class.DoesNotExist:
             return Response(
-                {"status": "error", "message": "Class not found"}, status=404
+                {"status": "error", "message": "Class not found"}, status=status.HTTP_404_NOT_FOUND
             )
