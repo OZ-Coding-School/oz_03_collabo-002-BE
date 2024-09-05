@@ -63,7 +63,7 @@ class AllQuestionsListView(APIView):
         offset = (page - 1) * size
 
         if page < 1:
-            return Response({"message": "Page input error"}, status=400)
+            return Response({"message": "Page input error"}, status=status.HTTP_400_BAD_REQUEST)
 
         user_id = request.user.id
         questions = Question.objects.filter(user_id=user_id)
@@ -81,7 +81,7 @@ class AllQuestionsListView(APIView):
             "questions": serializer.data,
         }
 
-        return Response(response_data, status=200)
+        return Response(response_data, status=status.HTTP_200_OK)
 
 
 class QuestionListView(APIView):
@@ -342,7 +342,7 @@ class QuestionListView(APIView):
     ) -> Response:
         question_id = request.query_params.get("question_id")
         if question_id is None:
-            return Response({"error": "Question ID is required."}, status=400)
+            return Response({"error": "Question ID is required."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             question = Question.objects.get(id=int(question_id))
