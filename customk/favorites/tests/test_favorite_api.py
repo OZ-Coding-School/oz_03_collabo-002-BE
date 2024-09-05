@@ -1,3 +1,4 @@
+# ruff: noqa: F811
 import pytest
 from django.urls import reverse
 from rest_framework import status
