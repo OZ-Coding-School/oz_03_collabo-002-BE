@@ -16,7 +16,7 @@ def class_instance():
         require_person=5,
         price=1000,
         address="Seoul, Gangnam-gu",
-        class_type=["Online", "Offline"],  # JSONField로 리스트 형식의 데이터
+        class_type=["Online", "Offline"],
         category=category,
         discount_rate=10,
     )
