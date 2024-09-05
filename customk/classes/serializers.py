@@ -113,18 +113,14 @@ class ClassSerializer(serializers.ModelSerializer):
 
         return average_rating >= 3.5
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-
-        representation["average_rating"] = self.get_average_rating(instance)
-        representation["is_best"] = self.get_is_best(instance)
-
-        return representation
-
     def create(self, validated_data):
         dates_data = validated_data.pop("dates", [])
         images_data64 = validated_data.pop("images", [])
+        categories_data = validated_data.pop("category", [])
+
         class_instance = Class.objects.create(**validated_data)
+
+        class_instance.category.set(categories_data)
 
         for date_data in dates_data:
             ClassDate.objects.create(class_id=class_instance, **date_data)
