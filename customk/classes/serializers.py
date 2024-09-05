@@ -75,7 +75,9 @@ class ClassSerializer(serializers.ModelSerializer):
     price_in_usd = serializers.SerializerMethodField()
     is_best = serializers.SerializerMethodField()
     genre = serializers.SerializerMethodField()
-    category = serializers.SerializerMethodField()
+    category = serializers.SlugRelatedField(
+        many=True, slug_field="name", queryset=Category.objects.all()
+    )
     average_rating = serializers.FloatField(read_only=True)
 
     class Meta:

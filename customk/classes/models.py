@@ -41,10 +41,8 @@ class Class(CommonModel):
         max_length=255, help_text="주소를 '도, 시, 구' 형식으로 입력해주세요."
     )
     class_type = models.JSONField(encoder=DjangoJSONEncoder, default=list, blank=True)
-    genre = models.ForeignKey("Genre", on_delete=models.SET_NULL, null=True, blank=True)
-    category = models.ForeignKey(
-        "Category", on_delete=models.SET_NULL, null=True, blank=True
-    )
+    genre = models.ForeignKey("Genre", on_delete=models.CASCADE, null=True, blank=True)
+    category = models.ManyToManyField("Category", blank=True)  # type: ignore
     discount_rate = models.PositiveIntegerField(default=0)
     is_viewed = models.BooleanField(default=False)
 
