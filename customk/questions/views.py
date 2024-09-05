@@ -63,7 +63,9 @@ class AllQuestionsListView(APIView):
         offset = (page - 1) * size
 
         if page < 1:
-            return Response({"message": "Page input error"}, status=400)
+            return Response(
+                {"message": "Page input error"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         user_id = request.user.id
         questions = Question.objects.filter(user_id=user_id)
@@ -81,7 +83,7 @@ class AllQuestionsListView(APIView):
             "questions": serializer.data,
         }
 
-        return Response(response_data, status=200)
+        return Response(response_data, status=status.HTTP_200_OK)
 
 
 class QuestionListView(APIView):
@@ -233,6 +235,13 @@ class QuestionListView(APIView):
                 type=OpenApiTypes.INT,
                 location=OpenApiParameter.PATH,
             ),
+            OpenApiParameter(
+                name="question_id",
+                description="질문 ID",
+                required=True,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+            ),
         ],
         request=QuestionSerializer,
         responses={
@@ -255,7 +264,7 @@ class QuestionListView(APIView):
     def patch(
         self, request: Request, class_id: int, *args: Any, **kwargs: Any
     ) -> Response:
-        question_id = request.data.get("id")
+        question_id = request.query_params.get("question_id")
         if question_id is None:
             return Response(
                 {"error": "Question ID is required."},
@@ -300,12 +309,19 @@ class QuestionListView(APIView):
         description="특정 질문 또는 답변을 삭제하는 API입니다.",
         parameters=[
             OpenApiParameter(
-                name="question_id",
-                description="질문 또는 답변 ID",
+                name="class_id",
+                description="클래스 ID",
                 required=True,
                 type=OpenApiTypes.INT,
                 location=OpenApiParameter.PATH,
-            )
+            ),
+            OpenApiParameter(
+                name="question_id",
+                description="질문 ID",
+                required=True,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+            ),
         ],
         responses={
             200: OpenApiResponse(
@@ -323,18 +339,23 @@ class QuestionListView(APIView):
             403: OpenApiResponse(description="권한 없음"),
         },
     )
-    def delete(
-        self, request: Request, question_id: int, *args: Any, **kwargs: Any
-    ) -> Response:
+    def delete(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        question_id = request.query_params.get("question_id")
+        if question_id is None:
+            return Response(
+                {"error": "Question ID is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         try:
-            question = Question.objects.get(id=question_id)
+            question = Question.objects.get(id=int(question_id))
         except Question.DoesNotExist:
             return Response(
                 {"error": "Question or Answer not found."},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        if question.user_id != request.user.id:
+        if question.user_id != request.user:
             return Response(
                 {
                     "error": "You do not have permission to delete this question or answer."
