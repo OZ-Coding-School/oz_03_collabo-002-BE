@@ -63,7 +63,9 @@ class AllQuestionsListView(APIView):
         offset = (page - 1) * size
 
         if page < 1:
-            return Response({"message": "Page input error"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"message": "Page input error"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         user_id = request.user.id
         questions = Question.objects.filter(user_id=user_id)
@@ -337,12 +339,13 @@ class QuestionListView(APIView):
             403: OpenApiResponse(description="권한 없음"),
         },
     )
-    def delete(
-        self, request: Request, *args: Any, **kwargs: Any
-    ) -> Response:
+    def delete(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         question_id = request.query_params.get("question_id")
         if question_id is None:
-            return Response({"error": "Question ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Question ID is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
             question = Question.objects.get(id=int(question_id))
@@ -352,7 +355,7 @@ class QuestionListView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        if question.user_id != request.user.id:
+        if question.user_id != request.user:
             return Response(
                 {
                     "error": "You do not have permission to delete this question or answer."
