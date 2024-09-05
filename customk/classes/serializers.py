@@ -55,9 +55,6 @@ class ClassDateSerializer(serializers.ModelSerializer):
 
 class ClassImagesSerializer(serializers.ModelSerializer):
     class_id = serializers.PrimaryKeyRelatedField(read_only=True)
-    thumbnail_image_url = serializers.CharField(required=False)
-    description_image_url = serializers.CharField(required=False)
-    detail_image_url = serializers.CharField(required=False)
 
     class Meta:
         model = ClassImages
@@ -79,6 +76,7 @@ class ClassSerializer(serializers.ModelSerializer):
     is_best = serializers.SerializerMethodField()
     genre = serializers.SerializerMethodField()
     category = serializers.SerializerMethodField()
+    average_rating = serializers.FloatField(read_only=True)
 
     class Meta:
         model = Class

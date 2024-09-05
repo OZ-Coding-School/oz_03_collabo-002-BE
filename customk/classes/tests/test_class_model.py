@@ -1,23 +1,24 @@
 import pytest
-from django.db import IntegrityError
 
-from classes.models import Class
+from classes.models import Category, Class
 
 pytestmark = pytest.mark.django_db
 
 
 @pytest.fixture
-def sample_class():
-    """
-    Class 생성 샘플 코드입니다.
-    """
+def class_instance():
+    category = Category.objects.create(name="Sample Category")
+
     return Class.objects.create(
         title="Sample Class",
-        description="This is a sample class",
+        description="A sample class instance for testing",
         max_person=10,
         require_person=5,
-        price=50000,
-        address="서울시 강남구 테헤란로",
+        price=1000,
+        address="Seoul, Gangnam-gu",
+        class_type=["Online", "Offline"],
+        category=category,
+        discount_rate=10,
     )
 
 
@@ -41,14 +42,14 @@ def test_class_create_success():
     assert class_instance.address == "서울시 강남구 테헤란로"
 
 
-def test_class_update_success(sample_class):
-    sample_class.title = "Updated Class Title"
-    sample_class.save()
+def test_class_update_success(class_instance):
+    class_instance.title = "Updated Class Title"
+    class_instance.save()
 
-    updated_class = Class.objects.get(id=sample_class.id)
+    updated_class = Class.objects.get(id=class_instance.id)
     assert updated_class.title == "Updated Class Title"
-    assert updated_class.description == "This is a sample class"
+    assert updated_class.description == "A sample class instance for testing"
     assert updated_class.max_person == 10
     assert updated_class.require_person == 5
-    assert updated_class.price == 50000
-    assert updated_class.address == "서울시 강남구 테헤란로"
+    assert updated_class.price == 1000
+    assert updated_class.address == "Seoul, Gangnam-gu"
