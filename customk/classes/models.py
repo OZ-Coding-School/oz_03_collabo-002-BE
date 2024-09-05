@@ -1,5 +1,6 @@
 import math
-from typing import Any, Dict, Optional
+from decimal import Decimal
+from typing import Optional
 
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
@@ -33,17 +34,15 @@ class Category(models.Model):
 class Class(CommonModel):
     title = models.CharField(max_length=400)
     description = models.TextField(blank=True)
-    max_person = models.IntegerField(blank=False, default=0)
-    require_person = models.IntegerField(blank=False, default=0)
+    max_person = models.PositiveIntegerField(blank=False, default=0)
+    require_person = models.PositiveIntegerField(blank=False, default=0)
     price = models.IntegerField(blank=False, default=0)
     address = models.CharField(
         max_length=255, help_text="주소를 '도, 시, 구' 형식으로 입력해주세요."
     )
     class_type = models.JSONField(encoder=DjangoJSONEncoder, default=list, blank=True)
-    genre = models.ForeignKey("Genre", on_delete=models.SET_NULL, null=True, blank=True)
-    category = models.ForeignKey(
-        "Category", on_delete=models.SET_NULL, null=True, blank=True
-    )
+    genre = models.ForeignKey("Genre", on_delete=models.CASCADE, null=True, blank=True)
+    category = models.ManyToManyField("Category", blank=True)  # type: ignore
     discount_rate = models.PositiveIntegerField(default=0)
     is_viewed = models.BooleanField(default=False)
 
@@ -54,21 +53,12 @@ class Class(CommonModel):
         exchange_rate: Optional[ExchangeRate] = ExchangeRate.objects.filter(
             currency="USD"
         ).first()
-        if exchange_rate:
-            price_in_usd = float(self.price) / float(exchange_rate.rate)
-            rounded_price = math.ceil(price_in_usd)
-            return rounded_price
-        return None
-
-    @property
-    def average_rating(self) -> Optional[float]:
-        avg: Optional[float] = (
-            self.reviews.aggregate(average=Avg("rating"))["average"] or 0
-        )
-
-        if avg is None:
+        if not exchange_rate:
             return None
-        return round(float(avg), 1)
+
+        price_in_usd = Decimal(self.price) / Decimal(exchange_rate.rate)
+        rounded_price = math.ceil(price_in_usd)
+        return rounded_price
 
 
 class ClassDate(models.Model):
@@ -76,7 +66,7 @@ class ClassDate(models.Model):
     start_date = models.DateField(blank=False, null=False)
     start_time = models.TimeField(blank=False, null=False)
     end_time = models.TimeField(blank=False, null=False)
-    person = models.IntegerField(blank=False, default=0)
+    person = models.PositiveIntegerField(blank=False, default=0)
 
 
 class ClassImages(models.Model):

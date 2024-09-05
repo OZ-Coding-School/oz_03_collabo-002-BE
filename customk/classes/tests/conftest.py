@@ -22,7 +22,7 @@ def sample_class():
         max_person=10,
         require_person=5,
         price=50000,
-        address={"state": "Seoul", "city": "Gangnam", "street": "Teheran-ro"},
+        address="서울시 강남구 테헤란로",
     )
 
 

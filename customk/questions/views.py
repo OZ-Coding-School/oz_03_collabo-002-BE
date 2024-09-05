@@ -7,7 +7,7 @@ from drf_spectacular.utils import (
     extend_schema,
     inline_serializer,
 )
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -140,14 +140,16 @@ class QuestionListView(APIView):
         offset = (page - 1) * size
 
         if page < 1:
-            return Response("Page input error", status=400)
+            return Response("Page input error", status=status.HTTP_400_BAD_REQUEST)
 
         try:
             questions = Question.objects.filter(
                 class_id=class_id, user_id=request.user.id
             )
         except Question.DoesNotExist:
-            return Response({"message": "Class not found."}, status=404)
+            return Response(
+                {"message": "Class not found."}, status=status.HTTP_404_NOT_FOUND
+            )
 
         total_count = questions.count()
         total_pages = (total_count // size) + (1 if total_count % size > 0 else 0)
@@ -162,7 +164,7 @@ class QuestionListView(APIView):
             "questions": serializer.data,
         }
 
-        return Response(response_data, status=200)
+        return Response(response_data, status=status.HTTP_200_OK)
 
     @extend_schema(
         methods=["POST"],
@@ -200,7 +202,9 @@ class QuestionListView(APIView):
         try:
             class_instance = Class.objects.get(id=class_id)
         except Class.DoesNotExist:
-            return Response({"error": "Class not found."}, status=404)
+            return Response(
+                {"error": "Class not found."}, status=status.HTTP_404_NOT_FOUND
+            )
 
         data = request.data.copy()
         data["user_id"] = request.user.id
@@ -214,8 +218,8 @@ class QuestionListView(APIView):
                 "message": "Question or Answer submitted successfully",
                 "data": serializer.data,
             }
-            return Response(response_data, status=201)
-        return Response(serializer.errors, status=400)
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @extend_schema(
         methods=["PATCH"],
@@ -253,7 +257,10 @@ class QuestionListView(APIView):
     ) -> Response:
         question_id = request.data.get("id")
         if question_id is None:
-            return Response({"error": "Question ID is required."}, status=400)
+            return Response(
+                {"error": "Question ID is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
             question = Question.objects.get(id=int(question_id), class_id=class_id)
@@ -262,7 +269,7 @@ class QuestionListView(APIView):
                 {
                     "error": "Question or Answer not found or does not belong to this class."
                 },
-                status=404,
+                status=status.HTTP_404_NOT_FOUND,
             )
 
         if question.user_id != request.user:
@@ -270,7 +277,7 @@ class QuestionListView(APIView):
                 {
                     "error": "You do not have permission to update this question or answer."
                 },
-                status=403,
+                status=status.HTTP_403_FORBIDDEN,
             )
 
         serializer = QuestionSerializer(question, data=request.data, partial=True)
@@ -282,10 +289,10 @@ class QuestionListView(APIView):
                     "message": "Question or Answer updated successfully",
                     "data": serializer.data,
                 },
-                status=200,
+                status=status.HTTP_200_OK,
             )
 
-        return Response(serializer.errors, status=400)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @extend_schema(
         methods=["DELETE"],
@@ -322,14 +329,17 @@ class QuestionListView(APIView):
         try:
             question = Question.objects.get(id=question_id)
         except Question.DoesNotExist:
-            return Response({"error": "Question or Answer not found."}, status=404)
+            return Response(
+                {"error": "Question or Answer not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         if question.user_id != request.user.id:
             return Response(
                 {
                     "error": "You do not have permission to delete this question or answer."
                 },
-                status=403,
+                status=status.HTTP_403_FORBIDDEN,
             )
 
         question.delete()
@@ -338,4 +348,4 @@ class QuestionListView(APIView):
             "message": "Question or Answer deleted successfully",
             "data": None,
         }
-        return Response(response_data, status=200)
+        return Response(response_data, status=status.HTTP_200_OK)
