@@ -24,10 +24,6 @@ from .serializers import ReviewImageSerializer
 
 
 class AllReviewsListView(APIView):
-    def get_permissions(self):
-        if self.request.method == "GET":
-            return [AllowAny()]
-
     @extend_schema(
         methods=["GET"],
         summary="전체 리뷰 목록 조회",
