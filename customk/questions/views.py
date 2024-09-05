@@ -233,6 +233,13 @@ class QuestionListView(APIView):
                 type=OpenApiTypes.INT,
                 location=OpenApiParameter.PATH,
             ),
+            OpenApiParameter(
+                name="question_id",
+                description="질문 ID",
+                required=True,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+            ),
         ],
         request=QuestionSerializer,
         responses={
@@ -255,7 +262,7 @@ class QuestionListView(APIView):
     def patch(
         self, request: Request, class_id: int, *args: Any, **kwargs: Any
     ) -> Response:
-        question_id = request.data.get("id")
+        question_id = request.query_params.get("question_id")
         if question_id is None:
             return Response(
                 {"error": "Question ID is required."},
@@ -300,12 +307,19 @@ class QuestionListView(APIView):
         description="특정 질문 또는 답변을 삭제하는 API입니다.",
         parameters=[
             OpenApiParameter(
-                name="question_id",
-                description="질문 또는 답변 ID",
+                name="class_id",
+                description="클래스 ID",
                 required=True,
                 type=OpenApiTypes.INT,
                 location=OpenApiParameter.PATH,
-            )
+            ),
+            OpenApiParameter(
+                name="question_id",
+                description="질문 ID",
+                required=True,
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+            ),
         ],
         responses={
             200: OpenApiResponse(
@@ -324,10 +338,14 @@ class QuestionListView(APIView):
         },
     )
     def delete(
-        self, request: Request, question_id: int, *args: Any, **kwargs: Any
+        self, request: Request, *args: Any, **kwargs: Any
     ) -> Response:
+        question_id = request.query_params.get("question_id")
+        if question_id is None:
+            return Response({"error": "Question ID is required."}, status=400)
+
         try:
-            question = Question.objects.get(id=question_id)
+            question = Question.objects.get(id=int(question_id))
         except Question.DoesNotExist:
             return Response(
                 {"error": "Question or Answer not found."},
