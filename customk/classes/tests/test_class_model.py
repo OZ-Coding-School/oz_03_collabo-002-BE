@@ -1,3 +1,5 @@
+from unicodedata import category
+
 import pytest
 
 from classes.models import Category, Class
@@ -7,9 +9,10 @@ pytestmark = pytest.mark.django_db
 
 @pytest.fixture
 def class_instance():
-    category = Category.objects.create(name="Sample Category")
+    category1 = Category.objects.create(name="Sample Category 1")
+    category2 = Category.objects.create(name="Sample Category 2")
 
-    return Class.objects.create(
+    class_instance = Class.objects.create(
         title="Sample Class",
         description="A sample class instance for testing",
         max_person=10,
@@ -17,9 +20,12 @@ def class_instance():
         price=1000,
         address="Seoul, Gangnam-gu",
         class_type=["Online", "Offline"],
-        category=category,
         discount_rate=10,
     )
+
+    class_instance.category.add(category1, category2)
+
+    return class_instance
 
 
 def test_class_create_success():

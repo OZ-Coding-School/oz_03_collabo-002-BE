@@ -4,7 +4,7 @@ from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from rest_framework import status
 
-from classes.models import Class
+from classes.models import Category, Class
 
 
 @pytest.mark.django_db
@@ -19,6 +19,10 @@ def test_class_list(api_client):
 @pytest.mark.django_db
 def test_class_create(api_client_with_token):
     url = reverse("class-list")
+
+    category1 = Category.objects.create(name="Category 1")
+    category2 = Category.objects.create(name="Category 2")
+
     data = {
         "title": "Test Class",
         "description": "Test class description",
@@ -26,8 +30,13 @@ def test_class_create(api_client_with_token):
         "require_person": 5,
         "price": 50000,
         "address": "성남시 중원구 희망로",
+        "class_type": ["Online", "Offline"],
+        "category": [category1.name, category2.name],
     }
     response = api_client_with_token.post(url, data, format="json")
+
+    print(response.data)
+
     assert response.status_code == status.HTTP_201_CREATED
     assert response.data["status"] == "success"
     assert Class.objects.filter(title="Test Class").exists()
