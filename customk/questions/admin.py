@@ -43,6 +43,9 @@ class QuestionAdmin(admin.ModelAdmin):
     ) -> HttpResponse:
         unanswered_questions_count = Question.objects.filter(answer="").count()
 
+        extra_context = extra_context or {}
+        extra_context["new_question_count"] = unanswered_questions_count
+
         if unanswered_questions_count > 0:
             messages.warning(
                 request,
