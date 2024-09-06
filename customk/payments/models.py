@@ -1,7 +1,7 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from common.models import CommonModel
-from django.core.exceptions import ValidationError
 
 
 class ReferralCode(CommonModel):
@@ -15,7 +15,7 @@ class ReferralCode(CommonModel):
 
     def clean(self):
         if self.discount_rate > 100:
-            raise ValidationError('Discount rate must be between 0 and 100 percent.')
+            raise ValidationError("Discount rate must be between 0 and 100 percent.")
 
     def save(self, *args, **kwargs):
         self.clean()
@@ -27,10 +27,12 @@ class Payment(CommonModel):
     order_id = models.CharField(max_length=255, unique=True)
     status = models.CharField(max_length=50)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    currency = models.CharField(max_length=10)
+    refunded_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+    currency = models.CharField(max_length=10, default="USD")
+    capture_id = models.CharField(max_length=255, unique=True, null=True)
 
     # 결제 수단 및 관련 정보
-    payment_method = models.CharField(max_length=50)  # paypal or another method
+    payment_method = models.CharField(max_length=50)
     payer_email = models.EmailField(max_length=255, blank=True, null=True)
 
     # 클래스 관련 정보

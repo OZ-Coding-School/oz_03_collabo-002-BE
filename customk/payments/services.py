@@ -1,10 +1,13 @@
 import base64
 import logging
 import os
+from decimal import ROUND_HALF_UP, Decimal
 
 import requests
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.db import transaction
+from django.utils import timezone
 
-from django.core.exceptions import ObjectDoesNotExist
 from classes.models import Class, ClassDate
 from payments.models import Payment, ReferralCode
 
@@ -36,7 +39,7 @@ def generate_access_token() -> str | None:
         response.raise_for_status()
         return response.json()["access_token"]
     except requests.RequestException as error:
-        print(f"Failed to generate Access Token: {error}")
+        logger.warning(f"Failed to generate Access Token: {error}")
         return None
 
 
@@ -59,8 +62,10 @@ def get_payment_datas(user_id: int, offset: int, size: int):
     payments = payments_query[offset : offset + size]
 
     for payment in payments:
-        payment.related_class = class_dict.get(payment.class_id)
-        payment.related_class_date = class_date_dict.get(payment.class_date_id)
+        setattr(payment, "related_class", class_dict.get(payment.class_id))
+        setattr(
+            payment, "related_class_date", class_date_dict.get(payment.class_date_id)
+        )
 
     return total_count, total_pages, payments
 
@@ -75,6 +80,7 @@ def add_class_date_person(class_date_id, person) -> bool:
         return False
 
 
+@transaction.atomic
 def minus_class_date_person(class_date_id, person) -> bool:
     try:
         class_date = ClassDate.objects.select_for_update().get(id=class_date_id)
@@ -86,12 +92,12 @@ def minus_class_date_person(class_date_id, person) -> bool:
         return False
 
 
-def verify_referral_code(code: str) -> str:
+def verify_referral_code(code: str) -> str | None:
     try:
         referral_code = ReferralCode.objects.get(code=code, is_active=True)
         return str(referral_code.discount_rate)
     except ObjectDoesNotExist:
-        return None
+        raise ValidationError("유효하지 않은 추천인 코드입니다")
 
 
 def expire_referral_code(code: str) -> bool:
@@ -102,3 +108,19 @@ def expire_referral_code(code: str) -> bool:
         return True
     except ObjectDoesNotExist:
         return False
+
+
+def calculate_refund_amount(start_date, original_amount):
+    today = timezone.now().date()
+    days_until_start = (start_date - today).days
+
+    decimal_places = Decimal("0.01")
+
+    if days_until_start >= 4:
+        refund_amount = original_amount
+    elif days_until_start == 3:
+        refund_amount = original_amount * Decimal("0.5")
+    else:
+        refund_amount = Decimal("0")
+
+    return refund_amount.quantize(decimal_places, rounding=ROUND_HALF_UP)

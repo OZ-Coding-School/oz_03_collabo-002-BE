@@ -1,6 +1,6 @@
 from django.urls import re_path
 
-from .views import paypal, payment, referral
+from .views import payment, paypal, referral
 
 urlpatterns = [
     re_path(r"^paypal/orders/?$", paypal.create_order, name="create-paypal-order"),
@@ -10,7 +10,12 @@ urlpatterns = [
         name="capture-paypal-order",
     ),
     re_path(
-        r"referral/?$",
+        r"^paypal/refund/(?P<payment_id>\d+)/?$",
+        paypal.refund_order,
+        name="refund-paypal-order",
+    ),
+    re_path(
+        r"^referral/?$",
         referral.ReferralView.as_view(),
         name="referral-view",
     ),

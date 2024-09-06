@@ -10,7 +10,6 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from payments.models import Payment
 from payments.serializers import BasePaymentSerializer, PaymentPostAPISerializer
 from payments.services import get_payment_datas
 
@@ -83,49 +82,16 @@ class PaymentView(APIView):
     )
     def post(self, request: Request, *args, **kwargs) -> Response:
         serializer = PaymentPostAPISerializer(
-            data=request.data, context={"payer_email": request.user.email,
-                                        "user_id": request.user.id}
+            data=request.data,
+            context={"payer_email": request.user.email},  # type: ignore
         )
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(user_id=request.user.id)
             return Response(
                 {
+                    "message": "success create payment",
                     "status": "COMPLETED",
-                    "product_data": serializer.data,
                 },
                 status=status.HTTP_201_CREATED,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @extend_schema(
-        methods=["DELETE"],
-        summary="결제 데이터 삭제",
-        description="결제 한 데이터를 삭제하는 API",
-        parameters=[
-            OpenApiParameter(
-                name="payment_id",
-                description="삭제할 결제 데이터 id",
-                required=True,
-                type=OpenApiTypes.INT,
-                location=OpenApiParameter.QUERY,
-            )
-        ],
-        request=None,
-        responses={
-            204: OpenApiResponse(description="결제 데이터 삭제 성공"),
-            400: OpenApiResponse(description="payment_id is required"),
-        },
-    )
-    def delete(self, request: Request, *args, **kwargs) -> Response:
-        payment_id = int(request.GET.get("payment_id", 0))
-
-        if payment_id == 0:
-            return Response(
-                {"error": "class_id is required"}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-        Payment.objects.filter(id=payment_id).delete()
-
-        return Response(
-            {"message": "success delete"}, status=status.HTTP_204_NO_CONTENT
-        )
