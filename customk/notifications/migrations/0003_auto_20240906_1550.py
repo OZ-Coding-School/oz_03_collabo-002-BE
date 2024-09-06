@@ -4,10 +4,8 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('notifications', '0002_auto_20240906_1518'),
+        ("notifications", "0002_auto_20240906_1518"),
     ]
 
-    operations = [
-    ]
+    operations = []

@@ -1,6 +1,8 @@
 from django.db import models
+
 from common.models import CommonModel
 from questions.models import Question
+
 
 class Notification(CommonModel):
     message = models.CharField(max_length=255)
