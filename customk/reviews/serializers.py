@@ -72,7 +72,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ["id", "review", "rating", "user", "images"]
 
-
     def create(self, validated_data):
         images_data64 = validated_data.pop("images", [])
         class_id = validated_data.pop("class_id")
