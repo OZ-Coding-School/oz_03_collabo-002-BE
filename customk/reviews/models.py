@@ -19,8 +19,8 @@ class Review(CommonModel):
         max_digits=2,
         decimal_places=1,
         validators=[
-            MinValueValidator(Decimal("0.5")),  # 최소 0.5점
-            MaxValueValidator(Decimal("5.0")),  # 최대 5점
+            MinValueValidator(Decimal("0.5")),
+            MaxValueValidator(Decimal("5.0")),
         ],
     )
 

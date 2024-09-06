@@ -161,7 +161,10 @@ class ClassDetailView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         try:
-            class_instance = Class.objects.get(id=class_id)
+            class_instance = Class.objects.annotate(
+                average_rating=Avg("reviews__rating")
+            ).get(id=class_id)
+
             serializer = ClassSerializer(class_instance)
             response_data = {
                 "status": "success",
