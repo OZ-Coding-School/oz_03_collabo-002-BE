@@ -79,6 +79,7 @@ class ClassSerializer(serializers.ModelSerializer):
         many=True, slug_field="name", queryset=Category.objects.all()
     )
     average_rating = serializers.FloatField(read_only=True)
+    created_at = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = Class
