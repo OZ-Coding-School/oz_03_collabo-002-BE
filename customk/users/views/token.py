@@ -1,3 +1,4 @@
+import os
 from datetime import timedelta
 from typing import Any, cast
 
@@ -70,9 +71,8 @@ class CustomTokenRefreshView(TokenRefreshView):
 
             if response.status_code == 200:
                 access_token = response.data.get("access")
-                from users.services.token_service import get_domain
 
-                domain = get_domain(request=request)
+                domain = os.environ.get("DOMAIN_NAME")
                 access_max_age = int(
                     cast(
                         timedelta, settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"]
@@ -86,7 +86,7 @@ class CustomTokenRefreshView(TokenRefreshView):
                     httponly=True,
                     secure=True,
                 )
-            # del response.data["access"]
+            del response.data["access"]
             del response.data["refresh"]
 
             return response

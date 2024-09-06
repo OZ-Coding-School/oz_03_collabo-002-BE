@@ -34,6 +34,7 @@ CUSTOM_USER_APPS = [
     "reactions",
     "corsheaders",
     "favorites",
+    "payments",
     "notifications",
 ]
 

@@ -30,4 +30,5 @@ urlpatterns = [
     re_path(r"^v1/favorites/?", include("favorites.urls")),
     re_path(r"^v1/reactions/?", include("reactions.urls")),
     re_path(r"^v1/notifications/?", include("notifications.urls")),
+    re_path(r"^v1/payments/?", include("payments.urls")),
 ]
