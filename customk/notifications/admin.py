@@ -12,5 +12,5 @@ class NotificationAdmin(admin.ModelAdmin):
     def class_field(self, obj):
         return obj.question.class_id.title  # Access class_id title through the question
 
-    class_field.admin_order_field = "question__class_id__title" # type: ignore
-    class_field.short_description = "Class Title" # type: ignore
+    class_field.admin_order_field = "question__class_id__title"  # type: ignore
+    class_field.short_description = "Class Title"  # type: ignore
