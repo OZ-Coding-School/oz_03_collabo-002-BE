@@ -15,11 +15,11 @@
     background: red; /* 빨간 배경색 */
     color: white;
     border-radius: 50%; /* 완전히 둥글게 */
-    width: 18px; /* 배지의 너비 */
-    height: 18px; /* 배지의 높이 */
+    width: 12px; !important;/* 배지의 너비 */
+    height: 12px; !important;/* 배지의 높이 */
     display: flex;
     align-items: center; /* 텍스트 수직 중앙 정렬 */
     justify-content: center; /* 텍스트 수평 중앙 정렬 */
-    font-size: 10px; /* 글자 크기 조절 */
+    font-size: 8px; !important;/* 글자 크기 조절 */
     font-weight: bold;
 }
