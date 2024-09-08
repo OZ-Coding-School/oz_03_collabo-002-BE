@@ -14,7 +14,7 @@ urlpatterns = [
     re_path(
         r"^(?P<class_id>\d+)/update/(?P<review_id>\d+)/?$",
         ReviewUpdateView.as_view(),
-        name="review-update",
+        name="review-update-delete",
     ),
     re_path(
         r"^(?P<class_id>\d+)/images/(?P<review_id>\d+)/list/?$",
