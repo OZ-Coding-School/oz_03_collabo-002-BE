@@ -2,12 +2,12 @@ import pytest
 from django.urls import reverse
 from rest_framework import status
 
-from .test_review_model import api_client, user, class_instance, review, review_image
+from .conftest import api_client, sample_class, review_image, sample_user
 
 
 @pytest.mark.django_db
-def test_all_reviews_list(api_client, review, user):
-    api_client.force_authenticate(user=user)
+def test_all_reviews_list(api_client, review, sample_user):
+    api_client.force_authenticate(user=sample_user)
 
     url = reverse("all-reviews")
     response = api_client.get(url, {"page": 1, "size": 10})
@@ -18,8 +18,8 @@ def test_all_reviews_list(api_client, review, user):
 
 
 @pytest.mark.django_db
-def test_review_list(api_client, class_instance, review):
-    url = reverse("review-list", kwargs={"class_id": class_instance.id})
+def test_review_list(api_client, sample_class, review):
+    url = reverse("review-list", kwargs={"class_id": sample_class.id})
     response = api_client.get(url, {"page": 1, "size": 10})
 
     assert response.status_code == status.HTTP_200_OK
@@ -28,12 +28,12 @@ def test_review_list(api_client, class_instance, review):
 
 
 @pytest.mark.django_db
-def test_review_update(api_client, class_instance, review, user):
-    api_client.force_authenticate(user=user)
+def test_review_update(api_client, sample_class, review, sample_user):
+    api_client.force_authenticate(user=sample_user)
 
     url = reverse(
         "review-update-delete",
-        kwargs={"class_id": class_instance.id, "review_id": review.id},
+        kwargs={"class_id": sample_class.id, "review_id": review.id},
     )
     data = {"review": "Updated review content", "rating": "5.0"}
     response = api_client.patch(url, data, format="json")
@@ -44,12 +44,12 @@ def test_review_update(api_client, class_instance, review, user):
 
 
 @pytest.mark.django_db
-def test_review_delete(api_client, class_instance, review, user):
-    api_client.force_authenticate(user=user)
+def test_review_delete(api_client, sample_class, review, sample_user):
+    api_client.force_authenticate(user=sample_user)
 
     url = reverse(
         "review-update-delete",
-        kwargs={"class_id": class_instance.id, "review_id": review.id},
+        kwargs={"class_id": sample_class.id, "review_id": review.id},
     )
     response = api_client.delete(url)
 
@@ -57,10 +57,10 @@ def test_review_delete(api_client, class_instance, review, user):
 
 
 @pytest.mark.django_db
-def test_review_image_list(api_client, class_instance, review, review_image, user):
+def test_review_image_list(api_client, sample_class, review, review_image):
     url = reverse(
         "review-image-list",
-        kwargs={"class_id": class_instance.id, "review_id": review.id},
+        kwargs={"class_id": sample_class.id, "review_id": review.id},
     )
     response = api_client.get(url, {"page": 1, "size": 10})
 
@@ -72,8 +72,8 @@ def test_review_image_list(api_client, class_instance, review, review_image, use
 
 
 @pytest.mark.django_db
-def test_photo_review_list(api_client, class_instance, review_image):
-    url = reverse("photo-review-list", kwargs={"class_id": class_instance.id})
+def test_photo_review_list(api_client, sample_class, review_image):
+    url = reverse("photo-review-list", kwargs={"class_id": sample_class.id})
     response = api_client.get(url)
 
     assert response.status_code == status.HTTP_200_OK
