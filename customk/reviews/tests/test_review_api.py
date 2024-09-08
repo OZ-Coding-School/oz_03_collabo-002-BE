@@ -1,8 +1,10 @@
+# ruff: noqa: F811
+
 import pytest
 from django.urls import reverse
 from rest_framework import status
 
-from .conftest import api_client, sample_class, review_image, sample_user
+from .conftest import api_client, review_image, sample_class, sample_user
 
 
 @pytest.mark.django_db

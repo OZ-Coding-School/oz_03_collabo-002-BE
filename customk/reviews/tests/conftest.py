@@ -1,13 +1,15 @@
 import pytest
-from users.models import User
-from reviews.models import Review, ReviewImage
 from rest_framework.test import APIClient
+
 from classes.models import Class
+from reviews.models import Review, ReviewImage
+from users.models import User
 
 
 @pytest.fixture
 def api_client():
     return APIClient()
+
 
 @pytest.fixture
 def sample_user(api_client):
@@ -26,6 +28,7 @@ def sample_class():
         price=50000,
         address="서울시 강남구 테헤란로",
     )
+
 
 @pytest.fixture
 def review(sample_class, sample_user):
