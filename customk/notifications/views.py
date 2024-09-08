@@ -1,8 +1,13 @@
 from django.http import JsonResponse
 
-from .models import Notification
+from .models import PaymentNotification, QuestionNotification
 
 
-def unread_notifications_count(request):
-    count = Notification.objects.filter(is_read=False).count()
+def unread_question_notifications_count(request):
+    count = QuestionNotification.objects.filter(is_read=False).count()
+    return JsonResponse({"count": count})
+
+
+def unread_payment_notifications_count(request):
+    count = PaymentNotification.objects.filter(is_read=False).count()
     return JsonResponse({"count": count})

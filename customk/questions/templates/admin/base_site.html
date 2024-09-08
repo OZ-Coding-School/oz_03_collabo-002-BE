@@ -14,11 +14,20 @@
         <a href="{% url 'admin:index' %}">CustomK Admin</a>
     </h1>
     <div id="notification-bell">
-        <a href="{% url 'admin:notifications_notification_changelist' %}">
+        <a href="{% url 'admin:notifications_questionnotification_changelist' %}">
             <span class="bell-icon" id="notification-icon">
                 🔔
             </span>
             <span class="badge" id="notification-badge" style="display: none;"></span>
+        </a>
+    </div>
+
+    <div id="payment-notification">
+        <a href="{% url 'admin:notifications_paymentnotification_changelist' %}">
+            <span class="money-icon" id="payment-icon">
+                💰
+            </span>
+            <span class="badge" id="payment-badge" style="display: none;"></span>
         </a>
     </div>
 </div>

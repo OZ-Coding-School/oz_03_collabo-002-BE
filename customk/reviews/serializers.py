@@ -70,7 +70,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = ["id", "review", "rating", "user", "images"]
+        fields = "__all__"
 
     def create(self, validated_data):
         images_data64 = validated_data.pop("images", [])
