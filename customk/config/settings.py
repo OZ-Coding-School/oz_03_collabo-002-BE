@@ -35,6 +35,7 @@ CUSTOM_USER_APPS = [
     "corsheaders",
     "favorites",
     "payments",
+    "notifications",
 ]
 
 
@@ -79,7 +80,7 @@ CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(" ")
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "questions/templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -191,6 +192,9 @@ AUTH_USER_MODEL = "users.User"
 
 STATIC_URL = "/static/"
 STATIC_ROOT = "/vol/web/static"
+STATICFILES_DIRS = [
+    BASE_DIR / "questions/static",
+]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

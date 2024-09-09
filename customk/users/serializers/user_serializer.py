@@ -67,7 +67,7 @@ class UserSerializer(serializers.ModelSerializer):
     def get_profile_image_url(self, obj) -> str:
         return obj.profile_image
 
-    def velidate(self, data):
+    def validate(self, data):
         user = User(**data)
 
         errors = dict()

@@ -2,7 +2,7 @@ import pytest
 from rest_framework.test import APIClient
 
 from classes.models import Class
-from reviews.models import Review, ReviewImage
+from questions.models import Question
 from users.models import User
 
 
@@ -12,7 +12,7 @@ def api_client():
 
 
 @pytest.fixture
-def sample_user(api_client):
+def sample_user():
     return User.objects.create_user(
         email="testuser@example.com", password="testpassword"
     )
@@ -31,17 +31,10 @@ def sample_class():
 
 
 @pytest.fixture
-def review(sample_class, sample_user):
-    return Review.objects.create(
-        user=sample_user,
+def question(sample_user, sample_class):
+    return Question.objects.create(
+        user_id=sample_user,
         class_id=sample_class,
-        review="Test review content",
-        rating="4.5",
-    )
-
-
-@pytest.fixture
-def review_image(review):
-    return ReviewImage.objects.create(
-        review=review, image_url="http://example.com/image.jpg"
+        question="Test question content",
+        question_title="Test question title",
     )

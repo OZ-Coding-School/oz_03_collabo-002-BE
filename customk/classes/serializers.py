@@ -2,14 +2,16 @@ import base64
 import uuid
 from datetime import timedelta
 
-from django.db.models import Avg
+from django.core.cache import cache
+from django.db.models import Avg, Count
 from django.utils import timezone
 from rest_framework import serializers
 
 from common.services.ncp_api_conf import ObjectStorage
 from config.logger import logger
+from payments.models import Payment
 
-from .models import Category, Class, ClassDate, ClassImages, Genre
+from .models import Category, Class, ClassDate, ClassImages
 
 
 def upload_image_to_object_storage(base64_image: str) -> str:
@@ -80,6 +82,7 @@ class ClassSerializer(serializers.ModelSerializer):
     )
     average_rating = serializers.FloatField(read_only=True)
     created_at = serializers.DateTimeField(read_only=True)
+    is_popular = serializers.SerializerMethodField()
 
     class Meta:
         model = Class
@@ -113,6 +116,34 @@ class ClassSerializer(serializers.ModelSerializer):
         average_rating = recent_reviews.aggregate(average=Avg("rating"))["average"] or 0
 
         return average_rating >= 3.5
+
+    def get_is_popular(self, obj):
+        popular_classes = cache.get("popular_classes", None)
+
+        if popular_classes is None:
+            one_month_ago = timezone.now() - timedelta(days=30)
+
+            classes_with_payments = (
+                Payment.objects.filter(created_at__gte=one_month_ago)
+                .values("class_id")
+                .annotate(payment_count=Count("id"))
+                .order_by("-payment_count")
+            )
+
+            total_classes = len(classes_with_payments)
+            top_20_percent_count = max(1, int(total_classes * 0.2))
+
+            popular_class_ids = [
+                entry["class_id"]
+                for entry in classes_with_payments[:top_20_percent_count]
+            ]
+
+            cache.set("popular_classes", popular_class_ids, timeout=60 * 60 * 24 * 14)
+            popular_classes = popular_class_ids
+
+        is_popular = obj.id in popular_classes
+        print(f"Class ID: {obj.id}, Is Popular: {is_popular}")
+        return is_popular
 
     def create(self, validated_data):
         dates_data = validated_data.pop("dates", [])

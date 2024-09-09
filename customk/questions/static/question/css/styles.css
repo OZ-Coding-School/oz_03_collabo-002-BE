@@ -1,0 +1,29 @@
+/* 아이콘 크기 조정 */
+.bell-icon,
+.money-icon {
+    font-size: 24px; /* 아이콘 크기 증가 */
+}
+
+.badge {
+    position: absolute;
+    top: -5px; /* 배지 위치 조정 */
+    right: -5px; /* 배지 위치 조정 */
+    background: red; /* 배경색 */
+    color: white; /* 글자 색상 변경 */
+    border-radius: 50%; /* 둥글게 */
+    width: 16px; /* 배지 너비 증가 */
+    height: 16px; /* 배지 높이 증가 */
+    display: flex;
+    align-items: center; /* 텍스트 수직 중앙 정렬 */
+    justify-content: center; /* 텍스트 수평 중앙 정렬 */
+    font-size: 10px; /* 글자 크기 증가 */
+    font-weight: bold;
+}
+
+/* 아이콘 컨테이너 */
+#notification-bell,
+#payment-notification {
+    position: relative;
+    display: inline-block;
+    margin-right: 30px; /* 아이콘 사이 간격 조정 */
+}
