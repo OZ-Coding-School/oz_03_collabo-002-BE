@@ -88,3 +88,17 @@ class ReviewSerializer(serializers.ModelSerializer):
             ReviewImage.objects.create(review=review, image_url=image_url)
 
         return review
+
+    def update(self, instance, validated_data):
+        images_data64 = validated_data.pop("images", [])
+
+        instance.review = validated_data.get('review', instance.review)
+        instance.rating = validated_data.get('rating', instance.rating)
+        instance.save()
+
+        instance.images.all().delete()
+        for image_data64 in images_data64:
+            image_url = upload_image_to_object_storage(image_data64["image_url"])
+            ReviewImage.objects.create(review=instance, image_url=image_url)
+
+        return instance
