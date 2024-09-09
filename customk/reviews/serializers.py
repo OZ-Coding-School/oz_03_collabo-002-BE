@@ -92,8 +92,8 @@ class ReviewSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         images_data64 = validated_data.pop("images", [])
 
-        instance.review = validated_data.get('review', instance.review)
-        instance.rating = validated_data.get('rating', instance.rating)
+        instance.review = validated_data.get("review", instance.review)
+        instance.rating = validated_data.get("rating", instance.rating)
         instance.save()
 
         instance.images.all().delete()

@@ -2,17 +2,16 @@ import base64
 import uuid
 from datetime import timedelta
 
-from django.db.models import Avg
-from django.utils import timezone
-from django.db.models import Count
 from django.core.cache import cache
+from django.db.models import Avg, Count
+from django.utils import timezone
 from rest_framework import serializers
 
 from common.services.ncp_api_conf import ObjectStorage
 from config.logger import logger
+from payments.models import Payment
 
 from .models import Category, Class, ClassDate, ClassImages
-from payments.models import Payment
 
 
 def upload_image_to_object_storage(base64_image: str) -> str:
@@ -119,24 +118,27 @@ class ClassSerializer(serializers.ModelSerializer):
         return average_rating >= 3.5
 
     def get_is_popular(self, obj):
-        popular_classes = cache.get('popular_classes', None)
+        popular_classes = cache.get("popular_classes", None)
 
         if popular_classes is None:
             one_month_ago = timezone.now() - timedelta(days=30)
 
             classes_with_payments = (
                 Payment.objects.filter(created_at__gte=one_month_ago)
-                .values('class_id')
-                .annotate(payment_count=Count('id'))
-                .order_by('-payment_count')
+                .values("class_id")
+                .annotate(payment_count=Count("id"))
+                .order_by("-payment_count")
             )
 
             total_classes = len(classes_with_payments)
             top_20_percent_count = max(1, int(total_classes * 0.2))
 
-            popular_class_ids = [entry['class_id'] for entry in classes_with_payments[:top_20_percent_count]]
+            popular_class_ids = [
+                entry["class_id"]
+                for entry in classes_with_payments[:top_20_percent_count]
+            ]
 
-            cache.set('popular_classes', popular_class_ids, timeout=60 * 60 * 24 * 14)
+            cache.set("popular_classes", popular_class_ids, timeout=60 * 60 * 24 * 14)
 
         is_popular = obj.id in popular_classes
         print(f"Class ID: {obj.id}, Is Popular: {is_popular}")
