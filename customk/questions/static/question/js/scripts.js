@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.count > 0) {
-                notificationBadge.textContent = data.count;
+                notificationBadge.textContent = "";
                 notificationBadge.style.display = 'inline';
                 notificationIcon.style.color = 'blue';
             } else {
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.count > 0) {
-                paymentBadge.textContent = data.count;
+                paymentBadge.textContent = "";
                 paymentBadge.style.display = 'inline';
                 paymentIcon.style.color = 'green';
             } else {
