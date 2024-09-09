@@ -139,6 +139,7 @@ class ClassSerializer(serializers.ModelSerializer):
             ]
 
             cache.set("popular_classes", popular_class_ids, timeout=60 * 60 * 24 * 14)
+            popular_classes = popular_class_ids
 
         is_popular = obj.id in popular_classes
         print(f"Class ID: {obj.id}, Is Popular: {is_popular}")
