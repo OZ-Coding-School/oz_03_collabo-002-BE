@@ -96,18 +96,17 @@ class ReviewSerializer(serializers.ModelSerializer):
         instance.rating = validated_data.get("rating", instance.rating)
         instance.save()
 
-
         for image_instance in instance.images.all():
-                obj = ObjectStorage()
-                obj_status_code = obj.delete_object(image_instance.image_url)
+            obj = ObjectStorage()
+            obj_status_code = obj.delete_object(image_instance.image_url)
 
-                if obj_status_code != 204:
-                    raise ValidationError(
-                        {
-                            "review_image": f"Failed to delete existing image. Status code: {obj_status_code}"
-                        }
-                    )
-                image_instance.delete()
+            if obj_status_code != 204:
+                raise ValidationError(
+                    {
+                        "review_image": f"Failed to delete existing image. Status code: {obj_status_code}"
+                    }
+                )
+            image_instance.delete()
 
         for image_data64 in images_data64:
             image_url = upload_image_to_object_storage(image_data64["image_url"])
