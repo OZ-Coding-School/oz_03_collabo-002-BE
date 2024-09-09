@@ -1,7 +1,7 @@
 import base64
 import uuid
-from datetime import timedelta
 
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
 from classes.models import Class
@@ -96,7 +96,18 @@ class ReviewSerializer(serializers.ModelSerializer):
         instance.rating = validated_data.get("rating", instance.rating)
         instance.save()
 
-        instance.images.all().delete()
+        for image_instance in instance.images.all():
+            if image_instance.image_url:
+                obj = ObjectStorage()
+                obj_status_code = obj.delete_object(image_instance.image_url)
+
+                if obj_status_code != 204:
+                    raise ValidationError(
+                        {
+                            "review_image": "Failed to delete existing image. Status code: {obj_status_code}"
+                        }
+                    )
+
         for image_data64 in images_data64:
             image_url = upload_image_to_object_storage(image_data64["image_url"])
             ReviewImage.objects.create(review=instance, image_url=image_url)
