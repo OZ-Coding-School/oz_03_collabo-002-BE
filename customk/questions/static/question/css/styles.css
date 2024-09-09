@@ -1,0 +1,38 @@
+.icon-container {
+    position: relative;
+    display: inline-block;
+}
+
+.icon {
+    font-size: 24px; /* 아이콘의 크기 */
+    color: #000;
+}
+
+.badge {
+    position: absolute;
+    top: -5px; /* 배지 위치 조정 */
+    right: -5px; /* 배지 위치 조정 */
+    background: red; /* 배경색 */
+    color: transparent;
+    border-radius: 50%; /* 둥글게 */
+    width: 12px; /* 배지 너비 */
+    height: 12px; /* 배지 높이 */
+    display: flex;
+    align-items: center; /* 텍스트 수직 중앙 정렬 */
+    justify-content: center; /* 텍스트 수평 중앙 정렬 */
+    font-size: 8px; /* 글자 크기 */
+    font-weight: bold;
+}
+
+/* 아이콘 컨테이너 */
+#notification-bell,
+#payment-notification {
+    position: relative;
+    display: inline-block;
+    margin-right: 20px;
+}
+
+.bell-icon,
+.money-icon {
+    font-size: 24px;
+}

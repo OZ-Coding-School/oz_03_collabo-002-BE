@@ -214,7 +214,7 @@ class QuestionListView(APIView):
 
         serializer = QuestionSerializer(data=data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(user_id=request.user, class_id=class_instance)
             response_data = {
                 "status": "success",
                 "message": "Question or Answer submitted successfully",
