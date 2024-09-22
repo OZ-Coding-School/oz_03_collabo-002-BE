@@ -22,8 +22,36 @@ def generate_tokens(user: User) -> Token:
     return Token(str(refresh), str(refresh.access_token))  # type: ignore
 
 
+def get_cookie_domain(env: str) -> str | None:
+    if env == "production":
+        return os.environ.get("DOMAIN_NAME")
+    return None
+
+
+def set_token_cookie(
+    response: Response, name: str, token: str, max_age: int, front_env: str
+) -> None:
+    domain = get_cookie_domain(front_env)
+
+    response.set_cookie(
+        key=name,
+        value=token,
+        max_age=max_age,
+        httponly=True,
+        secure=(front_env != "development"),
+        samesite="Lax" if front_env == "development" else "None",
+        domain=domain if domain else None,
+    )
+
+
 def set_cookies(request: Request, response: Response, token: Token) -> Response:
-    logger.info("Set cookie")
+    host = request.get_host()
+    logger.info(f"Setting cookies domain: {host}")
+
+    if host and str(os.getenv("DOMAIN_NAME")) in host:
+        front_env = "production"
+    else:
+        front_env = "development"
 
     access_max_age = int(
         cast(timedelta, settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"]).total_seconds()
@@ -32,31 +60,11 @@ def set_cookies(request: Request, response: Response, token: Token) -> Response:
         cast(timedelta, settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"]).total_seconds()
     )
 
-    response.set_cookie(
-        "access_token",
-        token.access_token,
-        max_age=access_max_age,
-        secure=True,
-        httponly=True,
-        domain=os.environ.get("DOMAIN_NAME"),
+    set_token_cookie(
+        response, "access_token", token.access_token, access_max_age, front_env
     )
-
-    response.set_cookie(
-        "refresh_token",
-        token.refresh_token,
-        max_age=refresh_max_age,
-        secure=True,
-        httponly=True,
-        domain=os.environ.get("DOMAIN_NAME"),
+    set_token_cookie(
+        response, "refresh_token", token.refresh_token, refresh_max_age, front_env
     )
-
-    if hasattr(response, "data"):
-        response.data["access_token"] = token.access_token
-        response.data["refresh_token"] = token.refresh_token
-    else:
-        response.data = {
-            "access_token": token.access_token,
-            "refresh_token": token.refresh_token,
-        }
 
     return response
