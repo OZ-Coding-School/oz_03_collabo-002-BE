@@ -152,8 +152,7 @@ def capture_order(request: Request, order_id: str) -> Response:
                 {"error": "Failed to capture PayPal payment"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        logger.info(f"{request.user.id}, user id is it ?")
-        serializer.save(user_id=4)
+        serializer.save(user_id=request.user.id)
 
         return Response(
             {
